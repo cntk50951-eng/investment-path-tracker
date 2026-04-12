@@ -1,0 +1,139 @@
+/* ThresholdBanner 樣式 */
+
+.threshold-banner {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.banner-title {
+  font-size: 0.8em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.banner-divider {
+  color: var(--text-dim, #475569);
+}
+
+.banner-progress {
+  font-size: 0.9em;
+  font-weight: 800;
+}
+
+/* 進度條容器 */
+.banner-progress-container {
+  position: relative;
+  margin-top: 18px;
+  margin-bottom: 8px;
+}
+
+/* 標記點 */
+.progress-markers {
+  position: relative;
+  height: 20px;
+  margin-bottom: 8px;
+}
+
+.marker {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.marker-line {
+  width: 1px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.marker-label {
+  font-size: 0.6em;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+}
+
+/* 進度條背景 */
+.progress-bar-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* 底部信息 */
+.banner-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72em;
+  margin-top: 2px;
+}
+
+.banner-action {
+  display: flex;
+  gap: 4px;
+}
+
+.action-label {
+  font-weight: 600;
+}
+
+.action-text {
+  opacity: 0.9;
+}
+
+.banner-trigger {
+  color: var(--text-muted, #94a3b8);
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 響應式 */
+@media (max-width: 575px) {
+  .threshold-banner {
+    padding: 8px 10px;
+  }
+
+  .banner-title {
+    font-size: 0.7em;
+  }
+
+  .banner-progress {
+    font-size: 0.8em;
+  }
+
+  .marker-label {
+    font-size: 0.55em;
+  }
+
+  .banner-footer {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .banner-trigger {
+    max-width: 100%;
+  }
+}

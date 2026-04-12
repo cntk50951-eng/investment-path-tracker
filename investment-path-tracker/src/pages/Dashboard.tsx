@@ -10,6 +10,11 @@ import { usePremiumStore } from '../store/usePremiumStore';
 import { useDebugStore } from '../store/useDebugStore';
 import { MacroBar } from '../components/MacroBar';
 import { AlertBanner } from '../components/AlertBanner';
+import { FlowDiagram } from '../components/FlowDiagram';
+import { SwitchTable } from '../components/SwitchTable';
+import { NewsPanel } from '../components/NewsPanel';
+import { DetailPanel } from '../components/DetailPanel';
+import { ThresholdBanner } from '../components/ThresholdBanner';
 import { PaywallModal } from '../components/common/PaywallModal';
 import { DebugPanel } from '../components/common/DebugPanel';
 import './Dashboard.css';
@@ -65,58 +70,31 @@ const Dashboard: React.FC = () => {
 
       <MacroBar />
       <AlertBanner />
+      <ThresholdBanner />
 
       <main className="dashboard-main">
         <div className="dashboard-left">
-          {/* 流程圖區域 - 待實現 */}
+          {/* 流程圖區域 */}
           <div className="flow-card">
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-              流程圖組件開發中...
-            </p>
+            <FlowDiagram />
           </div>
 
-          {/* 切換表區域 - 待實現 */}
+          {/* 切換表區域 */}
           <div className="switch-card">
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-              切換表組件開發中...
-            </p>
+            <SwitchTable />
           </div>
 
-          {/* 詳情面板區域 - 待實現 */}
+          {/* 詳情面板區域 */}
           <div className="detail-row">
             <div className="detail-card">
-              <h3>⚡ 切換詳情</h3>
-              {selectedSwitch ? (
-                <p>切換 {selectedSwitch} 詳情</p>
-              ) : (
-                <p style={{ color: 'var(--text-muted' }}>點擊切換查看詳情</p>
-              )}
-            </div>
-            <div className="detail-card">
-              <h3>📊 路徑配置</h3>
-              {selectedPath ? (
-                <p>路徑 {selectedPath} 配置</p>
-              ) : (
-                <p style={{ color: 'var(--text-muted' }}>點擊路徑查看配置</p>
-              )}
+              <DetailPanel />
             </div>
           </div>
         </div>
 
-        {/* 新聞面板區域 - 待實現 */}
+        {/* 新聞面板區域 */}
         <aside className="news-panel" id="newsPanel">
-          <div className="news-header">
-            📰 新聞事件流
-            <span className="news-count">{data.news.length} 條</span>
-          </div>
-          <div className="news-list">
-            {data.news.slice(0, 5).map((news, index) => (
-              <div key={index} className="news-item">
-                <div className="news-date">{news.date}</div>
-                <div className="news-title">{news.title}</div>
-              </div>
-            ))}
-          </div>
+          <NewsPanel />
         </aside>
       </main>
 
