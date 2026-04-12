@@ -1,0 +1,25 @@
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.2), rgba(244, 114, 182, 0.1));
+  border: 1px solid rgba(244, 114, 182, 0.3);
+  border-radius: 12px;
+  font-weight: 700;
+  color: var(--path-e, #f472b6);
+}
+
+.premium-badge-sm {
+  font-size: 0.65em;
+  padding: 1px 6px;
+}
+
+.premium-badge-md {
+  font-size: 0.7em;
+}
+
+.premium-badge-lg {
+  font-size: 0.85em;
+  padding: 4px 12px;
+}
