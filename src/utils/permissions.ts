@@ -19,7 +19,7 @@ export interface PermissionCheck {
 // ---- 路徑權限 ----
 
 /** 是否可以查看指定路徑的完整內容 */
-export function canViewPath(pathId: string, isCurrent: boolean, tier: PremiumTier, isDebug: boolean): PermissionCheck {
+export function canViewPath(_pathId: string, isCurrent: boolean, tier: PremiumTier, isDebug: boolean): PermissionCheck {
   if (isDebug) return { allowed: true };
   if (tier === 'pro') return { allowed: true };
   // FREE 用戶僅可查看當前主路徑

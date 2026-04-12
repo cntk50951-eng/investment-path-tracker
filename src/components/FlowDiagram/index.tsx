@@ -8,8 +8,7 @@ import { usePremiumStore } from '../../store/usePremiumStore';
 import { useDebugStore } from '../../store/useDebugStore';
 import { motion } from 'framer-motion';
 import { calcProgress } from '../../utils/validators';
-import { canViewPath, canSwitchPath, getUserTier } from '../../utils/permissions';
-import { NODE_COLORS } from '../../utils/constants';
+import { canViewPath, getUserTier } from '../../utils/permissions';
 import './FlowDiagram.css';
 
 const NODES = {

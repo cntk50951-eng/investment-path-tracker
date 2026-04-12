@@ -45,6 +45,7 @@ export const useAuthStore = create<AuthStateInterface>((set) => ({
           displayName: user.displayName || '',
           photoURL: user.photoURL || undefined,
           isPremium: false,
+          premiumTier: 'free',
         },
         isLoading: false,
       });
@@ -79,6 +80,7 @@ export const useAuthStore = create<AuthStateInterface>((set) => ({
             displayName: firebaseUser.displayName || '',
             photoURL: firebaseUser.photoURL || undefined,
             isPremium: false,
+            premiumTier: 'free',
           },
           isLoading: false,
         });

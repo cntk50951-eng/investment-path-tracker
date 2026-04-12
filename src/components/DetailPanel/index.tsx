@@ -9,7 +9,7 @@ import { useDebugStore } from '../../store/useDebugStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calcProgress } from '../../utils/validators';
 import { ALLOC_DISCLAIMER, TIER_COLORS } from '../../utils/complianceChecker';
-import { canViewPath, canViewAllocation, getUserTier } from '../../utils/permissions';
+import { canViewAllocation, getUserTier } from '../../utils/permissions';
 import { TIER_CONFIG } from '../../utils/constants';
 import { getTier } from '../../utils/validators';
 import type { Node, Switch, Allocation } from '../../types';
