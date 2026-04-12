@@ -3,7 +3,7 @@
 // ==========================================
 
 import { create } from 'zustand';
-import type { InvestmentData, Node, Switch, NewsEvent, MacroIndicator } from '../types';
+import type { InvestmentData, Node, Switch, NewsEvent } from '../types';
 
 interface DataState {
   // 數據

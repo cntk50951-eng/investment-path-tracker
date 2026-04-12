@@ -16,7 +16,7 @@ import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const { data, isLoading, error, refresh } = useInvestmentData();
-  const { selectedPath, selectedSwitch, selectedNews } = useDataStore();
+  const { selectedPath, selectedSwitch } = useDataStore();
   const { isPremium, paywallCount, shouldShowPaywall } = usePremiumStore();
   const { isDebugMode } = useDebugStore();
   const [showPaywall, setShowPaywall] = React.useState(false);

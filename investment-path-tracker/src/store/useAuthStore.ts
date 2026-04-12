@@ -9,11 +9,11 @@ import {
   onAuthStateChanged 
 } from 'firebase/auth';
 import { auth, googleProvider } from '../utils/firebase';
-import type { User, AuthState } from '../types';
+import type { User } from '../types';
 
-interface AuthState {
+interface AuthStateInterface {
   // 狀態
-  user: AuthState;
+  user: User | null;
   isLoading: boolean;
   error: string | null;
 
@@ -25,7 +25,7 @@ interface AuthState {
   setError: (error: string) => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthStateInterface>((set) => ({
   // 初始狀態
   user: null,
   isLoading: false,
@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           email: user.email || '',
           displayName: user.displayName || '',
           photoURL: user.photoURL || undefined,
-          isPremium: false, // 預設非付費用戶
+          isPremium: false,
         },
         isLoading: false,
       });

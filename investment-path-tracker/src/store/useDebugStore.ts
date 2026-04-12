@@ -38,7 +38,7 @@ interface DebugState {
 
 const isDevelopment = import.meta.env.DEV;
 
-export const useDebugStore = create<DebugState>((set, get) => ({
+export const useDebugStore = create<DebugState>((set, _get) => ({
   // 初始狀態 (僅開發環境可用)
   isDebugMode: isDevelopment,
   canToggleDebug: isDevelopment,

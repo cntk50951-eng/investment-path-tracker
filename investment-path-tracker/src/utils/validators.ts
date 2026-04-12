@@ -21,7 +21,7 @@ export function validateProbSum(nodes: Record<string, Node>): ValidationResult {
       errors: [{ message: `概率總和為 ${sum}%，應為 100%` }]
     };
   }
-  return { isValid: true };
+  return { isValid: true, errors: [] };
 }
 
 /**
@@ -45,7 +45,7 @@ export function validateSwitchRefs(
 
   return errors.length > 0
     ? { isValid: false, errors: [{ message: errors.join(', ') }] }
-    : { isValid: true };
+    : { isValid: true, errors: [] };
 }
 
 /**
@@ -68,7 +68,7 @@ export function validateNewsRefs(
 
   return errors.length > 0
     ? { isValid: false, errors: [{ message: errors.join(', ') }] }
-    : { isValid: true };
+    : { isValid: true, errors: [] };
 }
 
 /**
@@ -98,7 +98,7 @@ export function validateNodeAllocations(node: Node): ValidationResult {
     };
   }
 
-  return { isValid: true };
+  return { isValid: true, errors: [] };
 }
 
 /**
@@ -117,7 +117,7 @@ export function validateSwitchConfirms(sw: Switch): ValidationResult {
     };
   }
 
-  return { isValid: true };
+  return { isValid: true, errors: [] };
 }
 
 /**
@@ -162,7 +162,7 @@ export function validateInvestmentData(data: InvestmentData): ValidationResult {
 
   return errors.length > 0
     ? { isValid: false, errors: errors.map(m => ({ message: m })) }
-    : { isValid: true };
+    : { isValid: true, errors: [] };
 }
 
 /**
