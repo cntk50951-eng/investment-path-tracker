@@ -1,0 +1,86 @@
+/* AlertBanner 樣式 */
+
+.alert-banner {
+  background: rgba(244, 114, 182, 0.08);
+  border: 1px solid rgba(244, 114, 182, 0.35);
+  border-radius: 10px;
+  padding: 9px 14px;
+  margin-bottom: 12px;
+  font-size: 0.82em;
+  color: #f9a8d4;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  position: relative;
+}
+
+.alert-critical {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.4);
+  animation: urgentBlink 2s ease-in-out infinite;
+}
+
+.alert-info {
+  background: rgba(96, 165, 250, 0.08);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+@keyframes urgentBlink {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(244, 114, 182, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+  }
+}
+
+.alert-icon {
+  font-size: 1.3em;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.alert-content strong {
+  color: #f472b6;
+  font-size: 1.05em;
+}
+
+.alert-time {
+  font-size: 0.85em;
+  color: var(--text-muted, #94a3b8);
+  margin-left: 8px;
+}
+
+.alert-content p {
+  margin: 6px 0;
+  font-size: 0.95em;
+}
+
+.alert-action {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(244, 114, 182, 0.1);
+  border-radius: 6px;
+  font-size: 0.95em;
+}
+
+.alert-dismiss {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(71, 85, 105, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.alert-dismiss:hover {
+  background: rgba(71, 85, 105, 0.5);
+}
