@@ -1,6 +1,6 @@
 # 📊 數據更新指南
 
-**重要**: 數據文件 `data/latest.json` 已恢復並推送到 GitHub。
+**重要**: 數據文件 `public/data/latest.json` 已恢復並推送到 GitHub。
 
 ## 🔄 更新流程
 
@@ -60,4 +60,4 @@ Vercel 會自動重新部署（約 30 秒）
 
 ---
 
-**當前數據文件**: `data/latest.json` ✅
+**當前數據文件**: `public/data/latest.json` ✅
