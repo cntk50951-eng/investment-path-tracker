@@ -1,0 +1,26 @@
+# 環境變量
+.env.local
+.env.*.local
+
+# 依賴
+node_modules/
+
+# 構建輸出
+dist/
+dist-ssr/
+*.local
+
+# 編輯器
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 日誌
+*.log
+
+# Vercel
+.vercel
