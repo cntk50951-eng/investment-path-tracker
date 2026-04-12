@@ -2,6 +2,15 @@
 // Investment Path Tracker - TypeScript 類型定義
 // ==========================================
 
+// ---- 合規 tier 類型 ----
+export type AllocationTier = 'overweight' | 'neutral' | 'underweight' | 'avoid';
+
+// 板塊配置（合規格式：僅方向性等級，無百分比、無標的代號）
+export interface Allocation {
+  n: string;       // 板塊名稱（不含具體股票代號）
+  tier: AllocationTier;  // 方向性等級
+}
+
 // 路徑節點 (5 條路徑：A/B/C/D/E)
 export interface Node {
   id: 'a' | 'b' | 'c' | 'd' | 'e';
@@ -13,13 +22,6 @@ export interface Node {
   prob: number;
   current?: boolean;
   alloc: Allocation[];
-}
-
-// 板塊配置
-export interface Allocation {
-  n: string;  // 名稱
-  w: number;  // 權重%
-  c: string;  // 顏色
 }
 
 // 確認信號
@@ -51,6 +53,9 @@ export interface NewsEvent {
   severity: 'critical' | 'medium' | 'positive';
   summary: string;
   affects: string[];  // 影響的切換 ID
+  tags?: string[];    // 關聯標籤
+  impact?: string;    // 影響分析
+  relatedPaths?: string[];  // 關聯投資路徑
   url?: string;
 }
 
@@ -100,6 +105,9 @@ export interface InvestmentData {
   thresholdAlert?: ThresholdAlert;
 }
 
+// ---- 權限分層 ----
+export type PremiumTier = 'free' | 'pro';
+
 // 用戶認證
 export interface User {
   uid: string;
@@ -107,6 +115,7 @@ export interface User {
   displayName: string;
   photoURL?: string;
   isPremium: boolean;
+  premiumTier: PremiumTier;
   premiumExpiresAt?: string;
 }
 
@@ -127,6 +136,20 @@ export interface ValidationResult {
   errors: Array<{ message: string; path?: string }>;
 }
 
+// 合規審查結果
+export interface ComplianceResult {
+  isCompliant: boolean;
+  violations: ComplianceViolation[];
+}
+
+export interface ComplianceViolation {
+  type: 'action_directive' | 'specific_target_ratio' | 'action_verb' | 'personalized_advice' | 'ticker_in_alloc';
+  field: string;
+  original: string;
+  suggestion?: string;
+  severity: 'error' | 'warning';
+}
+
 // 閾值層級配置
 export interface TierConfig {
   label: string;
@@ -144,4 +167,12 @@ export interface SwitchProgress {
   noCount: number;
   totalCount: number;
   tier: string;
+}
+
+// ---- JSON 數據契約（供外部分析團隊使用）----
+export interface DataContract {
+  investmentPaths: Record<string, Node>;
+  newsClues: NewsEvent[];
+  macroSignals: MacroIndicator[];
+  lastUpdated: string;
 }

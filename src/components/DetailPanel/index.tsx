@@ -1,17 +1,27 @@
 // ==========================================
-// 詳情面板組件
+// 詳情面板組件（含合規渲染 + 權限控制）
 // ==========================================
 
 import React from 'react';
 import { useDataStore } from '../../store/useDataStore';
+import { usePremiumStore } from '../../store/usePremiumStore';
+import { useDebugStore } from '../../store/useDebugStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calcProgress } from '../../utils/validators';
+import { ALLOC_DISCLAIMER, TIER_COLORS } from '../../utils/complianceChecker';
+import { canViewPath, canViewAllocation, getUserTier } from '../../utils/permissions';
+import { TIER_CONFIG } from '../../utils/constants';
+import { getTier } from '../../utils/validators';
+import type { Node, Switch, Allocation } from '../../types';
 import './DetailPanel.css';
 
 export const DetailPanel: React.FC = () => {
-  const { selectedSwitch, selectedPath, selectedNews, investmentData } = useDataStore();
+  const { selectedSwitch, selectedPath, investmentData } = useDataStore();
+  const { isPremium } = usePremiumStore();
+  const { isDebugMode, mockPremium } = useDebugStore();
+  const tier = getUserTier(isPremium, mockPremium);
 
-  if (!selectedSwitch && !selectedPath && !selectedNews) {
+  if (!selectedSwitch && !selectedPath) {
     return (
       <div className="detail-panel detail-panel-empty">
         <p className="empty-message">點擊切換或路徑查看詳情</p>
@@ -25,25 +35,17 @@ export const DetailPanel: React.FC = () => {
         {selectedSwitch && investmentData?.switches[selectedSwitch] && (
           <SwitchDetail
             key="switch"
-            switchId={selectedSwitch}
             data={investmentData.switches[selectedSwitch]}
             nodes={investmentData.nodes}
           />
         )}
-        
+
         {selectedPath && investmentData?.nodes[selectedPath] && (
           <PathDetail
             key="path"
-            pathId={selectedPath}
             node={investmentData.nodes[selectedPath]}
-          />
-        )}
-        
-        {selectedNews && (
-          <NewsDetail
-            key="news"
-            news={selectedNews}
-            switches={investmentData?.switches}
+            tier={tier}
+            isDebug={isDebugMode}
           />
         )}
       </AnimatePresence>
@@ -51,18 +53,14 @@ export const DetailPanel: React.FC = () => {
   );
 };
 
-// 切換詳情子組件
-interface SwitchDetailProps {
-  switchId: string;
-  data: any;
-  nodes: any;
-}
-
-const SwitchDetail: React.FC<SwitchDetailProps> = ({ data, nodes }) => {
+// ---- 切換詳情 ----
+const SwitchDetail: React.FC<{ data: Switch; nodes: Record<string, Node> }> = ({ data, nodes }) => {
   const progress = calcProgress(data);
-  const yesCount = data.confirms.filter((c: any) => c.status === 'yes').length;
-  const nearCount = data.confirms.filter((c: any) => c.status === 'near').length;
-  const noCount = data.confirms.filter((c: any) => c.status === 'no').length;
+  const yesCount = data.confirms.filter(c => c.status === 'yes').length;
+  const nearCount = data.confirms.filter(c => c.status === 'near').length;
+  const noCount = data.confirms.filter(c => c.status === 'no').length;
+  const tierKey = getTier(progress);
+  const tierCfg = TIER_CONFIG[tierKey];
 
   return (
     <motion.div
@@ -71,11 +69,8 @@ const SwitchDetail: React.FC<SwitchDetailProps> = ({ data, nodes }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
     >
-      <h3>
-        ⚡ {nodes[data.from].name.split(' ')[0]} → {nodes[data.to].name.split(' ')[0]}
-      </h3>
+      <h3>⚡ {nodes[data.from].name.split(' ')[0]} → {nodes[data.to].name.split(' ')[0]}</h3>
 
-      {/* 進度摘要 */}
       <div className="progress-summary">
         <div className="progress-main">
           <div className="progress-value" style={{ color: nodes[data.to].color }}>
@@ -104,60 +99,48 @@ const SwitchDetail: React.FC<SwitchDetailProps> = ({ data, nodes }) => {
         </div>
       </div>
 
-      {/* 核心觸發 */}
+      {/* 層級狀態 */}
+      <div className="tier-badge" style={{ background: tierCfg.bg, color: tierCfg.color }}>
+        {tierCfg.label} — {tierCfg.action}
+      </div>
+
       <div className="trigger-box" style={{ borderColor: `${nodes[data.to].color}40` }}>
         <div className="trigger-label">核心觸發條件</div>
         <div className="trigger-text">{data.trigger}</div>
       </div>
 
-      {/* 確認信號清單 */}
       <div className="confirms-section">
         <div className="section-title">確認信號清單</div>
         <ul className="confirms-list">
-          {data.confirms.map((confirm: any, idx: number) => (
+          {data.confirms.map((confirm, idx) => (
             <li key={idx} className={`confirm-item ${confirm.status}`}>
               <span className="confirm-icon">
                 {confirm.status === 'yes' ? '✅' : confirm.status === 'near' ? '🔶' : '❌'}
               </span>
               <div className="confirm-content">
                 <div className="confirm-text">{confirm.text}</div>
-                {confirm.actual && (
-                  <div className="confirm-actual">{confirm.actual}</div>
-                )}
-                {confirm.note && (
-                  <div className="confirm-note">{confirm.note}</div>
-                )}
+                {confirm.actual && <div className="confirm-actual">{confirm.actual}</div>}
+                {confirm.note && <div className="confirm-note">{confirm.note}</div>}
               </div>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* 描述 */}
-      {data.desc && (
-        <div className="description-box">
-          {data.desc}
-        </div>
-      )}
+      {data.desc && <div className="description-box">{data.desc}</div>}
 
-      {/* 下次檢查點 */}
       <div className="next-check">
         <span className="label">🗓 下次關鍵檢查點</span>
-        <span className="value" style={{ color: nodes[data.to].color }}>
-          {data.nextCheck}
-        </span>
+        <span className="value" style={{ color: nodes[data.to].color }}>{data.nextCheck}</span>
       </div>
     </motion.div>
   );
 };
 
-// 路徑詳情子組件
-interface PathDetailProps {
-  pathId: string;
-  node: any;
-}
+// ---- 路徑詳情（含合規板塊渲染）----
+const PathDetail: React.FC<{ node: Node; tier: 'free' | 'pro'; isDebug: boolean }> = ({ node, tier, isDebug }) => {
+  const canView = canViewAllocation(!!node.current, tier, isDebug);
 
-const PathDetail: React.FC<PathDetailProps> = ({ node }) => {
   return (
     <motion.div
       className="detail-content path-detail"
@@ -166,80 +149,56 @@ const PathDetail: React.FC<PathDetailProps> = ({ node }) => {
       exit={{ opacity: 0, y: -20 }}
     >
       <h3 style={{ color: node.color }}>📊 {node.name}</h3>
-      
+
       <div className="path-subtitle">
         {node.sub} · 概率 <strong style={{ color: node.color }}>{node.prob}%</strong>
         {node.current && ' · ⭐ 當前基準路徑'}
       </div>
 
-      {/* 板塊配置 */}
+      {/* 板塊特徵（合規渲染） */}
       <div className="allocation-section">
-        <div className="section-title">板塊配置方向</div>
-        <div className="allocation-list">
-          {node.alloc.map((alloc: any, idx: number) => (
-            <div key={idx} className="allocation-item">
-              <span className="alloc-name">{alloc.n}</span>
-              <div className="alloc-bar-bg">
-                <div
-                  className="alloc-bar-fill"
-                  style={{ width: `${alloc.w * 2.5}%`, backgroundColor: alloc.c }}
-                />
-              </div>
-              <span className="alloc-value" style={{ color: alloc.c }}>
-                {alloc.w}%
-              </span>
+        {/* 強制注入的前置說明 */}
+        <div className="alloc-disclaimer">{ALLOC_DISCLAIMER}</div>
+
+        {canView.allowed ? (
+          <AllocTierList alloc={node.alloc} />
+        ) : (
+          <div className="alloc-locked">
+            <div className="alloc-locked-preview">
+              {node.alloc.map((a, i) => (
+                <div key={i} className="alloc-locked-item">
+                  <span className="alloc-locked-name">{a.n}</span>
+                  <span className="alloc-locked-tier">••••</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <div className="alloc-locked-overlay">
+              <span>🔒</span>
+              <span style={{ color: '#f472b6', fontWeight: 700, fontSize: '0.85em' }}>升級 Pro 查看板塊特徵</span>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
 };
 
-// 新聞詳情子組件
-interface NewsDetailProps {
-  news: any;
-  switches?: any;
-}
-
-const NewsDetail: React.FC<NewsDetailProps> = ({ news, switches }) => {
-  return (
-    <motion.div
-      className="detail-content news-detail"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-    >
-      <h3>📰 新聞影響分析</h3>
-
-      <div className="news-title-large">{news.title}</div>
-      <div className="news-meta">{news.date} · {news.source}</div>
-
-      {/* 摘要 */}
-      <div className="news-summary">{news.summary}</div>
-
-      {/* 影響的路徑切換 */}
-      {news.affects && news.affects.length > 0 && switches && (
-        <>
-          <div className="section-title">影響的路徑切換</div>
-          <div className="affected-switches">
-            {news.affects.map((switchId: string) => {
-              const sw = switches[switchId];
-              if (!sw) return null;
-              return (
-                <div key={switchId} className="affected-switch">
-                  <div className="affected-label">
-                    {sw.from.toUpperCase()} → {sw.to.toUpperCase()}
-                  </div>
-                  <div className="affected-desc">
-                    確認進度：{Math.round(calcProgress(sw) * 100)}%
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </motion.div>
-  );
-};
+// ---- 合規板塊方向性渲染 ----
+const AllocTierList: React.FC<{ alloc: Allocation[] }> = ({ alloc }) => (
+  <div className="alloc-tier-list">
+    {alloc.map((item, idx) => {
+      const tierInfo = TIER_COLORS[item.tier] || TIER_COLORS.neutral;
+      return (
+        <div key={idx} className="alloc-tier-item">
+          <span className="alloc-tier-name">{item.n}</span>
+          <span
+            className="alloc-tier-badge"
+            style={{ background: tierInfo.bg, color: tierInfo.color, borderColor: `${tierInfo.color}30` }}
+          >
+            {tierInfo.label}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+);

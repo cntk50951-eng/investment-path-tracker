@@ -1,5 +1,5 @@
 // ==========================================
-// 警報橫幅組件
+// 警報橫幅組件（合規版本）
 // ==========================================
 
 import React, { useState } from 'react';
@@ -28,15 +28,17 @@ export const AlertBanner: React.FC = () => {
         <span className="alert-icon">⚠️</span>
         <div className="alert-content">
           <strong>{alert.title}</strong>
-          <span className="alert-time"> {alert.timestamp.split('T')[0].replace(/-/g, '-')} {alert.timestamp.split('T')[1]?.substring(0, 5)}</span>
+          <span className="alert-time"> {alert.timestamp.split('T')[0]} {alert.timestamp.split('T')[1]?.substring(0, 5)}</span>
           <p>{alert.message}</p>
           <div className="alert-action">
-            <strong>當前決策：</strong>{alert.action}
+            {/* 合規：使用「觀察重點」而非「當前決策」 */}
+            <strong>觀察重點：</strong>{alert.action}
           </div>
         </div>
         <button
           className="alert-dismiss"
           onClick={() => setIsDismissed(true)}
+          aria-label="關閉警報"
         >
           ✕
         </button>

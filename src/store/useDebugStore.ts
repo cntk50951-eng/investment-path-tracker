@@ -1,93 +1,77 @@
 // ==========================================
 // 調試模式 Store
+// 支持：Ctrl+Shift+D 快捷鍵 / URL 參數 ?debug=true
+// 上線前一行代碼可禁用：將 ALLOW_DEBUG 設為 false
 // ==========================================
 
 import { create } from 'zustand';
 
+// ========== 上線開關：設為 false 即可完全禁用 debug ==========
+const ALLOW_DEBUG = true;
+// =============================================================
+
+const isDevelopment = import.meta.env.DEV;
+
+// 檢查 URL 參數
+function checkUrlDebug(): boolean {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.get('debug') === 'true';
+}
+
 interface DebugState {
-  // 基礎開關
   isDebugMode: boolean;
   canToggleDebug: boolean;
-
-  // 付費相關
   mockPremium: boolean;
-  mockAuthUser: {
-    name: string;
-    email: string;
-    isPremium: boolean;
-  } | null;
-
-  // 數據相關
+  mockAuthUser: { name: string; email: string; isPremium: boolean } | null;
   useMockData: boolean;
   mockApiLatency: number;
   mockApiError: boolean;
-
-  // UI 相關
   showBlurDebug: boolean;
   showPaywallPreview: boolean;
+  showComplianceHighlight: boolean;
 
-  // Actions
   toggleDebug: () => void;
   toggleMockPremium: () => void;
   setMockApiLatency: (ms: number) => void;
   toggleMockApiError: () => void;
   toggleBlurDebug: () => void;
   togglePaywallPreview: () => void;
+  toggleComplianceHighlight: () => void;
   resetAll: () => void;
 }
 
-const isDevelopment = import.meta.env.DEV;
+const initialDebug = ALLOW_DEBUG && (isDevelopment || checkUrlDebug());
 
-export const useDebugStore = create<DebugState>((set, _get) => ({
-  // 初始狀態 (僅開發環境可用)
-  isDebugMode: isDevelopment,
-  canToggleDebug: isDevelopment,
-
+export const useDebugStore = create<DebugState>((set) => ({
+  isDebugMode: initialDebug,
+  canToggleDebug: ALLOW_DEBUG,
   mockPremium: false,
   mockAuthUser: null,
-
   useMockData: true,
   mockApiLatency: 500,
   mockApiError: false,
-
   showBlurDebug: false,
   showPaywallPreview: false,
+  showComplianceHighlight: false,
 
-  // 切換調試模式
   toggleDebug: () => {
-    if (!isDevelopment) {
-      console.warn('⚠️ Debug mode is only available in development');
+    if (!ALLOW_DEBUG) {
+      console.warn('⚠️ Debug mode is disabled');
       return;
     }
     set((state) => ({ isDebugMode: !state.isDebugMode }));
   },
 
-  // 切換 Mock 付費狀態
-  toggleMockPremium: () => set((state) => ({
-    mockPremium: !state.mockPremium,
-  })),
-
-  // 設置 Mock API 延遲
+  toggleMockPremium: () => set((state) => ({ mockPremium: !state.mockPremium })),
   setMockApiLatency: (ms) => set({ mockApiLatency: ms }),
+  toggleMockApiError: () => set((state) => ({ mockApiError: !state.mockApiError })),
+  toggleBlurDebug: () => set((state) => ({ showBlurDebug: !state.showBlurDebug })),
+  togglePaywallPreview: () => set((state) => ({ showPaywallPreview: !state.showPaywallPreview })),
+  toggleComplianceHighlight: () => set((state) => ({ showComplianceHighlight: !state.showComplianceHighlight })),
 
-  // 切換 Mock API 錯誤
-  toggleMockApiError: () => set((state) => ({
-    mockApiError: !state.mockApiError,
-  })),
-
-  // 切換模糊調試
-  toggleBlurDebug: () => set((state) => ({
-    showBlurDebug: !state.showBlurDebug,
-  })),
-
-  // 切換付費牆預覽
-  togglePaywallPreview: () => set((state) => ({
-    showPaywallPreview: !state.showPaywallPreview,
-  })),
-
-  // 重置所有設置
   resetAll: () => set({
-    isDebugMode: isDevelopment,
+    isDebugMode: initialDebug,
     mockPremium: false,
     mockAuthUser: null,
     useMockData: true,
@@ -95,11 +79,12 @@ export const useDebugStore = create<DebugState>((set, _get) => ({
     mockApiError: false,
     showBlurDebug: false,
     showPaywallPreview: false,
+    showComplianceHighlight: false,
   }),
 }));
 
-// 快捷鍵監聽
-if (typeof window !== 'undefined' && isDevelopment) {
+// 快捷鍵監聽（Ctrl+Shift+D）
+if (typeof window !== 'undefined' && ALLOW_DEBUG) {
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.shiftKey) {
       switch (e.key.toLowerCase()) {

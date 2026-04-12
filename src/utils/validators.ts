@@ -7,8 +7,11 @@ import type {
   Node,
   Switch,
   NewsEvent,
-  ValidationResult
+  ValidationResult,
+  AllocationTier
 } from '../types';
+
+const VALID_TIERS: AllocationTier[] = ['overweight', 'neutral', 'underweight', 'avoid'];
 
 /**
  * 驗證概率總和是否為 100%
@@ -72,33 +75,24 @@ export function validateNewsRefs(
 }
 
 /**
- * 驗證顏色格式
- */
-export function validateColor(color: string): boolean {
-  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color);
-}
-
-/**
- * 驗證节点配置
+ * 驗證節點板塊配置（合規 tier 格式）
  */
 export function validateNodeAllocations(node: Node): ValidationResult {
-  const totalAlloc = node.alloc.reduce((acc, a) => acc + a.w, 0);
-  if (Math.abs(totalAlloc - 100) > 0.1) {
-    return {
-      isValid: false,
-      errors: [{ message: `节点 ${node.id} 配置總和為 ${totalAlloc}%，應為 100%` }]
-    };
+  const errors: string[] = [];
+
+  for (const alloc of node.alloc) {
+    if (!VALID_TIERS.includes(alloc.tier)) {
+      errors.push(`節點 ${node.id} 板塊 "${alloc.n}" 的 tier "${alloc.tier}" 無效，僅允許 ${VALID_TIERS.join('/')}`);
+    }
+    // 合規檢查：不應包含具體標的代號
+    if (/\b[A-Z]{2,5}\b/.test(alloc.n) && !/板塊|市場|資產|債券|商品|龍頭|現金/.test(alloc.n)) {
+      errors.push(`節點 ${node.id} 板塊 "${alloc.n}" 可能包含具體標的代號，請使用板塊名稱`);
+    }
   }
 
-  const invalidColors = node.alloc.filter(a => !validateColor(a.c));
-  if (invalidColors.length > 0) {
-    return {
-      isValid: false,
-      errors: [{ message: `节点 ${node.id} 包含無效顏色` }]
-    };
-  }
-
-  return { isValid: true, errors: [] };
+  return errors.length > 0
+    ? { isValid: false, errors: errors.map(m => ({ message: m })) }
+    : { isValid: true, errors: [] };
 }
 
 /**
@@ -144,7 +138,7 @@ export function validateInvestmentData(data: InvestmentData): ValidationResult {
     errors.push(...newsResult.errors.map(e => e.message));
   }
 
-  // 驗證各节点配置
+  // 驗證各節點配置
   Object.values(data.nodes).forEach(node => {
     const allocResult = validateNodeAllocations(node);
     if (!allocResult.isValid) {
@@ -186,39 +180,3 @@ export function getTier(progress: number): string {
   if (progress >= 0.35) return 'early_warning';
   return 'noise';
 }
-
-/**
- * 閾值層級配置
- */
-export const TIER_CONFIG: Record<string, { label: string; color: string; bg: string; action: string }> = {
-  noise: {
-    label: '⚪ 噪音',
-    color: '#475569',
-    bg: 'rgba(71,85,105,0.12)',
-    action: '觀察，不行動'
-  },
-  early_warning: {
-    label: '🟡 早期預警',
-    color: '#fbbf24',
-    bg: 'rgba(251,191,36,0.1)',
-    action: '準備邊緣倉位，不大動'
-  },
-  initial_confirm: {
-    label: '🟠 初步確認',
-    color: '#f97316',
-    bg: 'rgba(249,115,22,0.12)',
-    action: '高衝擊路徑立即執行 P0 預備動作'
-  },
-  strong: {
-    label: '🔴 強信號',
-    color: '#f87171',
-    bg: 'rgba(248,113,113,0.1)',
-    action: '執行 P0+P1，調整核心倉位'
-  },
-  locked: {
-    label: '🚨 路徑鎖定',
-    color: '#f472b6',
-    bg: 'rgba(244,114,182,0.15)',
-    action: '新路徑成為下半年投資主線，全面重配'
-  }
-};

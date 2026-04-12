@@ -16,10 +16,6 @@
   font-size: 0.8em;
 }
 
-.empty-message {
-  text-align: center;
-}
-
 .detail-content {
   animation: fadeIn 0.3s ease;
 }
@@ -42,13 +38,12 @@
   align-items: center;
 }
 
-.progress-main {
-  flex: 1;
-}
+.progress-main { flex: 1; }
 
 .progress-value {
   font-size: 1.5em;
   font-weight: 800;
+  font-family: var(--font-mono, monospace);
   margin-bottom: 2px;
 }
 
@@ -63,9 +58,7 @@
   color: var(--text-muted, #94a3b8);
 }
 
-.progress-bar-container {
-  flex: 2;
-}
+.progress-bar-container { flex: 2; }
 
 .progress-bar-bg {
   height: 8px;
@@ -88,6 +81,15 @@
   color: var(--text-muted, #94a3b8);
 }
 
+/* 層級徽章 */
+.tier-badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75em;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
 /* 觸發框 */
 .trigger-box {
   padding: 8px 10px;
@@ -108,10 +110,8 @@
   font-weight: 600;
 }
 
-/* 確認信號清單 */
-.confirms-section {
-  margin-bottom: 10px;
-}
+/* 確認信號 */
+.confirms-section { margin-bottom: 10px; }
 
 .section-title {
   font-size: 0.72em;
@@ -135,45 +135,15 @@
   align-items: flex-start;
 }
 
-.confirm-item.yes {
-  background: rgba(74, 222, 128, 0.08);
-  color: #86efac;
-}
+.confirm-item.yes { background: rgba(74, 222, 128, 0.08); color: #86efac; }
+.confirm-item.near { background: rgba(251, 191, 36, 0.08); color: #fde68a; }
+.confirm-item.no { background: rgba(71, 85, 105, 0.12); color: #94a3b8; }
 
-.confirm-item.near {
-  background: rgba(251, 191, 36, 0.08);
-  color: #fde68a;
-}
-
-.confirm-item.no {
-  background: rgba(71, 85, 105, 0.12);
-  color: #94a3b8;
-}
-
-.confirm-icon {
-  flex-shrink: 0;
-}
-
-.confirm-content {
-  flex: 1;
-}
-
-.confirm-text {
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.confirm-actual {
-  font-size: 0.85em;
-  opacity: 0.8;
-  margin-top: 1px;
-}
-
-.confirm-note {
-  font-size: 0.78em;
-  opacity: 0.6;
-  margin-top: 1px;
-}
+.confirm-icon { flex-shrink: 0; }
+.confirm-content { flex: 1; }
+.confirm-text { font-weight: 600; margin-bottom: 2px; }
+.confirm-actual { font-size: 0.85em; opacity: 0.8; margin-top: 1px; }
+.confirm-note { font-size: 0.78em; opacity: 0.6; margin-top: 1px; }
 
 /* 描述框 */
 .description-box {
@@ -211,113 +181,101 @@
   margin: 5px 0 10px;
 }
 
-/* 板塊配置 */
-.allocation-section {
-  margin-top: 10px;
+/* ---- 合規板塊特徵渲染 ---- */
+
+.alloc-disclaimer {
+  font-size: 0.68em;
+  color: var(--text-dim, #475569);
+  padding: 6px 8px;
+  background: rgba(71, 85, 105, 0.08);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  border-left: 2px solid rgba(71, 85, 105, 0.3);
 }
 
-.allocation-list {
-  margin-top: 5px;
+.alloc-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.allocation-item {
+.alloc-tier-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 5px;
-  font-size: 0.78em;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: rgba(20, 30, 55, 0.4);
+  transition: background 0.15s;
 }
 
-.alloc-name {
-  min-width: 120px;
+.alloc-tier-item:hover {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.alloc-tier-name {
+  font-size: 0.8em;
   color: var(--text-secondary, #cbd5e1);
-  font-size: 0.9em;
 }
 
-.alloc-bar-bg {
-  flex: 1;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.alloc-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-}
-
-.alloc-value {
-  min-width: 36px;
-  text-align: right;
+.alloc-tier-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7em;
   font-weight: 700;
-  font-size: 0.76em;
+  border: 1px solid;
+  white-space: nowrap;
 }
 
-/* 新聞詳情 */
-.news-title-large {
-  font-size: 0.87em;
-  font-weight: 600;
-  margin: 8px 0;
+/* 鎖定狀態 */
+.alloc-locked {
+  position: relative;
 }
 
-.news-meta {
-  font-size: 0.73em;
+.alloc-locked-preview {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.alloc-locked-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 8px;
+  margin-bottom: 3px;
+  border-radius: 5px;
+  background: rgba(20, 30, 55, 0.4);
+}
+
+.alloc-locked-name {
+  font-size: 0.8em;
   color: var(--text-muted, #94a3b8);
-  margin-bottom: 8px;
 }
 
-.news-summary {
-  font-size: 0.82em;
-  color: var(--text-secondary, #cbd5e1);
-  line-height: 1.5;
-  margin-bottom: 12px;
-  padding: 8px;
-  background: rgba(20, 30, 55, 0.5);
+.alloc-locked-tier {
+  font-size: 0.7em;
+  color: var(--text-dim, #475569);
+}
+
+.alloc-locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(8, 12, 24, 0.4);
   border-radius: 6px;
 }
 
-/* 影響的切換 */
-.affected-switches {
-  margin-top: 5px;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.affected-switch {
-  padding: 7px;
-  margin: 4px 0;
-  background: rgba(244, 114, 182, 0.05);
-  border: 1px solid rgba(244, 114, 182, 0.2);
-  border-radius: 6px;
-}
-
-.affected-label {
-  font-size: 0.83em;
-  font-weight: 600;
-  color: var(--path-e, #f472b6);
-}
-
-.affected-desc {
-  font-size: 0.75em;
-  color: var(--text-muted, #94a3b8);
-  margin-top: 2px;
-}
-
-/* 響應式 */
 @media (max-width: 767px) {
-  .detail-panel {
-    min-height: 180px;
-  }
-
-  .progress-summary {
-    flex-direction: column;
-  }
-
-  .allocation-item {
-    flex-wrap: wrap;
-  }
-
-  .alloc-name {
-    min-width: 100%;
-    margin-bottom: 3px;
-  }
+  .detail-panel { min-height: 180px; }
+  .progress-summary { flex-direction: column; }
 }

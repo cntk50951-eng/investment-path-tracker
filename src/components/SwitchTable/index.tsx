@@ -6,6 +6,7 @@ import React, { useMemo } from 'react';
 import { useDataStore } from '../../store/useDataStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calcProgress, getTier } from '../../utils/validators';
+import { getNodeColor } from '../../utils/constants';
 import './SwitchTable.css';
 
 export const SwitchTable: React.FC = () => {
@@ -154,14 +155,7 @@ export const SwitchTable: React.FC = () => {
   );
 };
 
-// 輔助函數：獲取節點顏色
+// 使用集中管理的顏色映射
 function getNodesColor(nodeId: string): string {
-  const colors: Record<string, string> = {
-    a: '#4ade80',
-    b: '#fbbf24',
-    c: '#f87171',
-    d: '#a78bfa',
-    e: '#f472b6',
-  };
-  return colors[nodeId] || '#94a3b8';
+  return getNodeColor(nodeId);
 }

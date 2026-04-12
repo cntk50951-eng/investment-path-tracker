@@ -1,0 +1,237 @@
+/* 新聞詳情抽屜 */
+
+.news-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+.news-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--bg-card, rgba(13, 20, 38, 0.98));
+  border-left: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+}
+
+.drawer-header h3 {
+  font-size: 0.78em;
+  color: var(--text-muted, #94a3b8);
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.drawer-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(71, 85, 105, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.drawer-close:hover {
+  background: rgba(71, 85, 105, 0.6);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.drawer-severity {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7em;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.drawer-severity.critical { background: rgba(244,114,182,0.15); color: #f472b6; }
+.drawer-severity.medium { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.drawer-severity.positive { background: rgba(74,222,128,0.12); color: #4ade80; }
+
+.drawer-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.drawer-meta {
+  font-size: 0.75em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 16px;
+}
+
+.drawer-section {
+  margin-bottom: 20px;
+}
+
+.drawer-section-title {
+  font-size: 0.72em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.drawer-summary {
+  font-size: 0.85em;
+  color: var(--text-secondary, #cbd5e1);
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(20, 30, 55, 0.5);
+  border-radius: 8px;
+}
+
+.drawer-impact {
+  font-size: 0.85em;
+  color: var(--text-secondary, #cbd5e1);
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(244, 114, 182, 0.05);
+  border: 1px solid rgba(244, 114, 182, 0.15);
+  border-radius: 8px;
+}
+
+.drawer-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.drawer-tag {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72em;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.1);
+  color: #93c5fd;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.drawer-paths {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-path-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(20, 30, 55, 0.5);
+  border-radius: 8px;
+  font-size: 0.82em;
+}
+
+.drawer-path-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.drawer-affected {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-affected-item {
+  padding: 8px 12px;
+  background: rgba(244, 114, 182, 0.05);
+  border: 1px solid rgba(244, 114, 182, 0.15);
+  border-radius: 8px;
+}
+
+.drawer-affected-label {
+  font-size: 0.82em;
+  font-weight: 600;
+  color: var(--path-e, #f472b6);
+}
+
+.drawer-affected-progress {
+  font-size: 0.72em;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 2px;
+}
+
+/* 模糊鎖定 */
+.drawer-locked {
+  position: relative;
+}
+
+.drawer-locked-content {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.drawer-locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(8, 12, 24, 0.5);
+  border-radius: 8px;
+  z-index: 2;
+}
+
+.drawer-upgrade-btn {
+  padding: 8px 20px;
+  background: var(--path-e, #f472b6);
+  color: white;
+  border-radius: 8px;
+  font-size: 0.82em;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.drawer-upgrade-btn:hover {
+  background: #ec4899;
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 575px) {
+  .news-drawer {
+    width: 100vw;
+  }
+}

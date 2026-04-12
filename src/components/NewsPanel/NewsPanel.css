@@ -34,7 +34,6 @@
   padding: 7px;
 }
 
-/* 新聞項目 */
 .news-item {
   padding: 8px 10px;
   margin-bottom: 4px;
@@ -55,17 +54,11 @@
   border-left-color: #f472b6;
 }
 
-.news-item.locked {
-  cursor: default;
-}
-
-/* 日期 */
 .news-date {
   font-size: 0.67em;
   color: var(--text-muted, #94a3b8);
 }
 
-/* 標題 */
 .news-title {
   font-size: 0.81em;
   font-weight: 600;
@@ -74,7 +67,18 @@
   color: var(--text-primary, #e2e8f0);
 }
 
-/* 標籤 */
+.news-preview {
+  font-size: 0.7em;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.news-blurred {
+  filter: blur(3px);
+  user-select: none;
+}
+
 .news-tags {
   display: flex;
   gap: 3px;
@@ -89,22 +93,17 @@
   font-weight: 600;
 }
 
-/* 鎖定遮罩 */
-.news-lock-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(8, 12, 24, 0.7);
-  backdrop-filter: blur(3px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9em;
-  font-weight: 700;
+.news-lock-hint {
+  font-size: 0.65em;
   color: var(--path-e, #f472b6);
-  border-radius: 7px;
+  margin-top: 4px;
+  opacity: 0.7;
 }
 
-/* 無新聞 */
+.lock-icon {
+  font-size: 0.9em;
+}
+
 .no-news {
   text-align: center;
   padding: 40px;
@@ -112,7 +111,6 @@
   font-size: 0.9em;
 }
 
-/* 響應式 */
 @media (max-width: 767px) {
   .news-panel {
     max-height: 400px;
@@ -125,7 +123,6 @@
   .news-panel {
     max-height: 350px;
   }
-
   .news-title {
     font-size: 0.75em;
   }

@@ -1,0 +1,83 @@
+/* 骨架屏樣式 */
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(30,41,59,0.4) 25%, rgba(51,65,85,0.4) 50%, rgba(30,41,59,0.4) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 流程圖骨架 */
+.skeleton-flow {
+  padding: 20px;
+  min-height: 430px;
+  position: relative;
+}
+
+.skeleton-svg {
+  position: relative;
+  height: 380px;
+}
+
+.skeleton-node {
+  position: absolute;
+}
+
+.skeleton-node-top { top: 30px; left: 50%; transform: translateX(-50%); }
+.skeleton-node-mid-left { top: 190px; left: 50%; transform: translateX(-50%); }
+.skeleton-node-mid-right { top: 190px; right: 10%; }
+.skeleton-node-bot-left { bottom: 30px; left: 10%; }
+.skeleton-node-bot-right { bottom: 30px; right: 10%; }
+
+.skeleton-probbar {
+  margin-top: 12px;
+}
+
+/* 新聞骨架 */
+.skeleton-news {
+  padding: 12px;
+}
+
+.skeleton-news-header {
+  margin-bottom: 12px;
+}
+
+.skeleton-news-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  margin-bottom: 6px;
+  border-left: 3px solid rgba(71,85,105,0.2);
+  border-radius: 7px;
+}
+
+/* 表格骨架 */
+.skeleton-table {
+  padding: 12px;
+}
+
+.skeleton-table-title {
+  margin-bottom: 16px;
+}
+
+.skeleton-table-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(71,85,105,0.1);
+}
+
+/* 宏觀欄骨架 */
+.skeleton-macro {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}

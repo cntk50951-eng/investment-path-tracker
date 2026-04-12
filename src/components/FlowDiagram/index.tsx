@@ -1,5 +1,5 @@
 // ==========================================
-// SVG 流程圖組件
+// SVG 流程圖組件（含權限控制 + 路徑 Tab 切換）
 // ==========================================
 
 import React, { useMemo } from 'react';
@@ -8,6 +8,8 @@ import { usePremiumStore } from '../../store/usePremiumStore';
 import { useDebugStore } from '../../store/useDebugStore';
 import { motion } from 'framer-motion';
 import { calcProgress } from '../../utils/validators';
+import { canViewPath, canSwitchPath, getUserTier } from '../../utils/permissions';
+import { NODE_COLORS } from '../../utils/constants';
 import './FlowDiagram.css';
 
 const NODES = {
@@ -20,10 +22,10 @@ const NODES = {
 
 export const FlowDiagram: React.FC = () => {
   const { investmentData, selectSwitch, selectPath, selectedSwitch, selectedPath } = useDataStore();
-  const { isPremium } = usePremiumStore();
-  const { showBlurDebug } = useDebugStore();
+  const { isPremium, incrementPaywallCount } = usePremiumStore();
+  const { isDebugMode, mockPremium, showBlurDebug } = useDebugStore();
+  const tier = getUserTier(isPremium, mockPremium);
 
-  // 從數據中獲取概率和當前狀態
   const nodesWithProb = useMemo(() => {
     if (!investmentData?.nodes) return {};
     return Object.fromEntries(
@@ -34,14 +36,19 @@ export const FlowDiagram: React.FC = () => {
     );
   }, [investmentData?.nodes]);
 
-  // 處理切換點擊
   const handleSwitchClick = (switchId: string) => {
-    if (!isPremium) return;
     selectSwitch(switchId === selectedSwitch ? null : switchId);
   };
 
-  // 處理節點點擊
   const handleNodeClick = (nodeId: string) => {
+    const node = investmentData?.nodes[nodeId];
+    if (!node) return;
+
+    const perm = canViewPath(nodeId, !!node.current, tier, isDebugMode);
+    if (!perm.allowed) {
+      incrementPaywallCount();
+      // 仍然允許選中（顯示鎖定的輪廓），但 DetailPanel 會處理模糊
+    }
     selectPath(nodeId === selectedPath ? null : nodeId);
   };
 
@@ -50,72 +57,71 @@ export const FlowDiagram: React.FC = () => {
   }
 
   const switches = investmentData.switches;
-
-  // 按進度排序箭頭 (低進度先畫，高進度後畫)
   const sortedSwitches = Object.entries(switches).sort(
     (a, b) => calcProgress(a[1]) - calcProgress(b[1])
   );
 
   return (
     <div className="flow-diagram">
+      {/* 路徑 Tab 切換欄 */}
+      <div className="path-tabs">
+        {['a', 'b', 'c', 'd', 'e'].map(id => {
+          const node = nodesWithProb[id];
+          if (!node) return null;
+          const isActive = selectedPath === id;
+          const isCurrent = !!node.current;
+          const perm = canViewPath(id, isCurrent, tier, isDebugMode);
+
+          return (
+            <motion.button
+              key={id}
+              className={`path-tab ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''} ${!perm.allowed ? 'locked' : ''}`}
+              style={{
+                borderColor: isActive ? node.color : 'transparent',
+                color: node.color,
+              }}
+              onClick={() => handleNodeClick(id)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <span className="tab-name">{node.name.split(' ')[0]}</span>
+              <span className="tab-prob" style={{ fontFamily: 'var(--font-mono)' }}>{node.prob}%</span>
+              {!perm.allowed && <span className="tab-lock">🔒</span>}
+              {isCurrent && <span className="tab-current">⭐</span>}
+            </motion.button>
+          );
+        })}
+      </div>
+
       <svg viewBox="0 0 800 430" className="flow-svg">
         <defs>
-          {/* 箭頭定義 */}
           {['a', 'b', 'c', 'd', 'e'].map(id => (
-            <marker
-              key={id}
-              id={`arrowhead-${id}`}
-              markerWidth="7"
-              markerHeight="5"
-              refX="6"
-              refY="2.5"
-              orient="auto"
-            >
+            <marker key={id} id={`arrowhead-${id}`} markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
               <polygon points="0 0,7 2.5,0 5" fill={NODES[id as keyof typeof NODES].color} />
             </marker>
           ))}
-
-          {/* 光暈濾鏡 */}
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
-
-          {/* 強光暈 (路徑 E) */}
           <filter id="glowE" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="7" result="coloredBlur" />
             <feFlood floodColor="#f472b6" floodOpacity="0.25" result="glowColor" />
             <feComposite in="glowColor" in2="coloredBlur" operator="in" result="softGlow" />
-            <feMerge>
-              <feMergeNode in="softGlow" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feMerge><feMergeNode in="softGlow" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
 
-        {/* 箭頭層 */}
         <g id="arrowLayer">
           {sortedSwitches.map(([switchId, sw]) => {
             const progress = calcProgress(sw);
             const toNode = NODES[sw.to as keyof typeof NODES];
-            const fromNode = nodesWithProb[sw.from as keyof typeof nodesWithProb];
+            const fromNode = nodesWithProb[sw.from];
             const isCurrentPath = fromNode?.current;
 
             return (
               <g key={switchId} onClick={() => handleSwitchClick(switchId)} style={{ cursor: 'pointer' }}>
-                {/* 點擊熱區 */}
-                <path
-                  d={sw.path}
-                  fill="none"
-                  stroke="transparent"
-                  strokeWidth="26"
-                  className="arrow-hitbox"
-                />
-
-                {/* 可見箭頭 */}
+                <path d={sw.path} fill="none" stroke="transparent" strokeWidth="26" />
                 <motion.path
                   d={sw.path}
                   fill="none"
@@ -127,10 +133,7 @@ export const FlowDiagram: React.FC = () => {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 1.5, ease: 'easeInOut' }}
-                  className="arrow-path"
                 />
-
-                {/* 流動動畫 (僅當前路徑) */}
                 {isCurrentPath && progress > 0.2 && (
                   <motion.path
                     d={sw.path}
@@ -141,68 +144,26 @@ export const FlowDiagram: React.FC = () => {
                     opacity={0.6}
                     initial={{ pathOffset: 0 }}
                     animate={{ pathOffset: 17 }}
-                    transition={{
-                      duration: Math.max(0.5, 1.8 - progress * 1.5),
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
+                    transition={{ duration: Math.max(0.5, 1.8 - progress * 1.5), repeat: Infinity, ease: 'linear' }}
                   />
                 )}
-
-                {/* 箭頭標籤 */}
-                <g className="arrow-label" onClick={() => handleSwitchClick(switchId)}>
-                  <rect
-                    x={0}
-                    y={0}
-                    width={60}
-                    height={20}
-                    rx={4}
-                    fill="rgba(8,12,24,0.92)"
-                    stroke={toNode.color}
-                    strokeWidth={progress > 0.35 ? 1.5 : 0.7}
-                    strokeOpacity={0.25 + progress * 0.75}
-                  />
-                  <text
-                    x={30}
-                    y={14}
-                    textAnchor="middle"
-                    fill={toNode.color}
-                    fontSize={progress > 0.35 ? 10 : 8.5}
-                    fontWeight="700"
-                  >
-                    {fromNode?.id.toUpperCase()}→{toNode.id.toUpperCase()}
-                  </text>
-                </g>
               </g>
             );
           })}
         </g>
 
-        {/* 節點層 */}
         <g id="nodeLayer">
           {Object.values(nodesWithProb).map(node => (
-            <g
-              key={node.id}
-              onClick={() => handleNodeClick(node.id)}
-              style={{ cursor: 'pointer' }}
-              className="flow-node"
-            >
-              {/* 脈衝光環 (當前路徑) */}
+            <g key={node.id} onClick={() => handleNodeClick(node.id)} style={{ cursor: 'pointer' }} className="flow-node">
               {node.current && (
                 <motion.circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={52}
-                  fill="none"
-                  stroke={node.color}
-                  strokeWidth={1.5}
+                  cx={node.x} cy={node.y} r={52}
+                  fill="none" stroke={node.color} strokeWidth={1.5}
                   initial={{ opacity: 0.12, scale: 1 }}
                   animate={{ opacity: [0.12, 0.45, 0.12], scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
-
-              {/* 節點框 */}
               <motion.rect
                 x={node.x - (node.id === 'e' ? 128 : 108) / 2}
                 y={node.y - 24}
@@ -211,34 +172,16 @@ export const FlowDiagram: React.FC = () => {
                 rx={11}
                 fill={`${node.color}18`}
                 stroke={node.color}
-                strokeWidth={node.current ? 2.5 : 1.5}
+                strokeWidth={node.current ? 2.5 : selectedPath === node.id ? 2 : 1.5}
                 filter={node.id === 'e' ? 'url(#glowE)' : node.current ? 'url(#glow)' : undefined}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               />
-
-              {/* 節點名稱 */}
-              <text
-                x={node.x}
-                y={node.y - 5}
-                textAnchor="middle"
-                fill={node.color}
-                fontSize={10.5}
-                fontWeight="700"
-              >
+              <text x={node.x} y={node.y - 5} textAnchor="middle" fill={node.color} fontSize={10.5} fontWeight="700">
                 {node.name}
               </text>
-
-              {/* 概率 (如果數據存在) */}
               {node.prob !== undefined && (
-                <text
-                  x={node.x}
-                  y={node.y + 14}
-                  textAnchor="middle"
-                  fill={node.color}
-                  fontSize={16}
-                  fontWeight="800"
-                >
+                <text x={node.x} y={node.y + 14} textAnchor="middle" fill={node.color} fontSize={16} fontWeight="800" fontFamily="var(--font-mono)">
                   {node.prob}%
                 </text>
               )}

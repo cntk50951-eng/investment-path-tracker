@@ -1,11 +1,12 @@
 // ==========================================
-// 閾值框架組件
+// 閾值框架組件（合規版本）
 // ==========================================
 
 import React from 'react';
 import { useDataStore } from '../../store/useDataStore';
 import { motion } from 'framer-motion';
-import { getTier, TIER_CONFIG } from '../../utils/validators';
+import { getTier } from '../../utils/validators';
+import { TIER_CONFIG } from '../../utils/constants';
 import './ThresholdBanner.css';
 
 export const ThresholdBanner: React.FC = () => {
@@ -17,7 +18,6 @@ export const ThresholdBanner: React.FC = () => {
 
   const { switchId, progress, nextTrigger } = investmentData.thresholdAlert;
   const sw = investmentData.switches[switchId];
-
   if (!sw) return null;
 
   const fromNode = investmentData.nodes[sw.from];
@@ -25,7 +25,6 @@ export const ThresholdBanner: React.FC = () => {
   const tier = getTier(progress);
   const tierConfig = TIER_CONFIG[tier];
 
-  // 閾值標記點
   const markers = [
     { p: 35, l: '預警' },
     { p: 50, l: '初步確認' },
@@ -35,15 +34,11 @@ export const ThresholdBanner: React.FC = () => {
   return (
     <motion.div
       className="threshold-banner"
-      style={{
-        background: tierConfig.bg,
-        borderColor: `${tierConfig.color}40`,
-      }}
+      style={{ background: tierConfig.bg, borderColor: `${tierConfig.color}40` }}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
     >
-      {/* 標題欄 */}
       <div className="banner-header">
         <div className="banner-title">
           <span style={{ color: tierConfig.color }}>{tierConfig.label}</span>
@@ -53,14 +48,12 @@ export const ThresholdBanner: React.FC = () => {
             {fromNode.name.split(' ')[0]} → {toNode.name.split(' ')[0]}
           </span>
         </div>
-        <div className="banner-progress" style={{ color: toNode.color }}>
+        <div className="banner-progress" style={{ color: toNode.color, fontFamily: 'var(--font-mono)' }}>
           {Math.round(progress * 100)}%
         </div>
       </div>
 
-      {/* 進度條與標記 */}
       <div className="banner-progress-container">
-        {/* 標記點 */}
         <div className="progress-markers">
           {markers.map(marker => (
             <div key={marker.p} className="marker" style={{ left: `${marker.p}%` }}>
@@ -69,14 +62,10 @@ export const ThresholdBanner: React.FC = () => {
             </div>
           ))}
         </div>
-
-        {/* 進度條 */}
         <div className="progress-bar-bg">
           <motion.div
             className="progress-bar-fill"
-            style={{
-              background: `linear-gradient(90deg, ${toNode.color}70, ${toNode.color})`,
-            }}
+            style={{ background: `linear-gradient(90deg, ${toNode.color}70, ${toNode.color})` }}
             initial={{ width: 0 }}
             animate={{ width: `${progress * 100}%` }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -84,15 +73,12 @@ export const ThresholdBanner: React.FC = () => {
         </div>
       </div>
 
-      {/* 底部信息 */}
       <div className="banner-footer">
         <div className="banner-action" style={{ color: tierConfig.color }}>
-          <span className="action-label">行動含義：</span>
+          <span className="action-label">環境特徵：</span>
           <span className="action-text">{tierConfig.action}</span>
         </div>
-        <div className="banner-trigger" title={nextTrigger}>
-          {nextTrigger}
-        </div>
+        <div className="banner-trigger" title={nextTrigger}>{nextTrigger}</div>
       </div>
     </motion.div>
   );
