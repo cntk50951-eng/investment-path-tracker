@@ -14,7 +14,7 @@ export function useInvestmentData() {
     loadingModules, error,
     setNodes, setSwitches, setAlert, setThresholdAlert,
     setMacros, setNews,
-    setLoadingModule, setError 
+    setLoadingModule, setError
   } = useDataStore();
   const { isDebugMode } = useDebugStore();
 
@@ -90,11 +90,11 @@ export function useInvestmentData() {
   useEffect(() => {
     if (!loadingModules.paths && !loadingModules.news && !loadingModules.macros) {
       const allLoaded = nodes && news && macros;
-      if (allLoaded) {
+      if (allLoaded && switches) {
         const data = {
           meta: { version: '3.0.0', lastUpdated: new Date().toISOString(), dataSource: 'PostgreSQL' },
           nodes, switches, alert, thresholdAlert, macros, news
-        };
+        } as any;
         const validation = validateInvestmentData(data);
         if (!validation.isValid) {
           console.error('數據驗證失敗:', validation.errors);

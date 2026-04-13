@@ -14,7 +14,7 @@ import type { NewsEvent } from '../../types';
 import './NewsPanel.css';
 
 export const NewsPanel: React.FC = () => {
-  const { news, nodes } = useDataStore();
+  const { news } = useDataStore();
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
@@ -84,7 +84,7 @@ export const NewsPanel: React.FC = () => {
                   {/* 影響路徑標籤 */}
                   {news.affects && news.affects.length > 0 && (
                     <div className="news-tags">
-                      {news.affects.map(switchId => {
+                      {news.affects.map((switchId: string) => {
                         const toNode = switchId.split('').pop();
                         const color = getNodeColor(toNode);
                         return (

@@ -71,7 +71,7 @@ const NewsTimeline: React.FC = () => {
   const allTags = useMemo(() => {
     if (!news) return [];
     const tags = new Set<string>();
-    news.forEach(n => n.tags?.forEach(tag => tags.add(tag)));
+    news.forEach((n: any) => n.tags?.forEach((tag: any) => tags.add(tag)));
     return Array.from(tags);
   }, [news]);
 
