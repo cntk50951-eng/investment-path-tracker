@@ -10,9 +10,19 @@
 
 ### 1. 數據庫配置（1 個 - 最重要！）
 
+⚠️ **敏感信息：請從 Vercel Postgres Integration 獲取**
+
 ```
-POSTGRES_URL=postgresql://neondb_owner:npg_rKid9vaZs2jl@ep-calm-poetry-a1jj4oil-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require
+POSTGRES_URL=postgresql://neondb_owner:[YOUR_PASSWORD]@ep-calm-poetry-a1jj4oil-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require
 ```
+
+**獲取方式**：
+1. 訪問 Vercel Dashboard
+2. 選擇項目 → Storage → 點擊您的數據庫
+3. 複製 "Connection Pooling" 下的連接字符串
+4. 替換 `[YOUR_PASSWORD]` 為實際密碼
+
+**注意**：不要將真實密碼提交到 Git！
 
 ### 2. Firebase 配置（7 個）
 
@@ -85,7 +95,7 @@ npm i -g vercel
 vercel login
 
 # 添加環境變量（逐一執行）
-vercel env add POSTGRES_URL "postgresql://neondb_owner:npg_rKid9vaZs2jl@ep-calm-poetry-a1jj4oil-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
+vercel env add POSTGRES_URL "postgresql://neondb_owner:[YOUR_PASSWORD]@ep-calm-poetry-a1jj4oil-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
 vercel env add VITE_FIREBASE_API_KEY AIzaSyA6LXCKT1kvOvna4oPHqQ4VgtiFSXSwgiM
 vercel env add VITE_FIREBASE_AUTH_DOMAIN investmentpath-5ea2e.firebaseapp.com
 vercel env add VITE_FIREBASE_PROJECT_ID investmentpath-5ea2e

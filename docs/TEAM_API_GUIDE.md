@@ -21,9 +21,10 @@ f1d73983e4856108a6c2ba7f2d550cf0e916cc596a166e2d4f41bccb6265b720
 https://investment-path-tracker.vercel.app/api/v1
 ```
 
-### 數據庫連接（僅管理員）
+### 數據庫連接（僅管理員，需配置在 Vercel）
 ```
-POSTGRES_URL=postgresql://neondb_owner:npg_rKid9vaZs2jl@ep-calm-poetry-a1jj4oil-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require
+⚠️ 敏感信息：請在 Vercel Dashboard 配置 POSTGRES_URL 環境變量
+格式：postgresql://username:password@host/database?sslmode=require
 ```
 
 ---
