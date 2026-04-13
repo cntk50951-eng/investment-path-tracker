@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { query } from '../db/client.js';
 
 const API_KEY = process.env.API_KEY;
 
@@ -9,7 +8,7 @@ function verifyApiKey(req: VercelRequest): boolean {
   return apiKey === API_KEY;
 }
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
@@ -34,30 +33,65 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const dataPath = join(process.cwd(), 'public', 'data', 'latest.json');
-    const currentData = JSON.parse(readFileSync(dataPath, 'utf-8'));
-
-    const updatedData = {
-      ...currentData,
-      nodes: body.data.nodes || currentData.nodes,
-      switches: body.data.switches || currentData.switches,
-      alert: body.data.alert ?? currentData.alert,
-      thresholdAlert: body.data.thresholdAlert ?? currentData.thresholdAlert,
-      meta: {
-        ...currentData.meta,
-        lastUpdated: new Date().toISOString(),
-        version: body.data.version || currentData.meta.version
+    // 更新 nodes
+    if (body.data.nodes) {
+      for (const [id, node] of Object.entries(body.data.nodes)) {
+        const nodeData: any = node;
+        await query(`
+          UPDATE nodes 
+          SET prob = $1, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $2
+        `, [nodeData.prob, id]);
+        
+        // 更新 alloc 如果有提供
+        if (nodeData.alloc) {
+          await query('DELETE FROM allocations WHERE node_id = $1', [id]);
+          for (const alloc of nodeData.alloc) {
+            await query('INSERT INTO allocations (node_id, name, tier) VALUES ($1, $2, $3)', [id, alloc.n, alloc.tier]);
+          }
+        }
       }
-    };
+    }
 
-    writeFileSync(dataPath, JSON.stringify(updatedData, null, 2), 'utf-8');
+    // 更新 switches
+    if (body.data.switches) {
+      for (const [id, sw] of Object.entries(body.data.switches)) {
+        const swData: any = sw;
+        await query(`
+          UPDATE switches
+          SET description = $1, next_check = $2, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $3
+        `, [swData.desc, swData.nextCheck, id]);
+      }
+    }
 
+    // 更新 alert
+    if (body.data.alert) {
+      await query(`
+        UPDATE alerts
+        SET active = $1, level = $2, message = $3, action = $4, updated_at = CURRENT_TIMESTAMP
+        WHERE id = (SELECT id FROM alerts LIMIT 1)
+      `, [body.data.alert.active, body.data.alert.level, body.data.alert.message, body.data.alert.action]);
+    }
+
+    // 更新 thresholdAlert
+    if (body.data.thresholdAlert) {
+      await query(`
+        UPDATE threshold_alerts
+        SET progress = $1, tier = $2, next_trigger = $3, updated_at = CURRENT_TIMESTAMP
+        WHERE id = (SELECT id FROM threshold_alerts LIMIT 1)
+      `, [body.data.thresholdAlert.progress, body.data.thresholdAlert.tier, body.data.thresholdAlert.nextTrigger]);
+    }
+
+    const now = new Date().toISOString();
+    
     return res.status(200).json({
       success: true,
-      message: '路徑數據更新成功',
+      message: '路徑數據更新成功（實時寫入數據庫）',
       data: {
-        lastUpdated: updatedData.meta.lastUpdated,
-        version: updatedData.meta.version
+        lastUpdated: now,
+        version: body.data.version || '3.0.0',
+        source: 'PostgreSQL'
       }
     });
 
