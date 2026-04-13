@@ -78,7 +78,7 @@ export function canViewPathDetail(isCurrent: boolean, tier: PremiumTier, isDebug
  * FREE：可見全部概率
  * PRO：可見全部概率
  */
-export function canViewPathProbability(tier: PremiumTier, isDebug: boolean): PermissionCheck {
+export function canViewPathProbability(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 
@@ -99,7 +99,7 @@ export function canViewSwitchDetail(tier: PremiumTier, isDebug: boolean): Permis
  * FREE：進度條可見
  * PRO：進度條可見
  */
-export function canViewSwitchProgress(tier: PremiumTier, isDebug: boolean): PermissionCheck {
+export function canViewSwitchProgress(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 
@@ -127,7 +127,7 @@ export function canViewThresholdAlert(switchId: string, maxSwitchId: string, tie
  * FREE：完整可見
  * PRO：完整可見
  */
-export function canViewMacro(tier: PremiumTier, isDebug: boolean): PermissionCheck {
+export function canViewMacro(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 
