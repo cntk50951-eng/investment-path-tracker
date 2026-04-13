@@ -60,21 +60,8 @@ export function useInvestmentData() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // 優先從 API 讀取（DB），失敗則回退到 JSON
-      let data: InvestmentData;
-      
-      if (useMockData) {
-        // Mock 模式：從 JSON 讀取
-        data = await fetchFromJSON();
-      } else {
-        // 生產模式：從 API 讀取（DB）
-        try {
-          data = await fetchFromAPI();
-        } catch (apiError) {
-          console.warn('API 讀取失敗，回退到 JSON:', apiError);
-          data = await fetchFromJSON();
-        }
-      }
+      // 強制從 API 讀取（DB）- 無回退
+      const data = await fetchFromAPI();
 
       // 數據結構驗證
       const validation = validateInvestmentData(data);
@@ -88,12 +75,13 @@ export function useInvestmentData() {
 
       setData(data);
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : '數據加載失敗';
-      setError(msg);
-    } finally {
+      const msg = error instanceof Error ? error.message : '數據加載失敗 - 請檢查 API 是否正常';
+      console.error('❌ API 讀取失敗:', msg);
+      setError(msg + '\n\nAPI: /api/v1/paths\n請確認 Vercel 已配置 POSTGRES_URL 環境變量');
       setLoading(false);
+      throw error; // 向上拋出錯誤，不使用舊數據
     }
-  }, [useMockData, isDebugMode, setLoading, setError, setData, fetchFromJSON, fetchFromAPI]);
+  }, [isDebugMode, setLoading, setError, setData, fetchFromAPI]);
 
   useEffect(() => {
     // 每次都從 API 讀取最新數據（無緩存）
