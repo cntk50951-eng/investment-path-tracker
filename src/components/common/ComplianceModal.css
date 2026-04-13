@@ -1,0 +1,99 @@
+/* 合規提示模塊樣式 */
+
+.compliance-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.compliance-modal {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(245, 158, 11, 0.5);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.compliance-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.compliance-modal-header h2 {
+  color: #f59e0b;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.compliance-modal-content {
+  padding: 1.5rem;
+  color: #e2e8f0;
+  font-size: 0.938rem;
+  line-height: 1.8;
+}
+
+.compliance-modal-content ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.compliance-modal-content li {
+  margin-bottom: 0.5rem;
+}
+
+.compliance-modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  display: flex;
+  justify-content: center;
+}
+
+.compliance-accept-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0f172a;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.compliance-accept-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+}
+
+/* 移動端適配 */
+@media (max-width: 768px) {
+  .compliance-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .compliance-modal-header,
+  .compliance-modal-content,
+  .compliance-modal-footer {
+    padding: 1rem;
+  }
+
+  .compliance-modal-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .compliance-modal-content {
+    font-size: 0.875rem;
+  }
+}
