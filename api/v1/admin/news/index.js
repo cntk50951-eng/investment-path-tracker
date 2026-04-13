@@ -1,14 +1,55 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from '../db/client.js';
+import pkg from 'pg';
+const { Pool } = pkg;
+
+let pool;
+
+function getPool() {
+  if (!pool) {
+    const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error('缺少數據庫連接字符串：' + JSON.stringify({
+        has_postgres_url: !!process.env.POSTGRES_URL,
+        has_database_url: !!process.env.DATABASE_URL,
+        node_env: process.env.NODE_ENV
+      }));
+    }
+    pool = new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    });
+  }
+  return pool;
+}
+
+async function query(text, params) {
+  const client = await getPool().connect();
+  try {
+    const result = await client.query(text, params);
+    return result;
+  } finally {
+    client.release();
+  }
+}
 
 const API_KEY = process.env.API_KEY;
 
-function verifyApiKey(req: VercelRequest): boolean {
+function verifyApiKey(req) {
   const apiKey = req.headers['x-api-key'];
   return apiKey === API_KEY;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
@@ -35,13 +76,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const now = new Date().toISOString();
 
-    // 逐條處理新聞
     for (const newsItem of body.news) {
-      // 檢查是否已存在
       const existing = await query('SELECT id FROM news WHERE id = $1', [newsItem.id]);
       
       if (existing.rows.length > 0) {
-        // 更新
         await query(`
           UPDATE news
           SET market = $1, date = $2, title = $3, source = $4, severity = $5, 
@@ -52,12 +90,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           newsItem.severity, newsItem.summary, newsItem.impact, newsItem.url, newsItem.id
         ]);
         
-        // 刪除舊的關聯
         await query('DELETE FROM news_affects WHERE news_id = $1', [newsItem.id]);
         await query('DELETE FROM news_related_paths WHERE news_id = $1', [newsItem.id]);
         await query('DELETE FROM news_tags WHERE news_id = $1', [newsItem.id]);
       } else {
-        // 插入
         await query(`
           INSERT INTO news (id, market, date, title, source, severity, summary, impact, url)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -67,21 +103,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ]);
       }
       
-      // 插入 affects
       if (newsItem.affects) {
         for (const switchId of newsItem.affects) {
           await query('INSERT INTO news_affects (news_id, switch_id) VALUES ($1, $2)', [newsItem.id, switchId]);
         }
       }
       
-      // 插入 relatedPaths
       if (newsItem.relatedPaths) {
         for (const pathId of newsItem.relatedPaths) {
           await query('INSERT INTO news_related_paths (news_id, path_id) VALUES ($1, $2)', [newsItem.id, pathId]);
         }
       }
       
-      // 插入 tags
       if (newsItem.tags) {
         for (const tag of newsItem.tags) {
           await query('INSERT INTO news_tags (news_id, tag) VALUES ($1, $2)', [newsItem.id, tag]);
@@ -100,10 +133,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error) {
-    console.error('API Error - POST /admin/news:', error);
+    console.error('API Error - POST /admin/news:', {
+      message: error.message,
+      has_postgres_url: !!process.env.POSTGRES_URL,
+      has_database_url: !!process.env.DATABASE_URL
+    });
     return res.status(500).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤' }
+      error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤：' + error.message }
     });
   }
 }
