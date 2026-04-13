@@ -1,0 +1,223 @@
+/* 合規提示橫幅樣式 */
+
+.compliance-banner {
+  background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%);
+  border-bottom: 2px solid rgba(251, 191, 36, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 100;
+}
+
+.compliance-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.compliance-banner-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.compliance-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.compliance-banner-title {
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 0.938rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.025em;
+}
+
+.compliance-banner-items {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: #fed7aa;
+  font-size: 0.813rem;
+  line-height: 1.6;
+}
+
+.compliance-banner-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.compliance-banner-item strong {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.compliance-banner-divider {
+  color: rgba(254, 215, 170, 0.4);
+  font-size: 0.75rem;
+}
+
+.compliance-banner-close {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fed7aa;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-size: 1.125rem;
+}
+
+.compliance-banner-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+/* 可展開詳情 */
+.compliance-banner-details {
+  border-top: 1px solid rgba(251, 191, 36, 0.3);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.compliance-banner-summary {
+  color: #fbbf24;
+  font-size: 0.813rem;
+  cursor: pointer;
+  padding: 0.5rem 1.5rem 0.75rem;
+  transition: color 0.2s;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compliance-banner-summary:hover {
+  color: #fde68a;
+}
+
+.compliance-banner-summary::-webkit-details-marker {
+  display: none;
+}
+
+.compliance-banner-summary::before {
+  content: '▼';
+  font-size: 0.625rem;
+  transition: transform 0.2s;
+}
+
+.compliance-banner-details[open] .compliance-banner-summary::before {
+  transform: rotate(180deg);
+}
+
+.compliance-banner-disclosure {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.disclosure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.disclosure-item {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 6px;
+  padding: 0.875rem;
+}
+
+.disclosure-item-title {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 0.813rem;
+  margin-bottom: 0.5rem;
+}
+
+.disclosure-item-content {
+  color: #fed7aa;
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+
+/* 移動端適配 */
+@media (max-width: 768px) {
+  .compliance-banner-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .compliance-banner-icon {
+    font-size: 1.25rem;
+  }
+
+  .compliance-banner-title {
+    font-size: 0.875rem;
+  }
+
+  .compliance-banner-items {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .compliance-banner-divider {
+    display: none;
+  }
+
+  .compliance-banner-item {
+    font-size: 0.75rem;
+  }
+
+  .compliance-banner-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 28px;
+    height: 28px;
+  }
+
+  .disclosure-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compliance-banner-disclosure {
+    padding: 0.75rem 1rem 1rem;
+  }
+}
+
+/* 平板適配 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .compliance-banner-items {
+    flex-wrap: wrap;
+  }
+
+  .disclosure-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

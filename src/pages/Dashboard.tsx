@@ -21,6 +21,7 @@ import { UpgradePrompt } from '../components/common/UpgradePrompt';
 import { DebugPanel } from '../components/common/DebugPanel';
 import { ComplianceFooter } from '../components/common/ComplianceFooter';
 import { ComplianceModal } from '../components/common/ComplianceModal';
+import { ComplianceBanner } from '../components/common/ComplianceBanner';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton, MacroBarSkeleton } from '../components/common/Skeleton';
 import './Dashboard.css';
 
@@ -92,6 +93,9 @@ const Dashboard: React.FC = () => {
       {/* 市場和功能切換 Tab */}
       <MarketTab />
       <FunctionTab />
+
+      {/* 合規提示橫幅（明顯位置） */}
+      <ComplianceBanner />
 
       {/* 增量加載 - 每個模塊獨立顯示 */}
       <>
