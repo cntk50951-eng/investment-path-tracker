@@ -8,7 +8,7 @@ import { usePremiumStore } from '../../store/usePremiumStore';
 import { useDebugStore } from '../../store/useDebugStore';
 import { motion } from 'framer-motion';
 import { calcProgress } from '../../utils/validators';
-import { canViewPath, getUserTier } from '../../utils/permissions';
+import { canViewPathDetail, getUserTier } from '../../utils/permissions';
 import './FlowDiagram.css';
 
 const NODES = {
@@ -21,7 +21,7 @@ const NODES = {
 
 export const FlowDiagram: React.FC = () => {
   const { investmentData, selectSwitch, selectPath, selectedSwitch, selectedPath } = useDataStore();
-  const { isPremium, incrementPaywallCount } = usePremiumStore();
+  const { isPremium, showUpgradePrompt } = usePremiumStore();
   const { isDebugMode, mockPremium, showBlurDebug } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
 
@@ -42,11 +42,9 @@ export const FlowDiagram: React.FC = () => {
   const handleNodeClick = (nodeId: string) => {
     const node = investmentData?.nodes[nodeId];
     if (!node) return;
-
-    const perm = canViewPath(nodeId, !!node.current, tier, isDebugMode);
+    const perm = canViewPathDetail(!!node.current, tier, isDebugMode);
     if (!perm.allowed) {
-      incrementPaywallCount();
-      // 仍然允許選中（顯示鎖定的輪廓），但 DetailPanel 會處理模糊
+      showUpgradePrompt(perm.reason, 'path');
     }
     selectPath(nodeId === selectedPath ? null : nodeId);
   };
@@ -69,7 +67,7 @@ export const FlowDiagram: React.FC = () => {
           if (!node) return null;
           const isActive = selectedPath === id;
           const isCurrent = !!node.current;
-          const perm = canViewPath(id, isCurrent, tier, isDebugMode);
+          const perm = canViewPathDetail(isCurrent, tier, isDebugMode);
 
           return (
             <motion.button

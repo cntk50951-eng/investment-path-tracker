@@ -13,12 +13,12 @@ interface PaywallModalProps {
 }
 
 export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose }) => {
-  const { dismissPaywall } = usePremiumStore();
+  const { hideUpgradePrompt } = usePremiumStore();
 
   if (!isOpen) return null;
 
   const handleClose = () => {
-    dismissPaywall();
+    hideUpgradePrompt();
     onClose();
   };
 

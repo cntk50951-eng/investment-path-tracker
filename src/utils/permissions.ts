@@ -1,75 +1,73 @@
 // ==========================================
-// 統一權限控制模塊
-// 所有付費門控邏輯集中在此，不分散在各組件中
+// 統一權限控制模塊 — Free / Pro 清晰邊界
+//
+// FREE 可見：
+//   - 宏觀數據欄（完整）
+//   - 流程圖結構 + 概率條（完整，非主路徑節點灰化）
+//   - 路徑 Tab（可點擊，非主路徑觸發 inline 升級提示）
+//   - 切換進度表（進度條 + 方向可見，點擊詳情觸發升級提示）
+//   - 主路徑板塊特徵（完整）
+//   - 新聞標題 + 來源（完整）
+//   - 警報橫幅 / 閾值橫幅（完整，作為引流工具）
+//
+// PRO 專屬：
+//   - 非主路徑的板塊特徵詳情
+//   - 切換確認信號詳情（點擊切換行後的展開內容）
+//   - 新聞摘要 + 詳情抽屜（影響分析、標籤、關聯路徑）
 // ==========================================
 
 import type { PremiumTier } from '../types';
 
-/**
- * 權限分層定義：
- * FREE：僅可查看主投資路徑（current=true）；新聞標題可見，內容模糊
- * PRO：可切換所有投資路徑；新聞完整可見含詳情
- */
-
 export interface PermissionCheck {
   allowed: boolean;
-  reason?: string;
+  reason: string;
+}
+
+// ---- 核心判斷函數 ----
+
+function check(allowed: boolean, reason: string): PermissionCheck {
+  return { allowed, reason };
+}
+
+function isFree(tier: PremiumTier, isDebug: boolean): boolean {
+  return !isDebug && tier === 'free';
 }
 
 // ---- 路徑權限 ----
 
-/** 是否可以查看指定路徑的完整內容 */
-export function canViewPath(_pathId: string, isCurrent: boolean, tier: PremiumTier, isDebug: boolean): PermissionCheck {
-  if (isDebug) return { allowed: true };
-  if (tier === 'pro') return { allowed: true };
-  // FREE 用戶僅可查看當前主路徑
-  if (isCurrent) return { allowed: true };
-  return { allowed: false, reason: '升級 Pro 解鎖所有投資路徑' };
-}
-
-/** 是否可以切換路徑 */
-export function canSwitchPath(tier: PremiumTier, isDebug: boolean): PermissionCheck {
-  if (isDebug) return { allowed: true };
-  if (tier === 'pro') return { allowed: true };
-  return { allowed: false, reason: '路徑切換為 Pro 功能' };
-}
-
-// ---- 新聞權限 ----
-
-/** 是否可以查看新聞詳情（summary、tags、impact） */
-export function canViewNewsDetail(tier: PremiumTier, isDebug: boolean): PermissionCheck {
-  if (isDebug) return { allowed: true };
-  if (tier === 'pro') return { allowed: true };
-  return { allowed: false, reason: '升級 Pro 查看完整新聞分析' };
-}
-
-/** 新聞列表中哪些項目可見（FREE 用戶標題可見，內容模糊） */
-export function isNewsContentVisible(tier: PremiumTier, isDebug: boolean): boolean {
-  return isDebug || tier === 'pro';
+/**
+ * 非主路徑的板塊特徵詳情 — Pro 專屬
+ * 主路徑（current=true）免費可見
+ */
+export function canViewPathDetail(isCurrent: boolean, tier: PremiumTier, isDebug: boolean): PermissionCheck {
+  if (!isFree(tier, isDebug) || isCurrent) return check(true, '');
+  return check(false, '升級 Pro 解鎖全部 5 條路徑的板塊特徵');
 }
 
 // ---- 切換詳情權限 ----
 
-/** 是否可以查看切換的完整確認信號 */
+/**
+ * 切換確認信號詳情 — Pro 專屬
+ * Free 用戶可見進度條和觸發條件，但點擊展開詳情時觸發升級提示
+ */
 export function canViewSwitchDetail(tier: PremiumTier, isDebug: boolean): PermissionCheck {
-  if (isDebug) return { allowed: true };
-  if (tier === 'pro') return { allowed: true };
-  return { allowed: false, reason: '升級 Pro 查看完整切換信號' };
+  if (!isFree(tier, isDebug)) return check(true, '');
+  return check(false, '升級 Pro 查看完整確認信號與分析');
 }
 
-// ---- 板塊配置權限 ----
+// ---- 新聞權限 ----
 
-/** 是否可以查看非主路徑的板塊配置 */
-export function canViewAllocation(isCurrent: boolean, tier: PremiumTier, isDebug: boolean): PermissionCheck {
-  if (isDebug) return { allowed: true };
-  if (tier === 'pro') return { allowed: true };
-  if (isCurrent) return { allowed: true };
-  return { allowed: false, reason: '升級 Pro 查看所有路徑板塊特徵' };
+/**
+ * 新聞摘要 + 詳情抽屜 — Pro 專屬
+ * Free 用戶：標題 + 來源可見，摘要模糊，點擊觸發升級提示
+ */
+export function canViewNewsContent(tier: PremiumTier, isDebug: boolean): PermissionCheck {
+  if (!isFree(tier, isDebug)) return check(true, '');
+  return check(false, '升級 Pro 解鎖完整新聞分析與影響評估');
 }
 
 // ---- 工具函數 ----
 
-/** 獲取用戶的 tier */
 export function getUserTier(isPremium: boolean, isDebugMockPremium: boolean): PremiumTier {
   if (isDebugMockPremium) return 'pro';
   return isPremium ? 'pro' : 'free';

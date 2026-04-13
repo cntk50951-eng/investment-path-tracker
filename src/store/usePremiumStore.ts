@@ -1,64 +1,46 @@
 // ==========================================
-// 付費狀態 Store
+// 付費狀態 Store — 精簡版
+// 移除複雜的計數邏輯，改為純粹的 inline 升級引導
 // ==========================================
 
 import { create } from 'zustand';
 
 interface PremiumState {
-  // 狀態
   isPremium: boolean;
   expiresAt: string | null;
-  hasDismissedPaywall: boolean;
-  paywallCount: number;
 
-  // Actions
+  // 升級浮層狀態（由用戶主動觸發，不自動彈出）
+  upgradePrompt: {
+    visible: boolean;
+    reason: string;
+    anchor: 'path' | 'switch' | 'news' | null;
+  };
+
   setPremium: (isPremium: boolean, expiresAt?: string) => void;
-  incrementPaywallCount: () => void;
-  dismissPaywall: () => void;
-  resetPaywallCount: () => void;
-  shouldShowPaywall: () => boolean;
+  showUpgradePrompt: (reason: string, anchor: 'path' | 'switch' | 'news') => void;
+  hideUpgradePrompt: () => void;
 }
 
-export const usePremiumStore = create<PremiumState>((set, get) => ({
-  // 初始狀態
+export const usePremiumStore = create<PremiumState>((set) => ({
   isPremium: false,
   expiresAt: null,
-  hasDismissedPaywall: false,
-  paywallCount: 0,
 
-  // 設置付費狀態
+  upgradePrompt: {
+    visible: false,
+    reason: '',
+    anchor: null,
+  },
+
   setPremium: (isPremium, expiresAt) => set({
     isPremium,
-    expiresAt: expiresAt || null,
+    expiresAt: expiresAt ?? null,
   }),
 
-  // 增加付費牆顯示次數
-  incrementPaywallCount: () => set((state) => ({
-    paywallCount: state.paywallCount + 1,
-  })),
-
-  // 關閉付費牆
-  dismissPaywall: () => set({
-    hasDismissedPaywall: true,
+  showUpgradePrompt: (reason, anchor) => set({
+    upgradePrompt: { visible: true, reason, anchor },
   }),
 
-  // 重置付費牆計數
-  resetPaywallCount: () => set({
-    paywallCount: 0,
-    hasDismissedPaywall: false,
+  hideUpgradePrompt: () => set({
+    upgradePrompt: { visible: false, reason: '', anchor: null },
   }),
-
-  // 是否應該顯示付費牆 (溫和策略)
-  shouldShowPaywall: () => {
-    const state = get();
-    
-    // 付費用戶不顯示
-    if (state.isPremium) return false;
-    
-    // 前 2 次點擊不顯示完整付費牆
-    if (state.paywallCount < 2) return false;
-    
-    // 每 5 次點擊顯示一次完整付費牆
-    return state.paywallCount % 5 === 0;
-  },
 }));

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDataStore } from '../../store/useDataStore';
 import { usePremiumStore } from '../../store/usePremiumStore';
 import { useDebugStore } from '../../store/useDebugStore';
-import { canViewNewsDetail, getUserTier } from '../../utils/permissions';
+import { canViewNewsContent, getUserTier } from '../../utils/permissions';
 import { calcProgress } from '../../utils/validators';
 import { getNodeColor } from '../../utils/constants';
 import type { NewsEvent } from '../../types';
@@ -20,10 +20,10 @@ interface NewsDrawerProps {
 
 export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
   const { investmentData } = useDataStore();
-  const { isPremium } = usePremiumStore();
+  const { isPremium, showUpgradePrompt } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
-  const canView = canViewNewsDetail(tier, isDebugMode);
+  const canView = canViewNewsContent(tier, isDebugMode);
 
   // ESC 關閉
   useEffect(() => {
@@ -162,7 +162,12 @@ export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
                   <div className="drawer-locked-overlay">
                     <span style={{ fontSize: '1.5em' }}>🔒</span>
                     <span style={{ color: '#f472b6', fontWeight: 700, fontSize: '0.9em' }}>Pro 會員專屬</span>
-                    <button className="drawer-upgrade-btn">升級 Pro 解鎖</button>
+                    <button
+                      className="drawer-upgrade-btn"
+                      onClick={() => showUpgradePrompt(canView.reason, 'news')}
+                    >
+                      升級 Pro 解鎖
+                    </button>
                   </div>
                 </div>
               )}

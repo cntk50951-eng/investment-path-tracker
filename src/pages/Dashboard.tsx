@@ -3,10 +3,10 @@
 // ==========================================
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useInvestmentData } from '../hooks/useInvestmentData';
 import { useKeyboard } from '../hooks/useKeyboard';
-import { useDataStore } from '../store/useDataStore';
-import { usePremiumStore } from '../store/usePremiumStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { useDebugStore } from '../store/useDebugStore';
 import { MacroBar } from '../components/MacroBar';
 import { AlertBanner } from '../components/AlertBanner';
@@ -15,7 +15,7 @@ import { SwitchTable } from '../components/SwitchTable';
 import { NewsPanel } from '../components/NewsPanel';
 import { DetailPanel } from '../components/DetailPanel';
 import { ThresholdBanner } from '../components/ThresholdBanner';
-import { PaywallModal } from '../components/common/PaywallModal';
+import { UpgradePrompt } from '../components/common/UpgradePrompt';
 import { DebugPanel } from '../components/common/DebugPanel';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton, MacroBarSkeleton } from '../components/common/Skeleton';
 import { FOOTER_DISCLAIMER } from '../utils/complianceChecker';
@@ -23,18 +23,17 @@ import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const { data, isLoading, error, refresh } = useInvestmentData();
-  const { selectedPath, selectedSwitch } = useDataStore();
-  const { isPremium, paywallCount, shouldShowPaywall } = usePremiumStore();
+  const { user, logout } = useAuthStore();
   const { isDebugMode } = useDebugStore();
-  const [showPaywall, setShowPaywall] = React.useState(false);
+  const navigate = useNavigate();
 
   useKeyboard({ enabled: true });
 
-  React.useEffect(() => {
-    if (!isPremium && shouldShowPaywall() && paywallCount > 0) {
-      setShowPaywall(true);
-    }
-  }, [selectedPath, selectedSwitch, isPremium, shouldShowPaywall, paywallCount]);
+  // 處理登出
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   if (error) {
     return (
@@ -56,11 +55,33 @@ const Dashboard: React.FC = () => {
       )}
 
       <header className="dashboard-header">
-        <h1>🦍 2026 美股投資路徑切換中心</h1>
-        <p className="dashboard-subtitle">
-          人猿決策 · 鷹眼宏觀 · 獵豹情報 · 蝮蛇風控
-          {data && ` | 更新：${data.meta.lastUpdated.split('T')[0]}`}
-        </p>
+        <div className="header-content">
+          <div>
+            <h1>🦍 2026 美股投資路徑切換中心</h1>
+            <p className="dashboard-subtitle">
+              人猿決策 · 鷹眼宏觀 · 獵豹情報 · 蝮蛇風控
+              {data && ` | 更新：${data.meta.lastUpdated.split('T')[0]}`}
+            </p>
+          </div>
+          {user && (
+            <div className="user-info">
+              <div className="user-avatar">
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt={user.displayName} />
+                ) : (
+                  <span>{user.displayName.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="user-details">
+                <span className="user-name">{user.displayName}</span>
+                <span className="user-tier">{user.premiumTier === 'pro' ? '💎 Pro' : '🆓 Free'}</span>
+              </div>
+              <button className="logout-btn" onClick={handleLogout} title="登出">
+                🚪
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* 骨架屏 or 真實內容 */}
@@ -107,7 +128,7 @@ const Dashboard: React.FC = () => {
         <div className="footer-disclaimer">{FOOTER_DISCLAIMER}</div>
       </footer>
 
-      <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+      <UpgradePrompt />
       {isDebugMode && <DebugPanel />}
     </div>
   );

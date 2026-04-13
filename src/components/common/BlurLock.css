@@ -1,41 +1,91 @@
-/* BlurLock 樣式 */
+/* BlurLock — 模糊鎖定組件樣式 */
 
-.blur-lock-container {
+.blur-lock-wrap {
   position: relative;
-  display: inline-block;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
   width: 100%;
 }
 
-.blur-lock-container.clickable {
-  cursor: pointer;
+.blur-lock-outline {
+  outline: 1px solid rgba(244, 114, 182, 0.15);
 }
 
-.blur-lock-container.clickable:hover .blur-lock-overlay {
-  background: rgba(8, 12, 24, 0.6);
+.blur-lock-outline:hover {
+  outline-color: rgba(244, 114, 182, 0.35);
 }
 
-.blur-lock {
-  transition: filter 0.3s ease;
+/* 模糊層 */
+.blur-lock-content {
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.2s ease;
 }
 
-.blur-lock-overlay {
+.blur-soft {
+  filter: blur(3px);
+  opacity: 0.6;
+}
+
+.blur-hard {
+  filter: blur(5px);
+  opacity: 0.45;
+}
+
+/* Hover 浮層 */
+.blur-lock-hover {
   position: absolute;
   inset: 0;
-  background: rgba(8, 12, 24, 0.7);
-  backdrop-filter: blur(3px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: inherit;
-  z-index: 10;
+  gap: 6px;
+  background: rgba(8, 12, 24, 0.55);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.blur-lock-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  background: rgba(244, 114, 182, 0.15);
+  border: 1px solid rgba(244, 114, 182, 0.4);
+  border-radius: 20px;
 }
 
 .blur-lock-icon {
-  font-size: 0.9em;
+  font-size: 0.85em;
+}
+
+.blur-lock-text {
+  font-size: 0.75em;
   font-weight: 700;
-  color: var(--path-e, #f472b6);
-  padding: 8px 16px;
-  background: rgba(244, 114, 182, 0.1);
-  border: 1px solid rgba(244, 114, 182, 0.3);
-  border-radius: 8px;
+  color: #f472b6;
+  letter-spacing: 0.05em;
+}
+
+.blur-lock-hint {
+  font-size: 0.72em;
+  color: var(--text-muted, #94a3b8);
+  text-align: center;
+  max-width: 180px;
+  line-height: 1.4;
+}
+
+/* 靜態鎖圖標 */
+.blur-lock-static {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  pointer-events: none;
+}
+
+.blur-lock-static-icon {
+  font-size: 0.75em;
+  opacity: 0.5;
 }

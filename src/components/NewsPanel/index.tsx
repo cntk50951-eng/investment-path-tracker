@@ -6,7 +6,7 @@ import React, { useMemo, useState } from 'react';
 import { useDataStore } from '../../store/useDataStore';
 import { usePremiumStore } from '../../store/usePremiumStore';
 import { useDebugStore } from '../../store/useDebugStore';
-import { isNewsContentVisible, getUserTier } from '../../utils/permissions';
+import { canViewNewsContent, getUserTier } from '../../utils/permissions';
 import { getNodeColor } from '../../utils/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NewsDrawer } from '../NewsDrawer';
@@ -18,7 +18,8 @@ export const NewsPanel: React.FC = () => {
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
-  const contentVisible = isNewsContentVisible(tier, isDebugMode);
+  const canViewContent = canViewNewsContent(tier, isDebugMode);
+  const contentVisible = canViewContent.allowed;
 
   const [drawerNews, setDrawerNews] = useState<NewsEvent | null>(null);
 
