@@ -24,7 +24,7 @@ import { FOOTER_DISCLAIMER } from '../utils/complianceChecker';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  const { nodes, switches, alert, thresholdAlert, macros, news, loadingModules, error, refresh } = useInvestmentData();
+  const { nodes, macros, news, loadingModules, error, refresh } = useInvestmentData();
   const { user, logout } = useAuthStore();
   const { isDebugMode } = useDebugStore();
   const navigate = useNavigate();
@@ -51,7 +51,6 @@ const Dashboard: React.FC = () => {
   const hasPathsData = nodes && Object.keys(nodes).length > 0;
   const hasNewsData = news && news.length > 0;
   const hasMacrosData = macros && macros.length > 0;
-  const isAnyLoaded = hasPathsData || hasNewsData || hasMacrosData;
 
   return (
     <div className="dashboard">

@@ -10,7 +10,7 @@ import { getNodeColor } from '../../utils/constants';
 import './SwitchTable.css';
 
 export const SwitchTable: React.FC = () => {
-  const { nodes, switches, selectSwitch, selectedSwitch } = useDataStore();
+  const { switches, selectSwitch, selectedSwitch } = useDataStore();
 
   if (!switches) {
     return <div className="switch-table-loading">加載切換表...</div>;
@@ -21,9 +21,9 @@ export const SwitchTable: React.FC = () => {
     return Object.entries(switches!)
       .map(([id, sw]) => {
         const progress = calcProgress(sw);
-        const yesCount = sw.confirms.filter(c => c.status === 'yes').length;
-        const nearCount = sw.confirms.filter(c => c.status === 'near').length;
-        const noCount = sw.confirms.filter(c => c.status === 'no').length;
+        const yesCount = sw.confirms.filter((c: any) => c.status === 'yes').length;
+        const nearCount = sw.confirms.filter((c: any) => c.status === 'near').length;
+        const noCount = sw.confirms.filter((c: any) => c.status === 'no').length;
         const tier = getTier(progress);
 
         // 確定狀態徽章

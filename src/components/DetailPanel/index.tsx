@@ -42,10 +42,10 @@ export const DetailPanel: React.FC = () => {
             isDebug={isDebugMode}
           />
         )}
-        {selectedPath && nodes[selectedPath] && (
+        {selectedPath && nodes && nodes[selectedPath] && (
           <PathDetail
             key="path"
-            node={nodes[selectedPath]}
+            node={nodes[selectedPath]!}
             tier={tier}
             isDebug={isDebugMode}
           />

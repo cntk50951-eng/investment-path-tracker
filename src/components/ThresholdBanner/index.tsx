@@ -20,8 +20,9 @@ export const ThresholdBanner: React.FC = () => {
   const sw = switches[switchId];
   if (!sw) return null;
 
-  const fromNode = nodes[sw.from];
-  const toNode = nodes[sw.to];
+  const fromNode = nodes?.[sw.from];
+  const toNode = nodes?.[sw.to];
+  if (!fromNode || !toNode) return null;
   const tier = getTier(progress);
   const tierConfig = TIER_CONFIG[tier];
 
