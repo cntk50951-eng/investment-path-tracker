@@ -1,8 +1,48 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query } from '../db/client.js';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // 記錄用戶登錄
+let pool;
+
+function getPool() {
+  if (!pool) {
+    const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error('缺少數據庫連接字符串：' + JSON.stringify({
+        has_postgres_url: !!process.env.POSTGRES_URL,
+        has_database_url: !!process.env.DATABASE_URL,
+        node_env: process.env.NODE_ENV
+      }));
+    }
+    pool = new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    });
+  }
+  return pool;
+}
+
+async function query(text, params) {
+  const client = await getPool().connect();
+  try {
+    const result = await client.query(text, params);
+    return result;
+  } finally {
+    client.release();
+  }
+}
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   if (req.method === 'POST') {
     try {
       const { user } = req.body;
@@ -14,18 +54,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
       
-      // 檢查用戶是否存在
       const existing = await query('SELECT id FROM users WHERE id = $1', [user.uid]);
       
       if (existing.rows.length > 0) {
-        // 更新用戶
         await query('UPDATE users SET display_name = $1, photo_url = $2, last_login_at = CURRENT_TIMESTAMP, login_count = login_count + 1, updated_at = CURRENT_TIMESTAMP WHERE id = $3', [user.displayName || null, user.photoURL || null, user.uid]);
       } else {
-        // 創建新用戶
         await query('INSERT INTO users (id, email, display_name, photo_url, premium_tier) VALUES ($1, $2, $3, $4, $5)', [user.uid, user.email, user.displayName || null, user.photoURL || null, 'free']);
       }
       
-      // 記錄登錄日誌
       await query('INSERT INTO user_logins (user_id, ip_address, user_agent) VALUES ($1, $2, $3)', [user.uid, req.headers['x-forwarded-for'] || null, req.headers['user-agent'] || null]);
       
       return res.status(200).json({
@@ -35,18 +71,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       
     } catch (error) {
-      console.error('API Error - POST /api/users:', error);
+      console.error('API Error - POST /api/users:', {
+        message: error.message,
+        has_postgres_url: !!process.env.POSTGRES_URL,
+        has_database_url: !!process.env.DATABASE_URL
+      });
       return res.status(500).json({
         success: false,
-        error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤' }
+        error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤：' + error.message }
       });
     }
   }
   
-  // 獲取用戶信息
   if (req.method === 'GET') {
     try {
-      const userId = req.query.uid as string;
+      const userId = req.query.uid;
       
       if (!userId) {
         return res.status(400).json({
@@ -71,10 +110,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       
     } catch (error) {
-      console.error('API Error - GET /api/users:', error);
+      console.error('API Error - GET /api/users:', {
+        message: error.message,
+        has_postgres_url: !!process.env.POSTGRES_URL,
+        has_database_url: !!process.env.DATABASE_URL
+      });
       return res.status(500).json({
         success: false,
-        error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤' }
+        error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤：' + error.message }
       });
     }
   }
