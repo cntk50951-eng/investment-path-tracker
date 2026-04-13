@@ -48,9 +48,6 @@ const Dashboard: React.FC = () => {
   }
 
   // 計算是否有足夠數據顯示
-  const hasPathsData = nodes && Object.keys(nodes).length > 0;
-  const hasNewsData = news && news.length > 0;
-  const hasMacrosData = macros && macros.length > 0;
 
   return (
     <div className="dashboard">

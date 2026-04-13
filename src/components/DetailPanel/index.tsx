@@ -33,11 +33,11 @@ export const DetailPanel: React.FC = () => {
   return (
     <div className="detail-panel">
       <AnimatePresence mode="wait">
-        {selectedSwitch && switches[selectedSwitch] && (
+        {selectedSwitch && switches && switches[selectedSwitch] && (
           <SwitchDetail
             key="switch"
-            data={switches[selectedSwitch]}
-            nodes={nodes}
+            data={switches[selectedSwitch]!}
+            nodes={nodes || {}}
             tier={tier}
             isDebug={isDebugMode}
           />

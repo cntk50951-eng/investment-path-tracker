@@ -11,10 +11,10 @@ import { checkCompliance, reportViolations } from '../utils/complianceChecker';
 export function useInvestmentData() {
   const { 
     nodes, switches, alert, thresholdAlert, macros, news,
-    loadingModules, error,
+    loadingModules,
     setNodes, setSwitches, setAlert, setThresholdAlert,
     setMacros, setNews,
-    setLoadingModule, setError
+    setLoadingModule
   } = useDataStore();
   const { isDebugMode } = useDebugStore();
 
