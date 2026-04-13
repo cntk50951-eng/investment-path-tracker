@@ -253,9 +253,3 @@
     font-size: 1.3em;
   }
 }
-  .news-panel-wrapper {
-    max-height: 400px;
-    position: static;
-    margin-top: 12px;
-  }
-}
