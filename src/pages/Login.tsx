@@ -6,6 +6,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { GoogleLoginButton } from '../components/common/GoogleLoginButton';
+import { ComplianceBanner } from '../components/common/ComplianceBanner';
 import { motion } from 'framer-motion';
 import './Login.css';
 
@@ -31,9 +32,12 @@ export const Login: React.FC = () => {
         <div className="login-header">
           <h1>🦍 2026 美股投資路徑切換中心</h1>
           <p className="login-subtitle">
-            人猿決策 · 鷹眼宏觀 · 獵豹情報 · 蝮蛇風控
+            宏觀研究 · 路徑追蹤 · 風險監測
           </p>
         </div>
+
+        {/* 合規提示橫幅 */}
+        <ComplianceBanner />
 
         <div className="login-content">
           {/* 功能介紹 */}
@@ -91,7 +95,7 @@ export const Login: React.FC = () => {
                 <li>✨ 5 條路徑完整詳情 + 概率實時追蹤</li>
                 <li>✨ 12 條切換信號進度 (提前 1-2 週預警)</li>
                 <li>✨ 完整新聞分析 + 影響路徑標籤</li>
-                <li>✨ 人猿團隊獨家解讀 + 倉位建議</li>
+                <li>✨ 深度研究解讀 + 倉位分析</li>
                 <li>✨ 郵件提醒 (CPI/非農/FOMC 前推送)</li>
               </ul>
               <p className="pro-price">$29/月 · 首 7 天免費試用</p>
@@ -100,9 +104,11 @@ export const Login: React.FC = () => {
         </div>
 
         <footer className="login-footer">
-          <p>
-            ⚠️ 僅供參考，不構成投資建議 | 數據來源：BLS、BEA、FRED、Yahoo Finance
-          </p>
+          <div className="footer-disclaimer">
+            <p>⚠️ 僅供參考，不構成投資建議</p>
+            <p>🌏 本服務不向中國大陸用戶提供</p>
+            <p>📊 數據來源：BLS、BEA、FRED、Yahoo Finance</p>
+          </div>
         </footer>
       </motion.div>
     </div>
