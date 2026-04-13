@@ -17,7 +17,7 @@ import type { Node, Switch, Allocation } from '../../types';
 import './DetailPanel.css';
 
 export const DetailPanel: React.FC = () => {
-  const { selectedSwitch, selectedPath, investmentData } = useDataStore();
+  const { selectedSwitch, selectedPath, nodes, switches } = useDataStore();
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
@@ -33,19 +33,19 @@ export const DetailPanel: React.FC = () => {
   return (
     <div className="detail-panel">
       <AnimatePresence mode="wait">
-        {selectedSwitch && investmentData?.switches[selectedSwitch] && (
+        {selectedSwitch && switches[selectedSwitch] && (
           <SwitchDetail
             key="switch"
-            data={investmentData.switches[selectedSwitch]}
-            nodes={investmentData.nodes}
+            data={switches[selectedSwitch]}
+            nodes={nodes}
             tier={tier}
             isDebug={isDebugMode}
           />
         )}
-        {selectedPath && investmentData?.nodes[selectedPath] && (
+        {selectedPath && nodes[selectedPath] && (
           <PathDetail
             key="path"
-            node={investmentData.nodes[selectedPath]}
+            node={nodes[selectedPath]}
             tier={tier}
             isDebug={isDebugMode}
           />

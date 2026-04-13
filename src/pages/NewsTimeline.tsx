@@ -15,7 +15,7 @@ import type { NewsEvent } from '../types';
 import './NewsTimeline.css';
 
 const NewsTimeline: React.FC = () => {
-  const { data, isLoading, error } = useInvestmentData();
+  const { news, loadingModules, error } = useInvestmentData();
   const { currentMarket } = useMarketStore();
 
   const [selectedNews, setSelectedNews] = useState<NewsEvent | null>(null);
@@ -29,9 +29,9 @@ const NewsTimeline: React.FC = () => {
 
   // 過濾新聞
   const filteredNews = useMemo(() => {
-    if (!data?.news) return [];
+    if (!news) return [];
 
-    let filtered = [...data.news];
+    let filtered = [...news];
 
     // 按市場過濾
     if (currentMarket === 'HK') {
@@ -65,17 +65,17 @@ const NewsTimeline: React.FC = () => {
 
     // 排序（最新優先）
     return filtered.sort((a, b) => b.date.localeCompare(a.date));
-  }, [data?.news, currentMarket, filter]);
+  }, [news, currentMarket, filter]);
 
   // 提取所有唯一標籤
   const allTags = useMemo(() => {
-    if (!data?.news) return [];
+    if (!news) return [];
     const tags = new Set<string>();
-    data.news.forEach(n => n.tags?.forEach(tag => tags.add(tag)));
+    news.forEach(n => n.tags?.forEach(tag => tags.add(tag)));
     return Array.from(tags);
-  }, [data?.news]);
+  }, [news]);
 
-  if (isLoading) {
+  if (loadingModules.news) {
     return (
       <div className="news-timeline-page">
         <MarketTab />

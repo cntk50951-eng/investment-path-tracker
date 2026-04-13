@@ -20,27 +20,27 @@ const NODES = {
 };
 
 export const FlowDiagram: React.FC = () => {
-  const { investmentData, selectSwitch, selectPath, selectedSwitch, selectedPath } = useDataStore();
+  const { nodes, switches, selectSwitch, selectPath, selectedSwitch, selectedPath } = useDataStore();
   const { isPremium, showUpgradePrompt } = usePremiumStore();
   const { isDebugMode, mockPremium, showBlurDebug } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
 
   const nodesWithProb = useMemo(() => {
-    if (!investmentData?.nodes) return {};
+    if (!nodes) return {};
     return Object.fromEntries(
-      Object.entries(investmentData.nodes).map(([id, node]) => [
+      Object.entries(nodes).map(([id, node]) => [
         id,
         { ...NODES[id as keyof typeof NODES], prob: node.prob, current: node.current },
       ])
     );
-  }, [investmentData?.nodes]);
+  }, [nodes]);
 
   const handleSwitchClick = (switchId: string) => {
     selectSwitch(switchId === selectedSwitch ? null : switchId);
   };
 
   const handleNodeClick = (nodeId: string) => {
-    const node = investmentData?.nodes[nodeId];
+    const node = nodes?.[nodeId];
     if (!node) return;
     const perm = canViewPathDetail(!!node.current, tier, isDebugMode);
     if (!perm.allowed) {
@@ -49,11 +49,9 @@ export const FlowDiagram: React.FC = () => {
     selectPath(nodeId === selectedPath ? null : nodeId);
   };
 
-  if (!investmentData?.switches) {
+  if (!switches) {
     return <div className="flow-diagram-loading">加載流程圖...</div>;
   }
-
-  const switches = investmentData.switches;
   const sortedSwitches = Object.entries(switches).sort(
     (a, b) => calcProgress(a[1]) - calcProgress(b[1])
   );

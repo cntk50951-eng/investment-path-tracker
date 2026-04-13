@@ -7,13 +7,13 @@ import { useDataStore } from '../../store/useDataStore';
 import './MacroBar.css';
 
 export const MacroBar: React.FC = () => {
-  const { investmentData } = useDataStore();
+  const { macros } = useDataStore();
 
-  if (!investmentData?.macros) return null;
+  if (!macros || macros.length === 0) return null;
 
   return (
     <div className="macro-bar">
-      {investmentData.macros.map((macro, index) => (
+      {macros.map((macro, index) => (
         <div key={index} className={`macro-item macro-${macro.status}`}>
           <span className="macro-name">{macro.name}</span>
           <span className="macro-value">

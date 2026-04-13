@@ -8,14 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './AlertBanner.css';
 
 export const AlertBanner: React.FC = () => {
-  const { investmentData } = useDataStore();
+  const { alert } = useDataStore();
   const [isDismissed, setIsDismissed] = useState(false);
 
-  if (!investmentData?.alert || !investmentData.alert.active || isDismissed) {
+  if (!alert || !alert.active || isDismissed) {
     return null;
   }
-
-  const alert = investmentData.alert;
 
   return (
     <AnimatePresence>

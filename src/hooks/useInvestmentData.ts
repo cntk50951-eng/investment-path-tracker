@@ -1,5 +1,5 @@
 // ==========================================
-// 數據獲取 Hook（含合規審查）
+// 數據獲取 Hook（增量加載模式）
 // ==========================================
 
 import { useEffect, useCallback } from 'react';
@@ -7,91 +7,121 @@ import { useDataStore } from '../store/useDataStore';
 import { useDebugStore } from '../store/useDebugStore';
 import { validateInvestmentData } from '../utils/validators';
 import { checkCompliance, reportViolations } from '../utils/complianceChecker';
-import type { InvestmentData } from '../types';
 
 export function useInvestmentData() {
-  const { setData, setLoading, setError, investmentData } = useDataStore();
+  const { 
+    nodes, switches, alert, thresholdAlert, macros, news,
+    loadingModules, error,
+    setNodes, setSwitches, setAlert, setThresholdAlert,
+    setMacros, setNews,
+    setLoadingModule, setError 
+  } = useDataStore();
   const { isDebugMode } = useDebugStore();
 
-  const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
-    // 從 Vercel API 讀取（後端連接 DB）- 無緩存
+  const fetchPaths = useCallback(async () => {
     const timestamp = Date.now();
-    
-    const pathsRes = await fetch(`/api/v1/paths?t=${timestamp}`);
-    if (!pathsRes.ok) {
-      const errorText = await pathsRes.text();
-      throw new Error(`/api/v1/paths failed: ${pathsRes.status} - ${errorText}`);
-    }
-    const pathsData = await pathsRes.json();
-    
-    const newsRes = await fetch(`/api/v1/news?limit=50&t=${timestamp}`);
-    if (!newsRes.ok) {
-      const errorText = await newsRes.text();
-      throw new Error(`/api/v1/news failed: ${newsRes.status} - ${errorText}`);
-    }
-    const newsData = await newsRes.json();
-    
-    const macrosRes = await fetch(`/api/v1/macros?t=${timestamp}`);
-    if (!macrosRes.ok) {
-      const errorText = await macrosRes.text();
-      throw new Error(`/api/v1/macros failed: ${macrosRes.status} - ${errorText}`);
-    }
-    const macrosData = await macrosRes.json();
-    
-    // 組裝完整數據
-    const data: InvestmentData = {
-      meta: {
-        version: pathsData.meta?.version || '3.0.0',
-        lastUpdated: new Date().toISOString(),
-        dataSource: 'PostgreSQL',
-      },
-      nodes: pathsData.data?.nodes || {},
-      switches: pathsData.data?.switches || {},
-      alert: pathsData.data?.alert || null,
-      thresholdAlert: pathsData.data?.thresholdAlert || null,
-      macros: macrosData.data?.macros || [],
-      news: newsData.data?.news || [],
-    };
-    
-    return data;
-  }, []);
-
-  // 數據加載
-  const fetchData = useCallback(async () => {
-    setLoading(true);
     try {
-      // 強制從 API 讀取（DB）- 無回退
-      const data = await fetchFromAPI();
-
-      // 數據結構驗證
-      const validation = validateInvestmentData(data);
-      if (!validation.isValid) {
-        console.error('數據驗證失敗:', validation.errors);
+      const res = await fetch(`/api/v1/paths?t=${timestamp}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`/api/v1/paths failed: ${res.status} - ${errorText}`);
       }
-
-      // 合規審查（數據寫入流程中必須調用）
-      const complianceResult = checkCompliance(data);
-      reportViolations(complianceResult, isDebugMode);
-
-      setData(data);
-      setLoading(false);
+      const data = await res.json();
+      
+      setNodes(data.data?.nodes || {});
+      setSwitches(data.data?.switches || {});
+      setAlert(data.data?.alert || null);
+      setThresholdAlert(data.data?.thresholdAlert || null);
+      
+      setLoadingModule('paths', false);
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : '數據加載失敗 - 請檢查 API 是否正常';
-      console.error('❌ API 讀取失敗:', msg);
-      setError(msg + '\n\nAPI: /api/v1/paths\n請確認 Vercel 已配置 POSTGRES_URL 環境變量');
-      setLoading(false);
+      const msg = error instanceof Error ? error.message : '路徑數據加載失敗';
+      console.error('❌ Paths API failed:', msg);
+      setLoadingModule('paths', false);
     }
-  }, [isDebugMode, setLoading, setError, setData, fetchFromAPI]);
+  }, [setNodes, setSwitches, setAlert, setThresholdAlert, setLoadingModule]);
 
+  const fetchNews = useCallback(async () => {
+    const timestamp = Date.now();
+    try {
+      const res = await fetch(`/api/v1/news?limit=50&t=${timestamp}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`/api/v1/news failed: ${res.status} - ${errorText}`);
+      }
+      const data = await res.json();
+      
+      setNews(data.data?.news || []);
+      setLoadingModule('news', false);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : '新聞數據加載失敗';
+      console.error('❌ News API failed:', msg);
+      setLoadingModule('news', false);
+    }
+  }, [setNews, setLoadingModule]);
+
+  const fetchMacros = useCallback(async () => {
+    const timestamp = Date.now();
+    try {
+      const res = await fetch(`/api/v1/macros?t=${timestamp}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`/api/v1/macros failed: ${res.status} - ${errorText}`);
+      }
+      const data = await res.json();
+      
+      setMacros(data.data?.macros || []);
+      setLoadingModule('macros', false);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : '宏觀數據加載失敗';
+      console.error('❌ Macros API failed:', msg);
+      setLoadingModule('macros', false);
+    }
+  }, [setMacros, setLoadingModule]);
+
+  // 並行加載所有模塊
   useEffect(() => {
-    // 每次都從 API 讀取最新數據（無緩存）
-    fetchData();
-  }, []);
+    fetchPaths();
+    fetchNews();
+    fetchMacros();
+  }, [fetchPaths, fetchNews, fetchMacros]);
+
+  // 數據加載完成後進行驗證和合規審查
+  useEffect(() => {
+    if (!loadingModules.paths && !loadingModules.news && !loadingModules.macros) {
+      const allLoaded = nodes && news && macros;
+      if (allLoaded) {
+        const data = {
+          meta: { version: '3.0.0', lastUpdated: new Date().toISOString(), dataSource: 'PostgreSQL' },
+          nodes, switches, alert, thresholdAlert, macros, news
+        };
+        const validation = validateInvestmentData(data);
+        if (!validation.isValid) {
+          console.error('數據驗證失敗:', validation.errors);
+        }
+        const complianceResult = checkCompliance(data);
+        reportViolations(complianceResult, isDebugMode);
+      }
+    }
+  }, [loadingModules, nodes, switches, alert, thresholdAlert, macros, news, isDebugMode]);
 
   return {
-    data: investmentData,
-    isLoading: useDataStore.getState().isLoading,
-    error: useDataStore.getState().error,
-    refresh: fetchData,
+    nodes,
+    switches,
+    alert,
+    thresholdAlert,
+    macros,
+    news,
+    loadingModules,
+    error,
+    isAllLoaded: !loadingModules.paths && !loadingModules.news && !loadingModules.macros,
+    refresh: () => {
+      setLoadingModule('paths', true);
+      setLoadingModule('news', true);
+      setLoadingModule('macros', true);
+      fetchPaths();
+      fetchNews();
+      fetchMacros();
+    },
   };
 }

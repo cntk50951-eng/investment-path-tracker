@@ -8,9 +8,9 @@ import { motion } from 'framer-motion';
 import './ProbBar.css';
 
 export const ProbBar: React.FC = () => {
-  const { investmentData, selectPath, selectedPath } = useDataStore();
+  const { nodes, selectPath, selectedPath } = useDataStore();
 
-  if (!investmentData?.nodes) {
+  if (!nodes) {
     return null;
   }
 
@@ -20,7 +20,7 @@ export const ProbBar: React.FC = () => {
 
   // 按 ID 排序確保順序
   const sortedNodes = ['a', 'b', 'c', 'd', 'e']
-    .map(id => investmentData.nodes[id])
+    .map(id => nodes[id])
     .filter(Boolean);
 
   return (
