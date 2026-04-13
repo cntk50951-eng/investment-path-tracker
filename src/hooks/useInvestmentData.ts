@@ -11,7 +11,7 @@ import type { InvestmentData } from '../types';
 
 export function useInvestmentData() {
   const { setData, setLoading, setError, investmentData } = useDataStore();
-  const { useMockData, isDebugMode } = useDebugStore();
+  const { isDebugMode } = useDebugStore();
 
   const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
     // 從 Vercel API 讀取（後端連接 DB）- 無緩存
@@ -50,13 +50,7 @@ export function useInvestmentData() {
     return data;
   }, []);
 
-  const fetchFromJSON = useCallback(async (): Promise<InvestmentData> => {
-    // 回退方案：從 JSON 文件讀取
-    const response = await fetch('/data/latest.json');
-    if (!response.ok) throw new Error('Failed to fetch data');
-    return response.json();
-  }, []);
-
+  // 數據加載
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
