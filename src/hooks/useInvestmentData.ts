@@ -14,11 +14,12 @@ export function useInvestmentData() {
   const { useMockData, isDebugMode } = useDebugStore();
 
   const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
-    // 從 Vercel API 讀取（後端連接 DB）
+    // 從 Vercel API 讀取（後端連接 DB）- 無緩存
+    const timestamp = Date.now();
     const [pathsRes, newsRes, macrosRes] = await Promise.all([
-      fetch('/api/v1/paths'),
-      fetch('/api/v1/news?limit=50'),
-      fetch('/api/v1/macros'),
+      fetch(`/api/v1/paths?t=${timestamp}`),
+      fetch(`/api/v1/news?limit=50&t=${timestamp}`),
+      fetch(`/api/v1/macros?t=${timestamp}`),
     ]);
     
     if (!pathsRes.ok || !newsRes.ok || !macrosRes.ok) {
@@ -95,9 +96,8 @@ export function useInvestmentData() {
   }, [useMockData, isDebugMode, setLoading, setError, setData, fetchFromJSON, fetchFromAPI]);
 
   useEffect(() => {
-    if (!investmentData) {
-      fetchData();
-    }
+    // 每次都從 API 讀取最新數據（無緩存）
+    fetchData();
   }, []);
 
   return {
