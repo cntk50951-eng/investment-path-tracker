@@ -11,7 +11,7 @@ import type { InvestmentData } from '../types';
 
 export function useInvestmentData() {
   const { setData, setLoading, setError, investmentData } = useDataStore();
-  const { useMockData, mockApiLatency, mockApiError, isDebugMode } = useDebugStore();
+  const { useMockData, isDebugMode } = useDebugStore();
 
   const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
     // 從 Vercel API 讀取（後端連接 DB）
@@ -59,7 +59,21 @@ export function useInvestmentData() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const data = useMockData ? await fetchFromAPI() : await fetchFromJSON();
+      // 優先從 API 讀取（DB），失敗則回退到 JSON
+      let data: InvestmentData;
+      
+      if (useMockData) {
+        // Mock 模式：從 JSON 讀取
+        data = await fetchFromJSON();
+      } else {
+        // 生產模式：從 API 讀取（DB）
+        try {
+          data = await fetchFromAPI();
+        } catch (apiError) {
+          console.warn('API 讀取失敗，回退到 JSON:', apiError);
+          data = await fetchFromJSON();
+        }
+      }
 
       // 數據結構驗證
       const validation = validateInvestmentData(data);
