@@ -2,6 +2,15 @@
 .env
 .env.local
 .env.*.local
+.env.*.internal
+.env.sensitive
+
+# 內部運營文檔（包含敏感信息）
+DB_OPERATIONS_INTERNAL.md
+*.internal.md
+.gitignore.internal
+internal_operations/
+operations/
 
 # 依賴
 node_modules/
