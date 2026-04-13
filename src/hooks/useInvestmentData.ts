@@ -16,35 +16,41 @@ export function useInvestmentData() {
   const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
     // 從 Vercel API 讀取（後端連接 DB）- 無緩存
     const timestamp = Date.now();
-    const [pathsRes, newsRes, macrosRes] = await Promise.all([
-      fetch(`/api/v1/paths?t=${timestamp}`),
-      fetch(`/api/v1/news?limit=50&t=${timestamp}`),
-      fetch(`/api/v1/macros?t=${timestamp}`),
-    ]);
     
-    if (!pathsRes.ok || !newsRes.ok || !macrosRes.ok) {
-      throw new Error('Failed to fetch from API');
+    const pathsRes = await fetch(`/api/v1/paths?t=${timestamp}`);
+    if (!pathsRes.ok) {
+      const errorText = await pathsRes.text();
+      throw new Error(`/api/v1/paths failed: ${pathsRes.status} - ${errorText}`);
     }
+    const pathsData = await pathsRes.json();
     
-    const [pathsData, newsData, macrosData] = await Promise.all([
-      pathsRes.json(),
-      newsRes.json(),
-      macrosRes.json(),
-    ]);
+    const newsRes = await fetch(`/api/v1/news?limit=50&t=${timestamp}`);
+    if (!newsRes.ok) {
+      const errorText = await newsRes.text();
+      throw new Error(`/api/v1/news failed: ${newsRes.status} - ${errorText}`);
+    }
+    const newsData = await newsRes.json();
+    
+    const macrosRes = await fetch(`/api/v1/macros?t=${timestamp}`);
+    if (!macrosRes.ok) {
+      const errorText = await macrosRes.text();
+      throw new Error(`/api/v1/macros failed: ${macrosRes.status} - ${errorText}`);
+    }
+    const macrosData = await macrosRes.json();
     
     // 組裝完整數據
     const data: InvestmentData = {
       meta: {
-        version: pathsData.meta.version || '3.0.0',
+        version: pathsData.meta?.version || '3.0.0',
         lastUpdated: new Date().toISOString(),
         dataSource: 'PostgreSQL',
       },
-      nodes: pathsData.data.nodes,
-      switches: pathsData.data.switches,
-      alert: pathsData.data.alert,
-      thresholdAlert: pathsData.data.thresholdAlert,
-      macros: macrosData.data.macros,
-      news: newsData.data.news,
+      nodes: pathsData.data?.nodes || {},
+      switches: pathsData.data?.switches || {},
+      alert: pathsData.data?.alert || null,
+      thresholdAlert: pathsData.data?.thresholdAlert || null,
+      macros: macrosData.data?.macros || [],
+      news: newsData.data?.news || [],
     };
     
     return data;
@@ -68,12 +74,12 @@ export function useInvestmentData() {
       reportViolations(complianceResult, isDebugMode);
 
       setData(data);
+      setLoading(false);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : '數據加載失敗 - 請檢查 API 是否正常';
       console.error('❌ API 讀取失敗:', msg);
       setError(msg + '\n\nAPI: /api/v1/paths\n請確認 Vercel 已配置 POSTGRES_URL 環境變量');
       setLoading(false);
-      throw error; // 向上拋出錯誤，不使用舊數據
     }
   }, [isDebugMode, setLoading, setError, setData, fetchFromAPI]);
 
