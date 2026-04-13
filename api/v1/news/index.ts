@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -24,61 +24,62 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-export async function GET(request: NextRequest) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({
+      success: false,
+      error: {
+        code: 'METHOD_NOT_ALLOWED',
+        message: '僅支持 GET 請求'
+      }
+    });
+  }
+  
   try {
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const ip = req.headers['x-forwarded-for'] || 'unknown';
     
-    if (!checkRateLimit(ip)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'RATE_LIMIT_EXCEEDED',
-            message: '請求頻率過高，請稍後再試',
-            retryAfter: 3600
-          }
-        },
-        { status: 429 }
-      );
+    if (!checkRateLimit(String(ip))) {
+      return res.status(429).json({
+        success: false,
+        error: {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: '請求頻率過高，請稍後再試',
+          retryAfter: 3600
+        }
+      });
     }
 
-    const searchParams = request.nextUrl.searchParams;
-    const market = searchParams.get('market') || 'US';
-    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
-    const severity = searchParams.get('severity');
-    const tag = searchParams.get('tag');
+    const market = (req.query.market as string) || 'US';
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const severity = req.query.severity as string;
+    const tag = req.query.tag as string;
+    const path = req.query.path as string;
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
 
     const dataPath = join(process.cwd(), 'public', 'data', 'latest.json');
     const data = JSON.parse(readFileSync(dataPath, 'utf-8'));
 
     let news = data.news || [];
 
-    // 按市場過濾
     if (market === 'HK') {
       news = news.filter((n: any) => n.market === 'HK' || !n.market);
     } else {
       news = news.filter((n: any) => n.market === 'US' || !n.market);
     }
 
-    // 按嚴重性過濾
     if (severity) {
       news = news.filter((n: any) => n.severity === severity);
     }
 
-    // 按標籤過濾
     if (tag) {
       news = news.filter((n: any) => n.tags?.includes(tag));
     }
 
-    // 按路徑過濾
-    const path = searchParams.get('path');
     if (path) {
       news = news.filter((n: any) => n.relatedPaths?.includes(path));
     }
 
-    // 按日期範圍過濾
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
     if (startDate || endDate) {
       news = news.filter((n: any) => {
         if (startDate && n.date < startDate) return false;
@@ -87,15 +88,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 排序（最新優先）
     news = news.sort((a: any, b: any) => b.date.localeCompare(a.date));
 
-    // 限制數量
     if (limit) {
       news = news.slice(0, limit);
     }
 
-    return NextResponse.json({
+    return res.status(200).json({
       success: true,
       data: {
         news,
@@ -103,7 +102,7 @@ export async function GET(request: NextRequest) {
       },
       meta: {
         timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        version: '3.0.0',
         market,
         filters: { severity, tag, path, startDate, endDate, limit }
       }
@@ -111,15 +110,12 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('API Error - /news:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: '服務器內部錯誤'
-        }
-      },
-      { status: 500 }
-    );
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '服務器內部錯誤'
+      }
+    });
   }
 }

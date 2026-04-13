@@ -1,42 +1,37 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const API_KEY = process.env.API_KEY;
 
-function verifyApiKey(request: NextRequest): boolean {
-  const apiKey = request.headers.get('X-API-Key');
+function verifyApiKey(req: VercelRequest): boolean {
+  const apiKey = req.headers['x-api-key'];
   return apiKey === API_KEY;
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    if (!verifyApiKey(request)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'UNAUTHORIZED',
-            message: 'API Key 無效或缺失'
-          }
-        },
-        { status: 401 }
-      );
-    }
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      success: false,
+      error: { code: 'METHOD_NOT_ALLOWED', message: '僅支持 POST 請求' }
+    });
+  }
+  
+  if (!verifyApiKey(req)) {
+    return res.status(401).json({
+      success: false,
+      error: { code: 'UNAUTHORIZED', message: 'API Key 無效或缺失' }
+    });
+  }
 
-    const body = await request.json();
+  try {
+    const body = req.body;
     
     if (!body.data || typeof body.data !== 'object') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INVALID_DATA',
-            message: '數據格式無效'
-          }
-        },
-        { status: 400 }
-      );
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_DATA', message: '數據格式無效' }
+      });
     }
 
     const dataPath = join(process.cwd(), 'public', 'data', 'latest.json');
@@ -57,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     writeFileSync(dataPath, JSON.stringify(updatedData, null, 2), 'utf-8');
 
-    return NextResponse.json({
+    return res.status(200).json({
       success: true,
       message: '路徑數據更新成功',
       data: {
@@ -68,15 +63,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API Error - POST /admin/paths:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: '服務器內部錯誤'
-        }
-      },
-      { status: 500 }
-    );
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤' }
+    });
   }
 }
