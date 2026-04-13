@@ -74,7 +74,7 @@ export const useDebugStore = create<DebugState>((set) => ({
     isDebugMode: initialDebug,
     mockPremium: false,
     mockAuthUser: null,
-    useMockData: true,
+    useMockData: false,  // 生產環境從 DB 讀取
     mockApiLatency: 500,
     mockApiError: false,
     showBlurDebug: false,
