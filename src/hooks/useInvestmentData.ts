@@ -13,17 +13,48 @@ export function useInvestmentData() {
   const { setData, setLoading, setError, investmentData } = useDataStore();
   const { useMockData, mockApiLatency, mockApiError, isDebugMode } = useDebugStore();
 
+  const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
+    // 從 Vercel API 讀取（後端連接 DB）
+    const [pathsRes, newsRes, macrosRes] = await Promise.all([
+      fetch('/api/v1/paths'),
+      fetch('/api/v1/news?limit=50'),
+      fetch('/api/v1/macros'),
+    ]);
+    
+    if (!pathsRes.ok || !newsRes.ok || !macrosRes.ok) {
+      throw new Error('Failed to fetch from API');
+    }
+    
+    const [pathsData, newsData, macrosData] = await Promise.all([
+      pathsRes.json(),
+      newsRes.json(),
+      macrosRes.json(),
+    ]);
+    
+    // 組裝完整數據
+    const data: InvestmentData = {
+      meta: {
+        version: pathsData.meta.version || '3.0.0',
+        lastUpdated: new Date().toISOString(),
+        dataSource: 'PostgreSQL',
+      },
+      nodes: pathsData.data.nodes,
+      switches: pathsData.data.switches,
+      alert: pathsData.data.alert,
+      thresholdAlert: pathsData.data.thresholdAlert,
+      macros: macrosData.data.macros,
+      news: newsData.data.news,
+    };
+    
+    return data;
+  }, []);
+
   const fetchFromJSON = useCallback(async (): Promise<InvestmentData> => {
+    // 回退方案：從 JSON 文件讀取
     const response = await fetch('/data/latest.json');
     if (!response.ok) throw new Error('Failed to fetch data');
     return response.json();
   }, []);
-
-  const fetchFromAPI = useCallback(async (): Promise<InvestmentData> => {
-    await new Promise(resolve => setTimeout(resolve, mockApiLatency));
-    if (mockApiError) throw new Error('Mock API error');
-    return fetchFromJSON();
-  }, [mockApiLatency, mockApiError, fetchFromJSON]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
