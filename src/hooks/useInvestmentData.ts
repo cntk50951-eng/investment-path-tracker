@@ -11,7 +11,7 @@ import { checkCompliance, reportViolations } from '../utils/complianceChecker';
 export function useInvestmentData() {
   const { 
     nodes, switches, alert, thresholdAlert, macros, news,
-    loadingModules,
+    loadingModules, error,
     setNodes, setSwitches, setAlert, setThresholdAlert,
     setMacros, setNews,
     setLoadingModule
