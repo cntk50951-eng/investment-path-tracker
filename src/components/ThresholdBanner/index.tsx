@@ -10,18 +10,18 @@ import { TIER_CONFIG } from '../../utils/constants';
 import './ThresholdBanner.css';
 
 export const ThresholdBanner: React.FC = () => {
-  const { investmentData } = useDataStore();
+  const { thresholdAlert, switches, nodes } = useDataStore();
 
-  if (!investmentData?.thresholdAlert || !investmentData.switches) {
+  if (!thresholdAlert || !switches) {
     return null;
   }
 
-  const { switchId, progress, nextTrigger } = investmentData.thresholdAlert;
-  const sw = investmentData.switches[switchId];
+  const { switchId, progress, nextTrigger } = thresholdAlert;
+  const sw = switches[switchId];
   if (!sw) return null;
 
-  const fromNode = investmentData.nodes[sw.from];
-  const toNode = investmentData.nodes[sw.to];
+  const fromNode = nodes[sw.from];
+  const toNode = nodes[sw.to];
   const tier = getTier(progress);
   const tierConfig = TIER_CONFIG[tier];
 

@@ -24,7 +24,7 @@ import { FOOTER_DISCLAIMER } from '../utils/complianceChecker';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  const { data, isLoading, error, refresh } = useInvestmentData();
+  const { nodes, switches, alert, thresholdAlert, macros, news, loadingModules, error, refresh } = useInvestmentData();
   const { user, logout } = useAuthStore();
   const { isDebugMode } = useDebugStore();
   const navigate = useNavigate();
@@ -47,6 +47,12 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  // 計算是否有足夠數據顯示
+  const hasPathsData = nodes && Object.keys(nodes).length > 0;
+  const hasNewsData = news && news.length > 0;
+  const hasMacrosData = macros && macros.length > 0;
+  const isAnyLoaded = hasPathsData || hasNewsData || hasMacrosData;
+
   return (
     <div className="dashboard">
       {/* Debug 模式標識 */}
@@ -62,7 +68,7 @@ const Dashboard: React.FC = () => {
             <h1>🦍 2026 美股投資路徑切換中心</h1>
             <p className="dashboard-subtitle">
               人猿決策 · 鷹眼宏觀 · 獵豹情報 · 蝮蛇風控
-              {data && ` | 更新：${data.meta.lastUpdated.split('T')[0]}`}
+              {!loadingModules.paths && ` | 更新：${new Date().toISOString().split('T')[0]}`}
             </p>
           </div>
           {user && (
@@ -90,44 +96,41 @@ const Dashboard: React.FC = () => {
       <MarketTab />
       <FunctionTab />
 
-      {/* 骨架屏 or 真實內容 */}
-      {isLoading ? (
-        <>
-          <MacroBarSkeleton />
-          <main className="dashboard-main">
-            <div className="dashboard-left">
-              <div className="flow-card"><FlowDiagramSkeleton /></div>
-              <div className="switch-card"><SwitchTableSkeleton /></div>
-            </div>
-            <aside className="news-panel-wrapper"><NewsPanelSkeleton /></aside>
-          </main>
-        </>
-      ) : data ? (
-        <>
-          <MacroBar />
-          <AlertBanner />
-          <ThresholdBanner />
+      {/* 增量加載 - 每個模塊獨立顯示 */}
+      <>
+        {/* Macros - 優先加載 */}
+        {loadingModules.macros ? <MacroBarSkeleton /> : <MacroBar />}
 
-          <main className="dashboard-main">
-            <div className="dashboard-left">
-              <div className="flow-card">
-                <FlowDiagram />
-              </div>
-              <div className="switch-card">
-                <SwitchTable />
-              </div>
-              <div className="detail-row">
-                <div className="detail-card">
-                  <DetailPanel />
-                </div>
+        <main className="dashboard-main">
+          <div className="dashboard-left">
+            {/* Flow Diagram */}
+            <div className="flow-card">
+              {loadingModules.paths ? <FlowDiagramSkeleton /> : <FlowDiagram />}
+            </div>
+            
+            {/* Switch Table */}
+            <div className="switch-card">
+              {loadingModules.paths ? <SwitchTableSkeleton /> : <SwitchTable />}
+            </div>
+            
+            {/* Detail Panel */}
+            <div className="detail-row">
+              <div className="detail-card">
+                <DetailPanel />
               </div>
             </div>
-            <aside className="news-panel-wrapper" id="newsPanel">
-              <NewsPanel />
-            </aside>
-          </main>
-        </>
-      ) : null}
+          </div>
+          
+          {/* News Panel */}
+          <aside className="news-panel-wrapper" id="newsPanel">
+            {loadingModules.news ? <NewsPanelSkeleton /> : <NewsPanel />}
+          </aside>
+        </main>
+      </>
+
+      {/* Alert Banners - 數據加載後顯示 */}
+      {!loadingModules.paths && <AlertBanner />}
+      {!loadingModules.paths && <ThresholdBanner />}
 
       {/* 合規強制頁腳免責聲明 */}
       <footer className="dashboard-footer">

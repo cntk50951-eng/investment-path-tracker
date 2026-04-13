@@ -19,7 +19,7 @@ interface NewsDrawerProps {
 }
 
 export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
-  const { investmentData } = useDataStore();
+  const { nodes, switches } = useDataStore();
   const { isPremium, showUpgradePrompt } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
@@ -99,12 +99,12 @@ export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
                   )}
 
                   {/* 關聯投資路徑 */}
-                  {news.relatedPaths && news.relatedPaths.length > 0 && investmentData && (
+                  {news.relatedPaths && news.relatedPaths.length > 0 && nodes && (
                     <div className="drawer-section">
                       <div className="drawer-section-title">關聯投資路徑</div>
                       <div className="drawer-paths">
                         {news.relatedPaths.map(pathId => {
-                          const node = investmentData.nodes[pathId];
+                          const node = nodes[pathId];
                           if (!node) return null;
                           return (
                             <div key={pathId} className="drawer-path-item">
@@ -119,12 +119,12 @@ export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
                   )}
 
                   {/* 影響的路徑切換 */}
-                  {news.affects && news.affects.length > 0 && investmentData?.switches && (
+                  {news.affects && news.affects.length > 0 && switches && (
                     <div className="drawer-section">
                       <div className="drawer-section-title">影響的路徑切換</div>
                       <div className="drawer-affected">
                         {news.affects.map(switchId => {
-                          const sw = investmentData.switches[switchId];
+                          const sw = switches[switchId];
                           if (!sw) return null;
                           const progress = calcProgress(sw);
                           const toColor = getNodeColor(sw.to);

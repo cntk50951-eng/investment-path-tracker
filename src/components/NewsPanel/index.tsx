@@ -14,7 +14,7 @@ import type { NewsEvent } from '../../types';
 import './NewsPanel.css';
 
 export const NewsPanel: React.FC = () => {
-  const { investmentData } = useDataStore();
+  const { news, nodes } = useDataStore();
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
@@ -24,9 +24,9 @@ export const NewsPanel: React.FC = () => {
   const [drawerNews, setDrawerNews] = useState<NewsEvent | null>(null);
 
   const sortedNews = useMemo(() => {
-    if (!investmentData?.news) return [];
-    return [...investmentData.news].sort((a, b) => b.date.localeCompare(a.date));
-  }, [investmentData?.news]);
+    if (!news) return [];
+    return [...news].sort((a, b) => b.date.localeCompare(a.date));
+  }, [news]);
 
   const handleNewsClick = (news: NewsEvent) => {
     setDrawerNews(news);

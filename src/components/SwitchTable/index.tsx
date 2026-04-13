@@ -10,15 +10,15 @@ import { getNodeColor } from '../../utils/constants';
 import './SwitchTable.css';
 
 export const SwitchTable: React.FC = () => {
-  const { investmentData, selectSwitch, selectedSwitch } = useDataStore();
+  const { nodes, switches, selectSwitch, selectedSwitch } = useDataStore();
 
-  if (!investmentData?.switches) {
+  if (!switches) {
     return <div className="switch-table-loading">加載切換表...</div>;
   }
 
   // 計算每條切換的進度並排序
   const switchRows = useMemo(() => {
-    return Object.entries(investmentData.switches!)
+    return Object.entries(switches!)
       .map(([id, sw]) => {
         const progress = calcProgress(sw);
         const yesCount = sw.confirms.filter(c => c.status === 'yes').length;
@@ -60,7 +60,7 @@ export const SwitchTable: React.FC = () => {
         };
       })
       .sort((a, b) => b.progress - a.progress); // 按進度降序
-  }, [investmentData.switches]);
+  }, [switches]);
 
   const handleRowClick = (switchId: string) => {
     selectSwitch(switchId === selectedSwitch ? null : switchId);
