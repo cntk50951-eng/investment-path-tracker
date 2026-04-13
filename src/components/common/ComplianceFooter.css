@@ -1,0 +1,52 @@
+/* 合規頁腳樣式 */
+
+.compliance-footer {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-top: 2px solid rgba(244, 67, 54, 0.3);
+  padding: 2rem 1.5rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.footer-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.footer-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0.5rem;
+}
+
+.footer-section-title {
+  color: #f59e0b;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.813rem;
+}
+
+.footer-section-content {
+  color: #94a3b8;
+  line-height: 1.8;
+}
+
+.footer-copyright {
+  color: #64748b;
+  text-align: center;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* 移動端適配 */
+@media (max-width: 768px) {
+  .compliance-footer {
+    padding: 1.5rem 1rem;
+    font-size: 0.688rem;
+  }
+
+  .footer-section-title {
+    font-size: 0.75rem;
+  }
+}

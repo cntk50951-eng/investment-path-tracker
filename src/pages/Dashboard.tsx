@@ -19,8 +19,10 @@ import { DetailPanel } from '../components/DetailPanel';
 import { ThresholdBanner } from '../components/ThresholdBanner';
 import { UpgradePrompt } from '../components/common/UpgradePrompt';
 import { DebugPanel } from '../components/common/DebugPanel';
+import { ComplianceFooter } from '../components/common/ComplianceFooter';
+import { ComplianceModal } from '../components/common/ComplianceModal';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton, MacroBarSkeleton } from '../components/common/Skeleton';
-import { FOOTER_DISCLAIMER } from '../utils/complianceChecker';
+import { FOOTER_DISCLAIMER, MAINLAND_CHINA_RESTRICTION, RISK_WARNING } from '../utils/complianceTexts';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -63,7 +65,7 @@ const Dashboard: React.FC = () => {
           <div>
             <h1>🦍 2026 美股投資路徑切換中心</h1>
             <p className="dashboard-subtitle">
-              人猿決策 · 鷹眼宏觀 · 獵豹情報 · 蝮蛇風控
+              宏觀研究 · 路徑追蹤 · 風險監測
               {!loadingModules.paths && ` | 更新：${new Date().toISOString().split('T')[0]}`}
             </p>
           </div>
@@ -128,10 +130,8 @@ const Dashboard: React.FC = () => {
       {!loadingModules.paths && <AlertBanner />}
       {!loadingModules.paths && <ThresholdBanner />}
 
-      {/* 合規強制頁腳免責聲明 */}
-      <footer className="dashboard-footer">
-        <div className="footer-disclaimer">{FOOTER_DISCLAIMER}</div>
-      </footer>
+      {/* 合規頁腳（SFC 監管要求） */}
+      <ComplianceFooter />
 
       <UpgradePrompt />
       {isDebugMode && <DebugPanel />}
