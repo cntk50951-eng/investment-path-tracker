@@ -8,6 +8,8 @@ import { useInvestmentData } from '../hooks/useInvestmentData';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useAuthStore } from '../store/useAuthStore';
 import { useDebugStore } from '../store/useDebugStore';
+import { MarketTab } from '../components/MarketTab';
+import { FunctionTab } from '../components/FunctionTab';
 import { MacroBar } from '../components/MacroBar';
 import { AlertBanner } from '../components/AlertBanner';
 import { FlowDiagram } from '../components/FlowDiagram';
@@ -83,6 +85,10 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </header>
+
+      {/* 市場和功能切換 Tab */}
+      <MarketTab />
+      <FunctionTab />
 
       {/* 骨架屏 or 真實內容 */}
       {isLoading ? (

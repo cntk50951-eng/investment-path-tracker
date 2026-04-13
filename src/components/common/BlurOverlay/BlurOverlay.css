@@ -1,0 +1,88 @@
+/* Blur Overlay 樣式 */
+
+.blur-overlay-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.blurred-content {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.blur-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 12, 24, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.blur-overlay:hover {
+  background: rgba(8, 12, 24, 0.9);
+}
+
+.blur-overlay-icon {
+  font-size: 3em;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.blur-overlay-text {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--path-e, #f472b6);
+  text-align: center;
+}
+
+.blur-overlay-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #f472b6, #a78bfa);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
+}
+
+.blur-overlay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.5);
+}
+
+/* 部分模糊（輕度） */
+.partial-blur {
+  filter: blur(2px);
+}
+
+/* 響應式 */
+@media (max-width: 767px) {
+  .blur-overlay-icon {
+    font-size: 2.5em;
+  }
+  
+  .blur-overlay-text {
+    font-size: 1em;
+  }
+  
+  .blur-overlay-btn {
+    padding: 8px 20px;
+    font-size: 0.85em;
+  }
+}

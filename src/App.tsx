@@ -5,14 +5,12 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
+import NewsTimeline from './pages/NewsTimeline';
 import { Login } from './pages/Login';
 import { useAuthStore } from './store/useAuthStore';
 import { useDebugStore } from './store/useDebugStore';
 import { DebugPanel } from './components/common/DebugPanel';
 import './styles/global.css';
-import './styles/animations.css';
-import './styles/responsive.css';
-import './styles/premium.css';
 
 // 認證保護組件
 interface ProtectedRouteProps {
@@ -58,6 +56,15 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/news"
+            element={
+              <ProtectedRoute>
+                <NewsTimeline />
               </ProtectedRoute>
             }
           />

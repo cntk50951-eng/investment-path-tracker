@@ -5,6 +5,9 @@
 // ---- 合規 tier 類型 ----
 export type AllocationTier = 'overweight' | 'neutral' | 'underweight' | 'avoid';
 
+// ---- 市場類型 ----
+export type Market = 'US' | 'HK';
+
 // 板塊配置（合規格式：僅方向性等級，無百分比、無標的代號）
 export interface Allocation {
   n: string;       // 板塊名稱（不含具體股票代號）
@@ -47,6 +50,7 @@ export interface Switch {
 // 新聞事件
 export interface NewsEvent {
   id?: string;
+  market?: Market;  // 新增市場字段
   date: string;
   title: string;
   source: string;

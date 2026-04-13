@@ -1,0 +1,150 @@
+/* 新聞時間線頁面樣式 */
+
+.news-timeline-page {
+  min-height: 100vh;
+  background: var(--bg-primary, #080c18);
+  padding: 20px;
+}
+
+.news-timeline-header {
+  margin-bottom: 20px;
+}
+
+.news-timeline-main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 加載和錯誤狀態 */
+.news-timeline-loading,
+.news-timeline-error {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.news-timeline-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(71, 85, 105, 0.2);
+  border-top-color: var(--path-e, #f472b6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.news-timeline-error h3 {
+  color: var(--status-hot, #f87171);
+}
+
+.news-timeline-error button {
+  padding: 10px 20px;
+  background: var(--path-e, #f472b6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 時間軸容器 */
+.news-timeline {
+  background: var(--bg-card, rgba(13, 20, 38, 0.9));
+  border: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+}
+
+.timeline-header h2 {
+  font-size: 1.3em;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.news-count {
+  font-size: 0.85em;
+  color: var(--text-muted, #94a3b8);
+  background: rgba(71, 85, 105, 0.2);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.timeline-container {
+  position: relative;
+}
+
+/* 時間軸線 */
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(96, 165, 250, 0.3),
+    rgba(167, 139, 250, 0.3),
+    rgba(244, 114, 182, 0.3)
+  );
+}
+
+/* 無新聞狀態 */
+.no-news {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.no-news-icon {
+  font-size: 3em;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.clear-filters-btn {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--path-e, #f472b6);
+  color: var(--path-e, #f472b6);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-filters-btn:hover {
+  background: rgba(244, 114, 182, 0.1);
+}
+
+/* 響應式 */
+@media (max-width: 767px) {
+  .news-timeline-page {
+    padding: 12px;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .timeline-container::before {
+    left: 16px;
+  }
+}

@@ -1,0 +1,245 @@
+/* Timeline Item 樣式 */
+
+.timeline-item {
+  position: relative;
+  padding-left: 64px;
+  padding-bottom: 24px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 時間軸節點 */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--severity-color, #94a3b8);
+  border: 3px solid var(--bg-primary, #080c18);
+  box-shadow: 0 0 0 2px var(--severity-color, #94a3b8);
+  z-index: 1;
+}
+
+.timeline-item.critical::before {
+  --severity-color: #f472b6;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.timeline-item.medium::before {
+  --severity-color: #fbbf24;
+}
+
+.timeline-item.positive::before {
+  --severity-color: #4ade80;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(244, 114, 182, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(244, 114, 182, 0);
+  }
+}
+
+/* 新聞卡片 */
+.timeline-card {
+  background: var(--bg-card, rgba(13, 20, 38, 0.9));
+  border: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--severity-color, #94a3b8);
+  opacity: 0.7;
+}
+
+.timeline-card.critical::before {
+  --severity-color: #f472b6;
+}
+
+.timeline-card.medium::before {
+  --severity-color: #fbbf24;
+}
+
+.timeline-card.positive::before {
+  --severity-color: #4ade80;
+}
+
+.timeline-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-color: rgba(71, 85, 105, 0.4);
+}
+
+/* 付費牆模糊效果 */
+.timeline-card.free-preview {
+  pointer-events: none;
+}
+
+.timeline-card.free-preview .card-content {
+  filter: blur(4px);
+  user-select: none;
+}
+
+.timeline-card.free-preview::after {
+  content: '🔒 Pro 會員專屬';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 12, 24, 0.95);
+  padding: 20px 40px;
+  border-radius: 12px;
+  border: 2px solid var(--path-e, #f472b6);
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--path-e, #f472b6);
+  z-index: 10;
+  text-align: center;
+}
+
+/* 卡片頭部 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.card-date {
+  font-size: 0.78em;
+  color: var(--text-muted, #94a3b8);
+  background: rgba(71, 85, 105, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.card-source {
+  font-size: 0.78em;
+  color: var(--text-muted, #94a3b8);
+  font-style: italic;
+}
+
+/* 標題 */
+.card-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* 摘要 */
+.card-summary {
+  font-size: 0.85em;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* 標籤 */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.card-tag {
+  font-size: 0.72em;
+  padding: 4px 10px;
+  background: rgba(71, 85, 105, 0.2);
+  color: var(--text-muted, #94a3b8);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* 影響路徑 */
+.card-paths {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.path-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(71, 85, 105, 0.2);
+  border-radius: 6px;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: var(--path-color, #94a3b8);
+}
+
+.path-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--path-color, #94a3b8);
+}
+
+/* 點擊提示 */
+.click-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.7em;
+  color: var(--text-dim, #475569);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.timeline-card:hover .click-hint {
+  opacity: 1;
+}
+
+/* 響應式 */
+@media (max-width: 767px) {
+  .timeline-item {
+    padding-left: 40px;
+  }
+
+  .timeline-item::before {
+    left: 8px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-paths {
+    flex-wrap: wrap;
+  }
+}

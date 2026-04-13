@@ -1,0 +1,186 @@
+/* Timeline Filter 樣式 */
+
+.timeline-filter {
+  background: var(--bg-card, rgba(13, 20, 38, 0.9));
+  border: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.filter-section {
+  margin-bottom: 16px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  font-size: 0.78em;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 嚴重性篩選 */
+.severity-filter {
+  display: flex;
+  gap: 8px;
+}
+
+.severity-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.severity-btn.active {
+  border-color: currentColor;
+  transform: scale(1.05);
+}
+
+.severity-btn.critical {
+  background: rgba(244, 114, 182, 0.15);
+  color: #f472b6;
+}
+
+.severity-btn.medium {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.severity-btn.positive {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+/* 路徑篩選 */
+.path-filter {
+  display: flex;
+  gap: 8px;
+}
+
+.path-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.85em;
+  font-weight: 700;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+}
+
+.path-btn.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px currentColor;
+}
+
+/* 時間範圍篩選 */
+.time-range-filter {
+  display: flex;
+  gap: 8px;
+}
+
+.time-range-btn {
+  padding: 8px 16px;
+  background: rgba(71, 85, 105, 0.2);
+  color: var(--text-muted, #94a3b8);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-range-btn.active {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* 標籤篩選 */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-btn {
+  padding: 6px 12px;
+  background: rgba(71, 85, 105, 0.2);
+  color: var(--text-muted, #94a3b8);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.78em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tag-btn:hover {
+  background: rgba(71, 85, 105, 0.3);
+}
+
+.tag-btn.active {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+/* 清除篩選 */
+.clear-filters {
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  border: 1px solid var(--border-primary, rgba(71, 85, 105, 0.25));
+  border-radius: 8px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-filters:hover {
+  border-color: var(--path-e, #f472b6);
+  color: var(--path-e, #f472b6);
+}
+
+/* 響應式 */
+@media (max-width: 767px) {
+  .timeline-filter {
+    padding: 12px;
+  }
+
+  .severity-btn,
+  .time-range-btn {
+    padding: 6px 12px;
+    font-size: 0.8em;
+  }
+
+  .path-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8em;
+  }
+
+  .tag-btn {
+    padding: 4px 10px;
+    font-size: 0.75em;
+  }
+}
