@@ -22,7 +22,6 @@ import { DebugPanel } from '../components/common/DebugPanel';
 import { ComplianceFooter } from '../components/common/ComplianceFooter';
 import { ComplianceModal } from '../components/common/ComplianceModal';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton, MacroBarSkeleton } from '../components/common/Skeleton';
-import { FOOTER_DISCLAIMER, MAINLAND_CHINA_RESTRICTION, RISK_WARNING } from '../utils/complianceTexts';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -135,6 +134,7 @@ const Dashboard: React.FC = () => {
 
       <UpgradePrompt />
       {isDebugMode && <DebugPanel />}
+      <ComplianceModal />
     </div>
   );
 };

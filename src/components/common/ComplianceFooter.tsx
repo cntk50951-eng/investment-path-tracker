@@ -3,7 +3,7 @@
 // ==========================================
 
 import React from 'react';
-import { FULL_FOOTER, MAINLAND_CHINA_RESTRICTION, RISK_WARNING } from '../utils/complianceTexts';
+import { FULL_FOOTER, MAINLAND_CHINA_RESTRICTION } from '../../utils/complianceTexts';
 import './ComplianceFooter.css';
 
 export const ComplianceFooter: React.FC = () => {
