@@ -3,7 +3,7 @@
 // ==========================================
 
 import React, { useEffect, useState } from 'react';
-import { FIRST_VISIT_MODAL } from '../utils/complianceTexts';
+import { FIRST_VISIT_MODAL } from '../../utils/complianceTexts';
 import './ComplianceModal.css';
 
 export const ComplianceModal: React.FC = () => {
