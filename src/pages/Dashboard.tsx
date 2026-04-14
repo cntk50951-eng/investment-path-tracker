@@ -24,6 +24,7 @@ import { ComplianceFooter } from '../components/common/ComplianceFooter';
 import { ComplianceModal } from '../components/common/ComplianceModal';
 import { ComplianceBanner } from '../components/common/ComplianceBanner';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton, MacroBarSkeleton } from '../components/common/Skeleton';
+import { PathLegend } from '../components/common/PathLegend';
 import './Dashboard.css';
 
 const MARKET_TITLES: Record<string, string> = {
@@ -110,6 +111,7 @@ const Dashboard: React.FC = () => {
           <div className="dashboard-left">
             {/* Flow Diagram */}
             <div className="flow-card">
+              <PathLegend />
               {loadingModules.paths ? <FlowDiagramSkeleton /> : <FlowDiagram />}
             </div>
             
