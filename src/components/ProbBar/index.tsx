@@ -18,14 +18,14 @@ export const ProbBar: React.FC = () => {
     selectPath(nodeId === selectedPath ? null : nodeId);
   };
 
-  // 按 ID 排序確保順序
-  const sortedNodes = ['a', 'b', 'c', 'd', 'e']
-    .map(id => nodes[id])
-    .filter(Boolean);
+  // 按概率降序排列
+  const sortedNodes = Object.entries(nodes)
+    .sort(([, a], [, b]) => (b as any).prob - (a as any).prob)
+    .map(([, node]) => node);
 
   return (
     <div className="prob-bar">
-      {sortedNodes.map(node => (
+      {sortedNodes.map((node: any) => (
         <motion.div
           key={node.id}
           className="prob-segment"
@@ -46,7 +46,7 @@ export const ProbBar: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {node.name.split(' ')[0]} {node.prob}%
+          {node.name?.split(' ')[0] || node.id.toUpperCase()} {node.prob}%
         </motion.div>
       ))}
     </div>

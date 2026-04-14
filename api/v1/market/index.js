@@ -79,24 +79,58 @@ export default async function handler(req, res) {
     const market = req.query.market || 'US';
     
     const [nodesResult, switchesResult, macrosResult, alertsResult, newsResult] = await Promise.all([
-      query('SELECT * FROM nodes WHERE market = $1', [market]),
+      query('SELECT * FROM nodes WHERE market = $1 ORDER BY prob DESC', [market]),
       query('SELECT * FROM switches WHERE market = $1', [market]),
-      query('SELECT * FROM macros'),
+      query('SELECT name, value, trend, status, note FROM macros WHERE market = $1 ORDER BY id', [market]),
       query('SELECT * FROM alerts WHERE market = $1 LIMIT 1', [market]),
       query('SELECT * FROM news WHERE market = $1 ORDER BY date DESC LIMIT 20', [market]),
     ]);
 
+    const nodes = {};
+    for (const node of nodesResult.rows) {
+      const allocsResult = await query('SELECT name, tier FROM allocations WHERE node_id = $1', [node.id]);
+      nodes[node.id] = {
+        id: node.id,
+        name: node.name,
+        sub: node.sub,
+        color: node.color,
+        x: node.x,
+        y: node.y,
+        prob: node.prob,
+        current: node.current,
+        alloc: allocsResult.rows.map(a => ({ n: a.name, tier: a.tier }))
+      };
+    }
+
+    const switches = {};
+    for (const sw of switchesResult.rows) {
+      const confirmsResult = await query('SELECT text, status, actual, note FROM confirm_signals WHERE switch_id = $1', [sw.id]);
+      switches[sw.id] = {
+        from: sw.from_node,
+        to: sw.to_node,
+        time: sw.time,
+        trigger: sw.trigger,
+        path: sw.path,
+        confirms: confirmsResult.rows.map(c => ({ text: c.text, status: c.status, actual: c.actual, note: c.note })),
+        desc: sw.description,
+        nextCheck: sw.next_check
+      };
+    }
+
     const marketData = {
-      nodes: market === 'US' ? nodesResult.rows : {},
-      switches: market === 'US' ? switchesResult.rows : {},
+      nodes,
+      switches,
       macros: macrosResult.rows,
-      alert: alertsResult.rows[0] || null,
+      alert: alertsResult.rows[0] ? {
+        active: alertsResult.rows[0].active,
+        level: alertsResult.rows[0].level,
+        timestamp: alertsResult.rows[0].timestamp,
+        title: alertsResult.rows[0].title,
+        message: alertsResult.rows[0].message,
+        action: alertsResult.rows[0].action
+      } : null,
       news: newsResult.rows,
     };
-
-    if (market === 'HK') {
-      marketData.message = '港股路徑數據即將上線，敬請期待';
-    }
 
     return res.status(200).json({
       success: true,

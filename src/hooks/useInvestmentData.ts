@@ -4,6 +4,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useDataStore } from '../store/useDataStore';
+import { useMarketStore } from '../store/useMarketStore';
 import { useDebugStore } from '../store/useDebugStore';
 import { validateInvestmentData } from '../utils/validators';
 import { checkCompliance, reportViolations } from '../utils/complianceChecker';
@@ -16,12 +17,14 @@ export function useInvestmentData() {
     setMacros, setNews,
     setLoadingModule
   } = useDataStore();
+  const { currentMarket } = useMarketStore();
   const { isDebugMode } = useDebugStore();
 
-  const fetchPaths = useCallback(async () => {
+  const fetchPaths = useCallback(async (market?: string) => {
+    const m = market || currentMarket;
     const timestamp = Date.now();
     try {
-      const res = await fetch(`/api/v1/paths?t=${timestamp}`);
+      const res = await fetch(`/api/v1/paths?market=${m}&t=${timestamp}`);
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`/api/v1/paths failed: ${res.status} - ${errorText}`);
@@ -39,12 +42,13 @@ export function useInvestmentData() {
       console.error('❌ Paths API failed:', msg);
       setLoadingModule('paths', false);
     }
-  }, [setNodes, setSwitches, setAlert, setThresholdAlert, setLoadingModule]);
+  }, [currentMarket, setNodes, setSwitches, setAlert, setThresholdAlert, setLoadingModule]);
 
-  const fetchNews = useCallback(async () => {
+  const fetchNews = useCallback(async (market?: string) => {
+    const m = market || currentMarket;
     const timestamp = Date.now();
     try {
-      const res = await fetch(`/api/v1/news?limit=50&t=${timestamp}`);
+      const res = await fetch(`/api/v1/news?market=${m}&limit=50&t=${timestamp}`);
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`/api/v1/news failed: ${res.status} - ${errorText}`);
@@ -58,12 +62,13 @@ export function useInvestmentData() {
       console.error('❌ News API failed:', msg);
       setLoadingModule('news', false);
     }
-  }, [setNews, setLoadingModule]);
+  }, [currentMarket, setNews, setLoadingModule]);
 
-  const fetchMacros = useCallback(async () => {
+  const fetchMacros = useCallback(async (market?: string) => {
+    const m = market || currentMarket;
     const timestamp = Date.now();
     try {
-      const res = await fetch(`/api/v1/macros?t=${timestamp}`);
+      const res = await fetch(`/api/v1/macros?market=${m}&t=${timestamp}`);
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`/api/v1/macros failed: ${res.status} - ${errorText}`);
@@ -77,14 +82,17 @@ export function useInvestmentData() {
       console.error('❌ Macros API failed:', msg);
       setLoadingModule('macros', false);
     }
-  }, [setMacros, setLoadingModule]);
+  }, [currentMarket, setMacros, setLoadingModule]);
 
   // 並行加載所有模塊
   useEffect(() => {
+    setLoadingModule('paths', true);
+    setLoadingModule('news', true);
+    setLoadingModule('macros', true);
     fetchPaths();
     fetchNews();
     fetchMacros();
-  }, [fetchPaths, fetchNews, fetchMacros]);
+  }, [currentMarket]);
 
   // 數據加載完成後進行驗證和合規審查
   useEffect(() => {

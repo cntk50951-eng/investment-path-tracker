@@ -10,9 +10,9 @@ export const MarketTab: React.FC = () => {
   const { currentMarket, setMarket } = useMarketStore();
 
   const markets = [
-    { id: 'US', label: '🇺🇸 美股', comingSoon: false },
-    { id: 'HK', label: '🇭🇰 港股', comingSoon: true },
-  ] as const;
+    { id: 'US' as const, label: '🇺🇸 美股' },
+    { id: 'HK' as const, label: '🇭🇰 港股' },
+  ];
 
   return (
     <div className="market-tab">
@@ -22,12 +22,8 @@ export const MarketTab: React.FC = () => {
             key={market.id}
             className={`market-tab-btn ${currentMarket === market.id ? 'active' : ''}`}
             onClick={() => setMarket(market.id)}
-            disabled={market.comingSoon}
           >
             {market.label}
-            {market.comingSoon && (
-              <span className="coming-soon-badge">即將上線</span>
-            )}
           </button>
         ))}
       </div>

@@ -2,7 +2,8 @@
 // 時間軸篩選器組件
 // ==========================================
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useDataStore } from '../../store/useDataStore';
 import { getNodeColor } from '../../utils/constants';
 import './TimelineFilter.css';
 
@@ -24,7 +25,12 @@ export const TimelineFilter: React.FC<TimelineFilterProps> = ({
   onFilterChange,
   availableTags,
 }) => {
-  const paths = ['a', 'b', 'c', 'd', 'e'] as const;
+  const { nodes } = useDataStore();
+
+  const pathIds = useMemo(() => {
+    if (!nodes) return [];
+    return Object.keys(nodes).sort();
+  }, [nodes]);
 
   const handleSeverityChange = (severity?: 'critical' | 'medium' | 'positive') => {
     onFilterChange({ ...filter, severity });
@@ -79,19 +85,24 @@ export const TimelineFilter: React.FC<TimelineFilterProps> = ({
       <div className="filter-section">
         <span className="filter-label">投資路徑</span>
         <div className="path-filter">
-          {paths.map((path) => (
-            <button
-              key={path}
-              className="path-btn"
-              style={{
-                background: getNodeColor(path),
-                boxShadow: filter.path === path ? `0 0 15px ${getNodeColor(path)}` : 'none',
-              }}
-              onClick={() => handlePathChange(filter.path === path ? undefined : path)}
-            >
-              {path.toUpperCase()}
-            </button>
-          ))}
+          {pathIds.map((pathId) => {
+            const node = nodes?.[pathId] as any;
+            const label = node?.name?.split(' ')[0] || pathId.toUpperCase();
+            const color = node?.color || getNodeColor(pathId);
+            return (
+              <button
+                key={pathId}
+                className="path-btn"
+                style={{
+                  background: color,
+                  boxShadow: filter.path === pathId ? `0 0 15px ${color}` : 'none',
+                }}
+                onClick={() => handlePathChange(filter.path === pathId ? undefined : pathId)}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

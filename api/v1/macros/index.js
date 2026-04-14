@@ -76,12 +76,14 @@ export default async function handler(req, res) {
       });
     }
 
-    const result = await query('SELECT name, value, trend, status, note FROM macros ORDER BY id');
+    const market = req.query.market || 'US';
+
+    const result = await query('SELECT name, value, trend, status, note FROM macros WHERE market = $1 ORDER BY id', [market]);
 
     return res.status(200).json({
       success: true,
       data: { macros: result.rows },
-      meta: { timestamp: new Date().toISOString(), version: '3.0.0', count: result.rows.length, source: 'PostgreSQL' }
+      meta: { timestamp: new Date().toISOString(), version: '3.0.0', count: result.rows.length, market, source: 'PostgreSQL' }
     });
 
   } catch (error) {
