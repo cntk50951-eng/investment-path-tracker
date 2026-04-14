@@ -1,3 +1,6 @@
+# 配置文件（含 API keys）
+opencode.json
+
 # 環境變量
 .env
 .env.local

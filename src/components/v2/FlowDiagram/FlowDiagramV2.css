@@ -1,0 +1,330 @@
+.flow-v2 {
+  position: relative;
+  padding: 2rem;
+  border-radius: var(--radius-xl, 1rem);
+  overflow: hidden;
+}
+
+.flow-v2-top-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(163, 166, 255, 0.2), transparent);
+}
+
+.flow-v2-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: var(--on-surface-variant, #a6abbb);
+  font-size: 0.875rem;
+}
+
+.flow-v2-spin {
+  animation: spin 1s linear infinite;
+  font-size: 1.25rem;
+  color: var(--primary, #a3a6ff);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.flow-v2-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.flow-v2-title {
+  font-family: var(--font-headline, 'Space Grotesk', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-surface, #e0e5f6);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.flow-v2-subtitle {
+  font-size: 0.875rem;
+  color: var(--on-surface-variant, #a6abbb);
+  margin: 0.25rem 0 0;
+}
+
+.flow-v2-convergence {
+  text-align: right;
+}
+
+.flow-v2-convergence-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--on-surface-variant, #a6abbb);
+  margin-bottom: 0.25rem;
+}
+
+.flow-v2-convergence-value {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary, #a3a6ff);
+}
+
+.flow-v2-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  background: rgba(13, 19, 32, 0.6);
+  border-radius: var(--radius-md, 0.5rem);
+  overflow-x: auto;
+}
+
+.flow-v2-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-sm, 0.25rem);
+  border: 1.5px solid transparent;
+  background: var(--surface-container-high, #18202f);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+  color: inherit;
+  font-family: inherit;
+}
+
+.flow-v2-tab:hover {
+  background: var(--surface-container-highest, #1e2637);
+  transform: translateY(-1px);
+}
+
+.flow-v2-tab.active {
+  background: rgba(30, 38, 55, 0.8);
+}
+
+.flow-v2-tab.current {
+  position: relative;
+}
+
+.flow-v2-tab.locked {
+  opacity: 0.7;
+}
+
+.flow-v2-tab-name {
+  font-weight: 700;
+}
+
+.flow-v2-tab-prob {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.flow-v2-lock-icon {
+  font-size: 0.75rem;
+}
+
+.flow-v2-tab-star {
+  font-size: 0.7rem;
+}
+
+.flow-v2-viewport {
+  position: relative;
+}
+
+.flow-v2-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 430px;
+}
+
+.flow-v2-node-locked {
+  transition: opacity 0.2s;
+}
+
+.flow-v2-node-locked:hover {
+  opacity: 0.8 !important;
+}
+
+.flow-v2-node {
+  transition: filter 0.2s ease;
+}
+
+.flow-v2-lock-overlay {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: var(--radius-lg, 0.75rem);
+  transition: background 0.2s;
+}
+
+.flow-v2-lock-overlay:hover {
+  background: rgba(8, 14, 26, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.flow-v2-lock-hover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background: rgba(8, 14, 26, 0.75);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: 0.625rem 1rem;
+  min-width: 140px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.flow-v2-lock-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.875rem;
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  border-radius: var(--radius-full, 9999px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ec4899;
+  letter-spacing: 0.05em;
+}
+
+.flow-v2-lock-hint {
+  font-size: 0.72rem;
+  color: var(--on-surface-variant, #a6abbb);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.flow-v2-lock-static {
+  font-size: 0.9rem;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.flow-v2-probbar {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+
+.flow-v2-probbar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--on-surface-variant, #a6abbb);
+  margin-bottom: 0.5rem;
+}
+
+.flow-v2-probbar-track {
+  height: 0.75rem;
+  width: 100%;
+  background: var(--surface-container, #131a28);
+  border-radius: var(--radius-full, 9999px);
+  display: flex;
+  overflow: hidden;
+}
+
+.flow-v2-prob-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  border-right: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.flow-v2-prob-segment:last-child {
+  border-right: none;
+}
+
+.flow-v2-debug {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  padding: 0.25rem 0.625rem;
+  background: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: var(--radius-sm, 0.25rem);
+  font-size: 0.7rem;
+  color: var(--path-e, #ec4899);
+  font-weight: 700;
+  z-index: 100;
+}
+
+@media (max-width: 767px) {
+  .flow-v2 {
+    padding: 1rem;
+  }
+
+  .flow-v2-svg {
+    max-height: 320px;
+  }
+
+  .flow-v2-probbar-track {
+    flex-direction: column;
+    height: auto;
+    border-radius: var(--radius-md, 0.5rem);
+    overflow: hidden;
+  }
+
+  .flow-v2-prob-segment {
+    width: 100% !important;
+    padding: 0.375rem;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    justify-content: flex-start;
+  }
+
+  .flow-v2-prob-segment:last-child {
+    border-bottom: none;
+  }
+
+  .flow-v2-tabs {
+    gap: 0.125rem;
+  }
+
+  .flow-v2-tab {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .flow-v2-title {
+    font-size: 1.125rem;
+  }
+}

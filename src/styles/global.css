@@ -3,6 +3,7 @@
    ========================================== */
 
 @import './variables.css';
+@import '../../stitch-designs/stitch-design-tokens.css';
 
 * {
   margin: 0;

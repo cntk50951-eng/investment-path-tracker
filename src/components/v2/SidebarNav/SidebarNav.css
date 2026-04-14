@@ -1,0 +1,64 @@
+.sidenav-v2 {
+  position: fixed;
+  left: 0;
+  top: 4rem;
+  height: calc(100vh - 4rem);
+  width: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem 0.5rem;
+  background: var(--surface-container-low, #0d1320);
+  border-right: 1px solid rgba(66, 72, 85, 0.15);
+  z-index: 40;
+}
+
+.sidenav-v2-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidenav-v2-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidenav-v2-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md, 0.5rem);
+  border: none;
+  background: transparent;
+  color: var(--outline-variant, #424855);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidenav-v2-btn:hover {
+  background: var(--surface-container-high, #18202f);
+  color: var(--on-surface, #e0e5f6);
+}
+
+.sidenav-v2-btn.active {
+  background: var(--surface-container-high, #18202f);
+  color: var(--primary, #6366f1);
+  border-right: 4px solid var(--primary, #6366f1);
+  transform: scale(0.95);
+}
+
+.sidenav-v2-btn:active {
+  transform: scale(0.9);
+}
+
+@media (max-width: 767px) {
+  .sidenav-v2 {
+    display: none;
+  }
+}
