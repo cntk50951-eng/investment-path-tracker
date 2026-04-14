@@ -139,7 +139,7 @@ export default async function handler(req, res) {
       SELECT id, market, date, title, source, severity, summary, impact, url, created_at, updated_at
       FROM news
       ${whereClause}
-      ORDER BY date DESC
+      ORDER BY date DESC, created_at DESC
     `;
     
     if (limit) {
@@ -160,6 +160,7 @@ export default async function handler(req, res) {
         id: newsItem.id,
         market: newsItem.market,
         date: newsItem.date.toISOString().split('T')[0],
+        createdAt: newsItem.created_at ? newsItem.created_at.toISOString() : null,
         title: newsItem.title,
         source: newsItem.source,
         severity: newsItem.severity,

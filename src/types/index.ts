@@ -52,6 +52,7 @@ export interface NewsEvent {
   id?: string;
   market?: Market;  // 新增市場字段
   date: string;
+  createdAt?: string;  // 精確時間戳，用於同日期內的二級排序
   title: string;
   source: string;
   severity: 'critical' | 'medium' | 'positive';
