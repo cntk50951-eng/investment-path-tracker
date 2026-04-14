@@ -8,6 +8,7 @@ import { useInvestmentData } from '../hooks/useInvestmentData';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useAuthStore } from '../store/useAuthStore';
 import { useDebugStore } from '../store/useDebugStore';
+import { useMarketStore } from '../store/useMarketStore';
 import { MarketTab } from '../components/MarketTab';
 import { FunctionTab } from '../components/FunctionTab';
 import { MacroBar } from '../components/MacroBar';
@@ -25,15 +26,20 @@ import { ComplianceBanner } from '../components/common/ComplianceBanner';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton, MacroBarSkeleton } from '../components/common/Skeleton';
 import './Dashboard.css';
 
+const MARKET_TITLES: Record<string, string> = {
+  US: '🦍 2026 美股投資路徑切換中心',
+  HK: '🦍 2026 港股投資路徑切換中心',
+};
+
 const Dashboard: React.FC = () => {
   const { loadingModules, error, refresh } = useInvestmentData();
   const { user, logout } = useAuthStore();
   const { isDebugMode } = useDebugStore();
+  const { currentMarket } = useMarketStore();
   const navigate = useNavigate();
 
   useKeyboard({ enabled: true });
 
-  // 處理登出
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -49,8 +55,6 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // 計算是否有足夠數據顯示
-
   return (
     <div className="dashboard">
       {/* Debug 模式標識 */}
@@ -63,7 +67,7 @@ const Dashboard: React.FC = () => {
       <header className="dashboard-header">
         <div className="header-content">
           <div>
-            <h1>🦍 2026 美股投資路徑切換中心</h1>
+            <h1>{MARKET_TITLES[currentMarket] || MARKET_TITLES.US}</h1>
             <p className="dashboard-subtitle">
               宏觀研究 · 路徑追蹤 · 風險監測
               {!loadingModules.paths && ` | 更新：${new Date().toISOString().split('T')[0]}`}

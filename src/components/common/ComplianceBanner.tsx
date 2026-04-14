@@ -38,7 +38,7 @@ export const ComplianceBanner: React.FC = () => {
           onClick={(e) => {
             const banner = (e.target as HTMLElement).closest('.compliance-banner');
             if (banner) {
-              banner.style.display = 'none';
+              (banner as HTMLElement).style.display = 'none';
               localStorage.setItem('complianceBannerDismissed', 'true');
             }
           }}

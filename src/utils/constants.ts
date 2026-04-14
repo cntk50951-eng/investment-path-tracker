@@ -39,17 +39,24 @@ export const TIER_CONFIG: Record<string, { label: string; color: string; bg: str
   }
 };
 
-/** 節點顏色映射 */
+/** 節點顏色映射（美股默認色 + 港股前綴映射） */
 export const NODE_COLORS: Record<string, string> = {
   a: '#4ade80',
   b: '#fbbf24',
   c: '#f87171',
   d: '#a78bfa',
   e: '#f472b6',
+  hka: '#4ade80',
+  hkb: '#fbbf24',
+  hkc: '#f87171',
+  hkd: '#a78bfa',
+  hke: '#f472b6',
 };
 
 /** 獲取節點顏色 */
 export function getNodeColor(nodeId?: string | null): string {
   if (!nodeId) return '#94a3b8';
-  return NODE_COLORS[nodeId] || '#94a3b8';
+  if (NODE_COLORS[nodeId]) return NODE_COLORS[nodeId];
+  const baseId = nodeId.replace('hk', '');
+  return NODE_COLORS[baseId] || '#94a3b8';
 }
