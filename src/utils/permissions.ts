@@ -4,14 +4,14 @@
 // FREE 可見：
 //   - 宏觀數據欄（完整）
 //   - 閾值橫幅（僅主路徑→最大切換）
-//   - 流程圖結構 + 概率條（完整）
-//   - 非主路徑的板塊特徵模糊處理
+//   - 流程圖：基準路徑 + 最高概率路徑（清晰）、其他路徑（模糊）
+//   - 概率條（完整可見）
 //   - 切換進度表（進度條可見，信號詳情模糊）
 //   - 新聞列表（前 10 條僅標題，10 條後完全模糊）
 //   - 新聞詳情（僅標題 + 日期 + 來源）
 //
 // PRO 專屬：
-//   - 非主路徑的板塊特徵詳情
+//   - 全部路徑的板塊特徵詳情
 //   - 切換確認信號詳情
 //   - 新聞摘要 + 詳情（影響分析、標籤、關聯路徑）
 // ==========================================
@@ -33,17 +33,41 @@ function isFree(tier: PremiumTier, isDebug: boolean): boolean {
   return !isDebug && tier === 'free';
 }
 
+/**
+ * 判斷某個路徑是否為 Free 用戶可見的路徑
+ * Free 用戶可見：基準路徑（current=true）+ 概率最高的路徑
+ */
+export function isPathVisibleForFree(nodeId: string, nodes: Record<string, any>, isDebug: boolean, tier: PremiumTier): boolean {
+  if (!isFree(tier, isDebug)) return true;
+  if (!nodes) return true;
+
+  // 基準路徑永遠可見
+  const node = nodes[nodeId];
+  if (node?.current) return true;
+
+  // 找出概率最高的路徑
+  let maxProb = -1;
+  let maxProbId = '';
+  for (const [id, n] of Object.entries(nodes)) {
+    const prob = (n as any).prob ?? 0;
+    if (prob > maxProb) {
+      maxProb = prob;
+      maxProbId = id;
+    }
+  }
+
+  // 最高概率路徑可見
+  if (nodeId === maxProbId) return true;
+
+  // 其他路徑模糊
+  return false;
+}
+
 // ---- 新聞權限 ----
 
-/**
- * 新聞內容查看權限
- * FREE：前 10 條僅標題可見，摘要模糊；10 條後完全模糊
- * PRO：完整內容
- */
 export function canViewNewsContent(tier: PremiumTier, isDebug: boolean, index?: number): PermissionCheck {
   if (!isFree(tier, isDebug)) return check(true, '');
   
-  // 免費用戶：前 10 條可見標題，但摘要模糊
   if (index !== undefined && index < 10) {
     return check(false, '免費用戶僅可見新聞標題');
   }
@@ -51,11 +75,6 @@ export function canViewNewsContent(tier: PremiumTier, isDebug: boolean, index?: 
   return check(false, '升級 Pro 解鎖完整新聞分析與影響評估');
 }
 
-/**
- * 新聞詳情查看權限
- * FREE：僅標題 + 日期 + 來源可見
- * PRO：完整詳情（摘要、影響分析、標籤、關聯路徑）
- */
 export function canViewNewsDetail(tier: PremiumTier, isDebug: boolean): PermissionCheck {
   if (!isFree(tier, isDebug)) return check(true, '');
   return check(false, '升級 Pro 查看完整新聞詳情');
@@ -65,18 +84,18 @@ export function canViewNewsDetail(tier: PremiumTier, isDebug: boolean): Permissi
 
 /**
  * 路徑板塊詳情權限
- * FREE：僅當前主路徑可見，其他路徑模糊
+ * FREE：基準路徑 + 最高概率路徑可見，其他模糊
  * PRO：全部路徑詳情
  */
-export function canViewPathDetail(isCurrent: boolean, tier: PremiumTier, isDebug: boolean): PermissionCheck {
-  if (!isFree(tier, isDebug) || isCurrent) return check(true, '');
-  return check(false, '升級 Pro 解鎖全部 5 條路徑的板塊特徵');
+export function canViewPathDetail(isCurrent: boolean, tier: PremiumTier, isDebug: boolean, isMaxProb?: boolean): PermissionCheck {
+  if (!isFree(tier, isDebug)) return check(true, '');
+  if (isCurrent) return check(true, '');
+  if (isMaxProb) return check(true, '');
+  return check(false, '升級 Pro 解鎖全部路徑的板塊特徵');
 }
 
 /**
- * 路徑概率查看權限
- * FREE：可見全部概率
- * PRO：可見全部概率
+ * 路徑概率查看權限 — 全部可見
  */
 export function canViewPathProbability(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
   return check(true, '');
@@ -84,49 +103,25 @@ export function canViewPathProbability(_tier?: PremiumTier, _isDebug?: boolean):
 
 // ---- 切換詳情權限 ----
 
-/**
- * 切換確認信號詳情權限
- * FREE：進度條可見，信號詳情模糊
- * PRO：完整確認信號
- */
 export function canViewSwitchDetail(tier: PremiumTier, isDebug: boolean): PermissionCheck {
   if (!isFree(tier, isDebug)) return check(true, '');
   return check(false, '升級 Pro 查看完整確認信號與分析');
 }
 
-/**
- * 切換進度查看權限
- * FREE：進度條可見
- * PRO：進度條可見
- */
 export function canViewSwitchProgress(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 
 // ---- 閾值警報權限 ----
 
-/**
- * 閾值警報查看權限
- * FREE：僅主路徑→最大切換的閾值可見
- * PRO：全部閾值警報
- */
 export function canViewThresholdAlert(switchId: string, maxSwitchId: string, tier: PremiumTier, isDebug: boolean): PermissionCheck {
   if (!isFree(tier, isDebug)) return check(true, '');
-  
-  if (switchId === maxSwitchId) {
-    return check(true, '');
-  }
-  
+  if (switchId === maxSwitchId) return check(true, '');
   return check(false, '升級 Pro 查看完整閾值警報');
 }
 
 // ---- 宏觀指標權限 ----
 
-/**
- * 宏觀指標查看權限
- * FREE：完整可見
- * PRO：完整可見
- */
 export function canViewMacro(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
@@ -140,7 +135,6 @@ export function getUserTier(isPremium: boolean, isDebugMockPremium: boolean): Pr
 
 /**
  * 計算模糊程度
- * @returns 0=完全可見，1=完全模糊，0.5=部分模糊
  */
 export function getBlurLevel(tier: PremiumTier, isDebug: boolean, isVisible: boolean): number {
   if (!isFree(tier, isDebug) || isVisible) return 0;

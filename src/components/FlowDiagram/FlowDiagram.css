@@ -70,6 +70,17 @@
   font-size: 0.7em;
 }
 
+.path-tab-blurred {
+  opacity: 0.5;
+  filter: blur(1px);
+  transition: filter 0.2s, opacity 0.2s;
+}
+
+.path-tab-blurred:hover {
+  opacity: 0.8;
+  filter: blur(0px);
+}
+
 .flow-svg {
   width: 100%;
   height: auto;

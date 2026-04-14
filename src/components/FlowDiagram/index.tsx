@@ -1,7 +1,3 @@
-// ==========================================
-// SVG 流程圖組件（含權限控制 + 路徑 Tab 切換）
-// ==========================================
-
 import React, { useMemo } from 'react';
 import { useDataStore } from '../../store/useDataStore';
 import { usePremiumStore } from '../../store/usePremiumStore';
@@ -12,11 +8,7 @@ import { canViewPathDetail, getUserTier } from '../../utils/permissions';
 import './FlowDiagram.css';
 
 const DEFAULT_PATH_COLORS: Record<string, string> = {
-  a: '#4ade80',
-  b: '#fbbf24',
-  c: '#f87171',
-  d: '#a78bfa',
-  e: '#f472b6',
+  a: '#4ade80', b: '#fbbf24', c: '#f87171', d: '#a78bfa', e: '#f472b6',
 };
 
 export const FlowDiagram: React.FC = () => {
@@ -39,6 +31,21 @@ export const FlowDiagram: React.FC = () => {
     return colors;
   }, [nodes]);
 
+  // Free 用戶可見路徑：基準路徑 + 最高概率路徑
+  const visibleForFree = useMemo(() => {
+    const set = new Set<string>();
+    if (!nodes) return set;
+    let maxProb = -1;
+    let maxProbId = '';
+    for (const [id, n] of Object.entries(nodes)) {
+      if ((n as any).current) set.add(id);
+      const prob = (n as any).prob ?? 0;
+      if (prob > maxProb) { maxProb = prob; maxProbId = id; }
+    }
+    if (maxProbId) set.add(maxProbId);
+    return set;
+  }, [nodes]);
+
   const handleSwitchClick = (switchId: string) => {
     selectSwitch(switchId === selectedSwitch ? null : switchId);
   };
@@ -46,7 +53,9 @@ export const FlowDiagram: React.FC = () => {
   const handleNodeClick = (nodeId: string) => {
     const node = nodes?.[nodeId];
     if (!node) return;
-    const perm = canViewPathDetail(!!node.current, tier, isDebugMode);
+    const n = node as any;
+    const isVisible = visibleForFree.has(nodeId);
+    const perm = canViewPathDetail(!!n.current, tier, isDebugMode, isVisible && !n.current);
     if (!perm.allowed) {
       showUpgradePrompt(perm.reason, 'path');
     }
@@ -67,15 +76,18 @@ export const FlowDiagram: React.FC = () => {
         {nodeIds.map(id => {
           const node = nodes[id];
           if (!node) return null;
+          const n = node as any;
           const isActive = selectedPath === id;
-          const isCurrent = !!node.current;
-          const color = (node as any).color || nodeColors[id];
-          const perm = canViewPathDetail(isCurrent, tier, isDebugMode);
+          const isCurrent = !!n.current;
+          const color = n.color || nodeColors[id];
+          const isFreeVisible = visibleForFree.has(id);
+          const perm = canViewPathDetail(isCurrent, tier, isDebugMode, isFreeVisible && !isCurrent);
+          const isBlurred = !isFreeVisible && !n.current;
 
           return (
             <motion.button
               key={id}
-              className={`path-tab ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''} ${!perm.allowed ? 'locked' : ''}`}
+              className={`path-tab ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''} ${!perm.allowed ? 'locked' : ''} ${isBlurred ? 'path-tab-blurred' : ''}`}
               style={{
                 borderColor: isActive ? color : 'transparent',
                 color: color,
@@ -84,8 +96,8 @@ export const FlowDiagram: React.FC = () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              <span className="tab-name">{(node as any).name?.split(' ')[0] || id.toUpperCase()}</span>
-              <span className="tab-prob" style={{ fontFamily: 'var(--font-mono)' }}>{(node as any).prob ?? 0}%</span>
+              <span className="tab-name">{n.name?.split(' ')[0] || id.toUpperCase()}</span>
+              <span className="tab-prob" style={{ fontFamily: 'var(--font-mono)' }}>{n.prob ?? 0}%</span>
               {!perm.allowed && <span className="tab-lock">🔒</span>}
               {isCurrent && <span className="tab-current">⭐</span>}
             </motion.button>
@@ -113,15 +125,23 @@ export const FlowDiagram: React.FC = () => {
             <feComposite in="glowColor" in2="coloredBlur" operator="in" result="softGlow" />
             <feMerge><feMergeNode in="softGlow" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
+          {/* 模糊濾鏡，用於 Free 用戶不可見的路徑 */}
+          <filter id="blurFree" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" />
+          </filter>
         </defs>
 
         <g id="arrowLayer">
           {sortedSwitches.map(([switchId, sw]) => {
             const progress = calcProgress(sw);
             const toId = sw.to;
+            const fromId = sw.from;
             const toColor = nodeColors[toId] || '#94a3b8';
-            const fromNode = nodes[sw.from];
+            const fromNode = nodes[fromId];
             const isCurrentPath = fromNode ? !!(fromNode as any).current : false;
+            // Free 用戶模糊：起點或終點不可見時模糊箭頭
+            const isArrowHidden = !visibleForFree.has(fromId) && !visibleForFree.has(toId);
+            const isArrowDimmed = !visibleForFree.has(fromId) || !visibleForFree.has(toId);
 
             return (
               <g key={switchId} onClick={() => handleSwitchClick(switchId)} style={{ cursor: 'pointer' }}>
@@ -132,13 +152,14 @@ export const FlowDiagram: React.FC = () => {
                   stroke={toColor}
                   strokeWidth={1.2 + progress * 5}
                   markerEnd={`url(#arrowhead-${toId})`}
-                  opacity={0.12 + progress * 0.88}
+                  opacity={isArrowHidden ? 0.08 : isArrowDimmed ? 0.25 : 0.12 + progress * 0.88}
                   strokeDasharray={isCurrentPath ? '12,5' : '7,4'}
+                  filter={isArrowHidden ? 'url(#blurFree)' : undefined}
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 1.5, ease: 'easeInOut' }}
                 />
-                {isCurrentPath && progress > 0.2 && (
+                {isCurrentPath && progress > 0.2 && !isArrowHidden && (
                   <motion.path
                     d={sw.path}
                     fill="none"
@@ -168,6 +189,8 @@ export const FlowDiagram: React.FC = () => {
             const prob = n.prob ?? 0;
             const isCurrent = !!n.current;
             const isHighestProb = prob >= 30;
+            const isFreeVisible = visibleForFree.has(id);
+            const isBlurred = !isFreeVisible && !isCurrent;
 
             return (
               <g key={id} onClick={() => handleNodeClick(id)} style={{ cursor: 'pointer' }} className="flow-node">
@@ -189,17 +212,24 @@ export const FlowDiagram: React.FC = () => {
                   fill={`${color}18`}
                   stroke={color}
                   strokeWidth={isCurrent ? 2.5 : selectedPath === id ? 2 : 1.5}
-                  filter={isHighestProb ? 'url(#glowHighProb)' : isCurrent ? 'url(#glow)' : undefined}
+                  filter={isBlurred ? 'url(#blurFree)' : isHighestProb ? 'url(#glowHighProb)' : isCurrent ? 'url(#glow)' : undefined}
+                  opacity={isBlurred ? 0.3 : 1}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 />
-                <text x={x} y={y - 5} textAnchor="middle" fill={color} fontSize={10.5} fontWeight="700">
+                <text x={x} y={y - 5} textAnchor="middle" fill={color} fontSize={10.5} fontWeight="700"
+                      opacity={isBlurred ? 0.3 : 1}>
                   {name}
                 </text>
                 {prob !== undefined && (
-                  <text x={x} y={y + 14} textAnchor="middle" fill={color} fontSize={16} fontWeight="800" fontFamily="var(--font-mono)">
+                  <text x={x} y={y + 14} textAnchor="middle" fill={color} fontSize={16} fontWeight="800" fontFamily="var(--font-mono)"
+                        opacity={isBlurred ? 0.3 : 1}>
                     {prob}%
                   </text>
+                )}
+                {/* Free 用戶鎖定圖標 */}
+                {isBlurred && (
+                  <text x={x + 50} y={y - 18} fontSize="11" textAnchor="middle" opacity="0.7">🔒</text>
                 )}
               </g>
             );
@@ -207,7 +237,7 @@ export const FlowDiagram: React.FC = () => {
         </g>
       </svg>
 
-      {/* 概率條 */}
+      {/* 概率條 — 全部可見 */}
       <div className="probability-bar">
         {nodeIds.map(id => {
           const node = nodes[id];
