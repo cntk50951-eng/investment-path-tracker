@@ -83,7 +83,7 @@ export default async function handler(req, res) {
       query('SELECT * FROM switches WHERE market = $1', [market]),
       query('SELECT name, value, trend, status, note FROM macros WHERE market = $1 ORDER BY id', [market]),
       query('SELECT * FROM alerts WHERE market = $1 LIMIT 1', [market]),
-      query('SELECT * FROM news WHERE market = $1 ORDER BY date DESC LIMIT 20', [market]),
+      query('SELECT * FROM news WHERE market = $1 ORDER BY date DESC, created_at DESC LIMIT 20', [market]),
     ]);
 
     const nodes = {};

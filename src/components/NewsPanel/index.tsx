@@ -14,7 +14,7 @@ import type { NewsEvent } from '../../types';
 import './NewsPanel.css';
 
 export const NewsPanel: React.FC = () => {
-  const { news } = useDataStore();
+  const { news, switches, nodes } = useDataStore();
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
@@ -25,7 +25,13 @@ export const NewsPanel: React.FC = () => {
 
   const sortedNews = useMemo(() => {
     if (!news) return [];
-    return [...news].sort((a, b) => b.date.localeCompare(a.date));
+    return [...news].sort((a, b) => {
+      const dateDiff = b.date.localeCompare(a.date);
+      if (dateDiff !== 0) return dateDiff;
+      const bTime = b.createdAt || '';
+      const aTime = a.createdAt || '';
+      return bTime.localeCompare(aTime);
+    });
   }, [news]);
 
   const handleNewsClick = (news: NewsEvent) => {
@@ -85,15 +91,20 @@ export const NewsPanel: React.FC = () => {
                   {news.affects && news.affects.length > 0 && (
                     <div className="news-tags">
                       {news.affects.map((switchId: string) => {
-                        const toNode = switchId.split('').pop();
-                        const color = getNodeColor(toNode);
+                        const sw = switches?.[switchId];
+                        const toNode = sw ? nodes?.[sw.to] : undefined;
+                        const fromNode = sw ? nodes?.[sw.from] : undefined;
+                        const color = toNode ? (toNode as any).color : getNodeColor(switchId);
+                        const label = sw
+                          ? `${(fromNode as any)?.name?.split(' ')[0] || sw.from}→${(toNode as any)?.name?.split(' ')[0] || sw.to}`
+                          : switchId;
                         return (
                           <span
                             key={switchId}
                             className="tag"
                             style={{ background: `${color}18`, color }}
                           >
-                            {switchId.toUpperCase()}
+                            {label}
                           </span>
                         );
                       })}

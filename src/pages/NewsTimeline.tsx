@@ -63,8 +63,14 @@ const NewsTimeline: React.FC = () => {
       filtered = filtered.filter(n => new Date(n.date) >= cutoff);
     }
 
-    // 排序（最新優先）
-    return filtered.sort((a, b) => b.date.localeCompare(a.date));
+    // 排序（最新優先，同天按精確時間降序）
+    return filtered.sort((a, b) => {
+      const dateDiff = b.date.localeCompare(a.date);
+      if (dateDiff !== 0) return dateDiff;
+      const bTime = (b as any).createdAt || '';
+      const aTime = (a as any).createdAt || '';
+      return bTime.localeCompare(aTime);
+    });
   }, [news, currentMarket, filter]);
 
   // 提取所有唯一標籤
