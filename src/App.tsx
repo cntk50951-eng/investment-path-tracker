@@ -5,6 +5,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
+import DashboardV2 from './pages/DashboardV2';
 import NewsTimeline from './pages/NewsTimeline';
 import { Login } from './pages/Login';
 import { useAuthStore } from './store/useAuthStore';
@@ -44,31 +45,41 @@ const App: React.FC = () => {
   }, [initAuthListener]);
 
   return (
-    <Router>
-      <div className="app">
-        <Routes>
-          {/* 公開路由 */}
-          <Route path="/login" element={<Login />} />
+<Router>
+        <div className="app">
+          <Routes>
+            {/* 公開路由 */}
+            <Route path="/login" element={<Login />} />
 
-          {/* 保護路由 */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          
-          <Route
-            path="/news"
-            element={
-              <ProtectedRoute>
-                <NewsTimeline />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+            {/* V2 新版路由 */}
+            <Route
+              path="/v2"
+              element={
+                <ProtectedRoute>
+                  <DashboardV2 />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 保護路由 */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/news"
+              element={
+                <ProtectedRoute>
+                  <NewsTimeline />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
 
         {/* 調試面板（僅開發環境） */}
         {isDebugMode && <DebugPanel />}
