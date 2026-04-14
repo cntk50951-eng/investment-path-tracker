@@ -70,15 +70,83 @@
   font-size: 0.7em;
 }
 
-.path-tab-blurred {
-  opacity: 0.5;
-  filter: blur(1px);
-  transition: filter 0.2s, opacity 0.2s;
+.flow-node-lock-overlay {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 12px;
+  transition: background 0.2s;
 }
 
-.path-tab-blurred:hover {
-  opacity: 0.8;
-  filter: blur(0px);
+.flow-node-lock-overlay:hover {
+  background: rgba(8, 12, 24, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.flow-node-lock-hover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(8, 12, 24, 0.75);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 140px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.flow-node-lock-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  background: rgba(244, 114, 182, 0.15);
+  border: 1px solid rgba(244, 114, 182, 0.4);
+  border-radius: 20px;
+  font-size: 0.82em;
+  font-weight: 700;
+  color: #f472b6;
+  letter-spacing: 0.05em;
+}
+
+.flow-node-lock-hint {
+  font-size: 0.72em;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.flow-node-lock-static {
+  font-size: 0.9em;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 模糊節點樣式 */
+.flow-node-locked {
+  transition: opacity 0.2s;
+}
+
+.flow-node-locked:hover {
+  opacity: 0.8 !important;
+}
+
+/* flow-diagram-viewport 需要相對定位 */
+.flow-diagram-viewport {
+  position: relative;
 }
 
 .flow-svg {
