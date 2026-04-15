@@ -18,6 +18,14 @@ export const NewsPanelV2: React.FC = () => {
   const contentVisible = canViewContent.allowed;
   const [drawerNews, setDrawerNews] = useState<NewsEvent | null>(null);
 
+  // Debug: 記錄新聞數據
+  if (isDebugMode && news) {
+    console.log('📰 NewsPanelV2 - News data:', news.length, 'items');
+    if (news.length > 0) {
+      console.log('First news:', JSON.stringify(news[0], null, 2));
+    }
+  }
+
   const sortedNews = useMemo(() => {
     if (!news) return [];
     return [...news].sort((a, b) => {
