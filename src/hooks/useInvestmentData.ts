@@ -49,11 +49,17 @@ export function useInvestmentData() {
     const timestamp = Date.now();
     try {
       const res = await fetch(`/api/v1/news?market=${m}&limit=50&t=${timestamp}`);
+      console.log('News API Response:', res.status);
       if (!res.ok) {
         const errorText = await res.text();
+        console.error('News API error:', res.status, errorText);
         throw new Error(`/api/v1/news failed: ${res.status} - ${errorText}`);
       }
       const data = await res.json();
+      console.log('News data received:', data.data?.news?.length || 0, 'items');
+      if (data.data?.news && data.data.news.length > 0) {
+        console.log('First news item:', data.data.news[0]);
+      }
       
       setNews(data.data?.news || []);
       setLoadingModule('news', false);
