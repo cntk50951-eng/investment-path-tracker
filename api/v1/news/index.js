@@ -135,13 +135,13 @@ export default async function handler(req, res) {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     
-    // 查詢總數
+    // 查詢總數（使用與主查詢相同的條件，但不含 LIMIT/OFFSET）
     const countQuery = `
       SELECT COUNT(*) as total
       FROM news
       ${whereClause}
     `;
-    const countResult = await query(countQuery, params.slice(0, paramIndex - (limit ? 2 : 0)));
+    const countResult = await query(countQuery, params);
     const total = parseInt(countResult.rows[0].total);
     
     let newsQuery = `
@@ -151,6 +151,7 @@ export default async function handler(req, res) {
       ORDER BY date DESC, published_time DESC
     `;
     
+    // 添加分頁參數
     if (limit) {
       newsQuery += ` LIMIT $${paramIndex++}`;
       params.push(limit);
