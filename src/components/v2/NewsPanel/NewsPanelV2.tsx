@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useDataStore } from '../../../store/useDataStore';
+import { useInvestmentData } from '../../../hooks/useInvestmentData';
 import { usePremiumStore } from '../../../store/usePremiumStore';
 import { useDebugStore } from '../../../store/useDebugStore';
 import { canViewNewsContent, getUserTier } from '../../../utils/permissions';
@@ -11,12 +12,40 @@ import './NewsPanelV2.css';
 
 export const NewsPanelV2: React.FC = () => {
   const { news, switches, nodes } = useDataStore();
+  const { loadMoreNews } = useInvestmentData();
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
   const canViewContent = canViewNewsContent(tier, isDebugMode);
   const contentVisible = canViewContent.allowed;
   const [drawerNews, setDrawerNews] = useState<NewsEvent | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // 無限滾動監聽
+  useEffect(() => {
+    if (!listRef.current || !hasMore || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      { root: listRef.current.parentElement, rootMargin: '100px' }
+    );
+
+    observer.observe(listRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore]);
+
+  const loadMore = async () => {
+    setIsLoadingMore(true);
+    const more = await loadMoreNews();
+    setHasMore(more);
+    setIsLoadingMore(false);
+  };
 
   // Debug: 記錄新聞數據
   if (isDebugMode && news) {
@@ -135,14 +164,40 @@ export const NewsPanelV2: React.FC = () => {
           {sortedNews.length === 0 && (
             <div className="news-v2-empty">暫無新聞</div>
           )}
+
+          {/* 無限滾動加載更多 */}
+          {hasMore && (
+            <div className="news-v2-scroll-anchor" ref={listRef} />
+          )}
         </div>
 
-        <div className="news-v2-footer">
-          <button className="news-v2-analyze-btn">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>analytics</span>
-            分析所有訊號
-          </button>
-        </div>
+        {/* 加載更多按鈕 */}
+        {hasMore && news && news.length > 0 && (
+          <div className="news-v2-footer">
+            <button
+              className="news-v2-load-more-btn"
+              onClick={async () => {
+                setIsLoadingMore(true);
+                const more = await loadMoreNews();
+                setHasMore(more);
+                setIsLoadingMore(false);
+              }}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? (
+                <>
+                  <span className="material-symbols-outlined news-v2-spin">progress_activity</span>
+                  加載中...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined">expand_more</span>
+                  加載更多新聞
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       <NewsDrawer news={drawerNews} onClose={() => setDrawerNews(null)} />

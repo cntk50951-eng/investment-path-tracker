@@ -135,6 +135,15 @@ export default async function handler(req, res) {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     
+    // 查詢總數
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM news
+      ${whereClause}
+    `;
+    const countResult = await query(countQuery, params.slice(0, paramIndex - (limit ? 2 : 0)));
+    const total = parseInt(countResult.rows[0].total);
+    
     let newsQuery = `
       SELECT id, market, date, title, source, severity, summary, impact, url, created_at, updated_at
       FROM news
@@ -145,6 +154,8 @@ export default async function handler(req, res) {
     if (limit) {
       newsQuery += ` LIMIT $${paramIndex++}`;
       params.push(limit);
+      newsQuery += ` OFFSET $${paramIndex++}`;
+      params.push(offset);
     }
 
     const newsResult = await query(newsQuery, params);
@@ -175,7 +186,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      data: { news, total: news.length },
+      data: { news, total, limit, offset, hasMore: offset + news.length < total },
       meta: {
         timestamp: new Date().toISOString(),
         version: '3.0.0',
