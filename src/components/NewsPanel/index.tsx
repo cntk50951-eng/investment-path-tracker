@@ -72,8 +72,13 @@ export const NewsPanel: React.FC = () => {
                   transition={{ duration: 0.15, delay: index * 0.03 }}
                   whileHover={{ scale: 1.02, backgroundColor: 'rgba(30,41,59,0.75)' }}
                 >
-                  {/* 日期和來源（始終可見） */}
-                  <div className="news-date">{news.date} · {news.source}</div>
+                  <div className="news-date">
+                    {news.date}
+                    {news.createdAt && (
+                      <span className="news-time"> · {new Date(news.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</span>
+                    )}
+                    {' '}· {news.source}
+                  </div>
 
                   {/* 標題（始終可見） */}
                   <div className="news-title">{news.title}</div>
