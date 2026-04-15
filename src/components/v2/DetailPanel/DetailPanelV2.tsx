@@ -20,17 +20,18 @@ export const DetailPanelV2: React.FC = () => {
 
   if (!selectedSwitch && !selectedPath) {
     return (
-      <section className="detail-v2 glass-panel">
+      <section className="detail-v2 glass-panel" id="detailPanel">
         <div className="detail-v2-empty">
           <span className="material-symbols-outlined" style={{ fontSize: '2rem', opacity: 0.3 }}>touch_app</span>
           <p>點擊切換或路徑查看詳情</p>
+          <p className="detail-v2-hint-text">👆 點擊上方 Path Transition Matrix 中的行</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="detail-v2 glass-panel">
+    <section className="detail-v2 glass-panel" id="detailPanel">
       <AnimatePresence mode="wait">
         {selectedSwitch && switches && switches[selectedSwitch] && (
           <SwitchDetailV2

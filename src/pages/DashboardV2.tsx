@@ -130,7 +130,7 @@ const DashboardV2: React.FC = () => {
             {loadingModules.paths ? <SwitchTableSkeleton /> : <SwitchTableV2 />}
           </div>
 
-          <div className="v2-detail-card">
+          <div className="v2-detail-card" id="detailPanel">
             <DetailPanelV2 />
           </div>
         </div>
