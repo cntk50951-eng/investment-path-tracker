@@ -4,7 +4,8 @@
 
 import { useEffect, useCallback } from 'react';
 import { useDataStore } from '../store/useDataStore';
-import { useInvestmentData } from './useInvestmentData';
+import { useMarketStore } from '../store/useMarketStore';
+import { fetchAllData } from './useInvestmentData';
 
 interface UseKeyboardOptions {
   enabled?: boolean;
@@ -13,17 +14,19 @@ interface UseKeyboardOptions {
 export function useKeyboard(options: UseKeyboardOptions = {}) {
   const { enabled = true } = options;
   const { selectPath, selectSwitch, selectedPath, selectedSwitch } = useDataStore();
-  const { refresh } = useInvestmentData();
+  const currentMarket = useMarketStore(s => s.currentMarket);
+
+  const refresh = useCallback(() => {
+    fetchAllData(currentMarket);
+  }, [currentMarket]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!enabled) return;
 
-    // 忽略輸入框中的按鍵
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       return;
     }
 
-    // 數字鍵 1-5：快速切換路徑
     if (e.key >= '1' && e.key <= '5') {
       e.preventDefault();
       const pathMap: Record<string, string> = {
@@ -34,18 +37,14 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
         '5': 'e',
       };
       const pathId = pathMap[e.key];
-      
-      // 如果已選中則取消，否則選中
       selectPath(selectedPath === pathId ? null : pathId);
     }
 
-    // R: 刷新數據
     if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
       refresh();
     }
 
-    // N: 跳到新聞面板
     if (e.key.toLowerCase() === 'n') {
       e.preventDefault();
       const newsPanel = document.getElementById('newsPanel');
@@ -54,7 +53,6 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       }
     }
 
-    // Esc: 關閉詳情面板
     if (e.key === 'Escape') {
       e.preventDefault();
       selectPath(null);

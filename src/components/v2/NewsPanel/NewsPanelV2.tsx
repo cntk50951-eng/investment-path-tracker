@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useDataStore } from '../../../store/useDataStore';
-import { useInvestmentData } from '../../../hooks/useInvestmentData';
+import { useMarketStore } from '../../../store/useMarketStore';
 import { usePremiumStore } from '../../../store/usePremiumStore';
 import { useDebugStore } from '../../../store/useDebugStore';
 import { canViewNewsContent, getUserTier } from '../../../utils/permissions';
 import { getNodeColor } from '../../../utils/constants';
+import { fetchNewsData } from '../../../hooks/useInvestmentData';
 import { NewsDrawer } from '../../NewsDrawer';
 import type { NewsEvent } from '../../../types';
 import './NewsPanelV2.css';
@@ -13,7 +14,7 @@ export const NewsPanelV2: React.FC = () => {
   const news = useDataStore(s => s.news);
   const switches = useDataStore(s => s.switches);
   const nodes = useDataStore(s => s.nodes);
-  const { loadMoreNews } = useInvestmentData();
+  const currentMarket = useMarketStore(s => s.currentMarket);
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
   const tier = getUserTier(isPremium, mockPremium);
@@ -38,7 +39,7 @@ export const NewsPanelV2: React.FC = () => {
     if (isLoadingMore) return;
     setIsLoadingMore(true);
     try {
-      const more = await loadMoreNews();
+      const more = await fetchNewsData(currentMarket, true);
       setHasMore(more);
     } finally {
       setIsLoadingMore(false);
