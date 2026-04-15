@@ -76,8 +76,9 @@ export default async function handler(req, res) {
       });
     }
 
-    const market = (req.query.market) || 'US';
-    const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
+const market = (req.query.market) || 'US';
+    const limit = req.query.limit ? parseInt(req.query.limit) : 20;
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const severity = req.query.severity;
     const tag = req.query.tag;
     const path = req.query.path;
