@@ -50,14 +50,23 @@ export const NewsPanelV2: React.FC = () => {
     }
   };
 
-  const getTimeAgo = (date: string) => {
+  const getTimeAgo = (news: NewsEvent) => {
+    // 優先使用 createdAt（精確時間），如果沒有則使用 date
+    const timestamp = news.createdAt || news.date;
+    if (!timestamp) return '';
+    
     const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
+    const past = new Date(timestamp);
+    const diff = now.getTime() - past.getTime();
     const minutes = Math.floor(diff / 60000);
+    
+    if (minutes < 1) return '剛剛';
     if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
-    return date;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return news.date;
   };
 
   return (
@@ -88,7 +97,7 @@ export const NewsPanelV2: React.FC = () => {
                 >
                   <div className="news-v2-card-top">
                     <span className="news-v2-severity" style={{ color: sevConfig.color }}>{sevConfig.label}</span>
-                    <span className="news-v2-time">{getTimeAgo(news.date)}</span>
+                    <span className="news-v2-time">{getTimeAgo(news)}</span>
                   </div>
                   <h4 className="news-v2-card-title">{news.title}</h4>
                   <p className={`news-v2-card-summary ${!contentVisible ? 'news-v2-blurred' : ''}`}>
