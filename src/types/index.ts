@@ -52,7 +52,8 @@ export interface NewsEvent {
   id?: string;
   market?: Market;  // 新增市場字段
   date: string;
-  createdAt?: string;  // 精確時間戳，用於同日期內的二級排序
+  createdAt?: string;  // DB 插入時間
+  publishedTime?: string;  // 實際發布時間 HH:MM 格式（來自人猿報告 datetime）
   title: string;
   source: string;
   severity: 'critical' | 'medium' | 'positive';

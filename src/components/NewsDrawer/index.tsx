@@ -69,7 +69,12 @@ export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
               {/* 元信息 */}
               <div className="drawer-meta">
                 {news.date}
-                {news.createdAt && (
+                {news.publishedTime && (
+                  <span className="drawer-time">
+                    {' '}· {news.publishedTime}
+                  </span>
+                )}
+                {!news.publishedTime && news.createdAt && (
                   <span className="drawer-time">
                     {' '}· {new Date(news.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}
                   </span>
