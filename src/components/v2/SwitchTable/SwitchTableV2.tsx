@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useDataStore } from '../../../store/useDataStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calcProgress, getTier } from '../../../utils/validators';
@@ -6,7 +6,7 @@ import { getNodeColor } from '../../../utils/constants';
 import './SwitchTableV2.css';
 
 export const SwitchTableV2: React.FC = () => {
-  const { switches, selectSwitch, selectedSwitch } = useDataStore();
+  const { switches, selectSwitch, selectedSwitch, selectedPath } = useDataStore();
 
   if (!switches) {
     return (
@@ -44,10 +44,28 @@ export const SwitchTableV2: React.FC = () => {
     selectSwitch(switchId === selectedSwitch ? null : switchId);
   };
 
+  // 當選中切換時，自動滾動到詳情面板
+  useEffect(() => {
+    if (selectedSwitch && !selectedPath) {
+      const detailPanel = document.getElementById('detailPanel');
+      if (detailPanel) {
+        setTimeout(() => {
+          detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
+    }
+  }, [selectedSwitch, selectedPath]);
+
   return (
     <section className="switch-v2 glass-panel">
       <div className="switch-v2-header">
-        <h3 className="switch-v2-title">Path Transition Matrix</h3>
+        <div>
+          <h3 className="switch-v2-title">Path Transition Matrix</h3>
+          <p className="switch-v2-hint">
+            <span className="material-symbols-outlined">touch_app</span>
+            點擊行查看路徑切換詳情
+          </p>
+        </div>
         <span className="switch-v2-subtitle">路徑切換進度追蹤</span>
       </div>
 
@@ -72,7 +90,12 @@ export const SwitchTableV2: React.FC = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.2 }}
-                  whileHover={{ backgroundColor: 'rgba(30, 41, 59, 0.4)' }}
+                  whileHover={{ 
+                    backgroundColor: selectedSwitch === row.id 
+                      ? 'rgba(163, 166, 255, 0.12)' 
+                      : 'rgba(30, 41, 59, 0.5)',
+                    x: 4
+                  }}
                 >
                   <td>
                     <div className="switch-v2-direction">
@@ -109,6 +132,19 @@ export const SwitchTableV2: React.FC = () => {
 
       {switchRows.length === 0 && (
         <div className="switch-v2-empty">暫無切換數據</div>
+      )}
+      
+      {selectedSwitch && (
+        <motion.div 
+          className="switch-v2-selected-indicator"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+        >
+          <span className="material-symbols-outlined">expand_more</span>
+          <span>已選擇 {switches[selectedSwitch]?.from.toUpperCase()} → {switches[selectedSwitch]?.to.toUpperCase()}</span>
+          <span className="material-symbols-outlined">touch_app</span>
+        </motion.div>
       )}
     </section>
   );

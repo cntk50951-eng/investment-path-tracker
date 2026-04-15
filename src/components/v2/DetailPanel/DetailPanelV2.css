@@ -11,6 +11,20 @@
   color: var(--on-surface-variant, #a6abbb);
   font-size: 0.875rem;
   min-height: 200px;
+  text-align: center;
+}
+
+.detail-v2-hint-text {
+  font-size: 0.75rem;
+  color: var(--primary, #a3a6ff);
+  margin-top: 0.5rem;
+  opacity: 0.8;
+  animation: pulseHint 2s ease-in-out infinite;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.6; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
 }
 
 .detail-v2-content {

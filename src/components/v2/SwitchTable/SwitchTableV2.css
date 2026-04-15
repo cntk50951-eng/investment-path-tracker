@@ -18,6 +18,20 @@
   margin: 0;
 }
 
+.switch-v2-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--primary, #a3a6ff);
+  margin-top: 0.25rem;
+  opacity: 0.9;
+}
+
+.switch-v2-hint .material-symbols-outlined {
+  font-size: 0.875rem;
+}
+
 .switch-v2-subtitle {
   font-size: 0.75rem;
   color: var(--on-surface-variant, #a6abbb);
@@ -65,11 +79,20 @@
   padding: 0.75rem 1.5rem;
   border-bottom: 1px solid rgba(66, 72, 85, 0.05);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
-.switch-v2-row.active td {
-  background: rgba(163, 166, 255, 0.06);
+.switch-v2-row {
+  position: relative;
+}
+
+.switch-v2-row.active {
+  background: rgba(163, 166, 255, 0.1);
+  border-left: 3px solid var(--primary, #a3a6ff);
+}
+
+.switch-v2-row.active td:first-child {
+  border-left: 3px solid var(--primary, #a3a6ff);
 }
 
 .switch-v2-direction {
@@ -147,6 +170,29 @@
   padding: 2.5rem;
   color: var(--on-surface-variant, #a6abbb);
   font-size: 0.875rem;
+}
+
+.switch-v2-selected-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(163, 166, 255, 0.08);
+  border-top: 1px solid rgba(163, 166, 255, 0.15);
+  color: var(--primary, #a3a6ff);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.switch-v2-selected-indicator .material-symbols-outlined {
+  font-size: 1rem;
+  animation: bounceArrow 1.5s ease-in-out infinite;
+}
+
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
 }
 
 @keyframes spin {
