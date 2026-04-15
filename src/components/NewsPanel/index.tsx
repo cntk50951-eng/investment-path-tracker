@@ -74,7 +74,10 @@ export const NewsPanel: React.FC = () => {
                 >
                   <div className="news-date">
                     {news.date}
-                    {news.createdAt && (
+                    {news.publishedTime && (
+                      <span className="news-time"> · {news.publishedTime}</span>
+                    )}
+                    {!news.publishedTime && news.createdAt && (
                       <span className="news-time"> · {new Date(news.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</span>
                     )}
                     {' '}· {news.source}

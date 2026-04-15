@@ -145,10 +145,10 @@ export default async function handler(req, res) {
     const total = parseInt(countResult.rows[0].total);
     
     let newsQuery = `
-      SELECT id, market, date, title, source, severity, summary, impact, url, created_at, updated_at
+      SELECT id, market, date, title, source, severity, summary, impact, url, created_at, updated_at, published_time
       FROM news
       ${whereClause}
-      ORDER BY date DESC, created_at DESC
+      ORDER BY date DESC, published_time DESC
     `;
     
     if (limit) {
@@ -172,6 +172,7 @@ export default async function handler(req, res) {
         market: newsItem.market,
         date: newsItem.date.toISOString().split('T')[0],
         createdAt: newsItem.created_at ? newsItem.created_at.toISOString() : null,
+        publishedTime: newsItem.published_time || null,
         title: newsItem.title,
         source: newsItem.source,
         severity: newsItem.severity,
