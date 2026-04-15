@@ -266,9 +266,12 @@
 }
 
 .v2-sidebar {
+  height: calc(100vh - 8rem);
   max-height: calc(100vh - 8rem);
   position: sticky;
   top: 6.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- Error ---- */
