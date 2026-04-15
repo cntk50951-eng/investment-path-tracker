@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useInvestmentData } from '../hooks/useInvestmentData';
+import { useInitialDataFetch } from '../hooks/useInvestmentData';
+import { useDataStore } from '../store/useDataStore';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useAuthStore } from '../store/useAuthStore';
 import { useDebugStore } from '../store/useDebugStore';
@@ -23,7 +24,9 @@ const MARKET_TITLES: Record<string, string> = {
 };
 
 const DashboardV2: React.FC = () => {
-  const { loadingModules, error, refresh } = useInvestmentData();
+  const { refresh } = useInitialDataFetch();
+  const loadingModules = useDataStore(s => s.loadingModules);
+  const error = useDataStore(s => s.error);
   const { user, logout } = useAuthStore();
   const { isDebugMode } = useDebugStore();
   const { currentMarket, setMarket } = useMarketStore();

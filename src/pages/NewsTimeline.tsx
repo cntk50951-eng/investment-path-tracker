@@ -3,7 +3,8 @@
 // ==========================================
 
 import React, { useMemo, useState } from 'react';
-import { useInvestmentData } from '../hooks/useInvestmentData';
+import { useInitialDataFetch } from '../hooks/useInvestmentData';
+import { useDataStore } from '../store/useDataStore';
 import { useMarketStore } from '../store/useMarketStore';
 import { FunctionTab } from '../components/FunctionTab';
 import { MarketTab } from '../components/MarketTab';
@@ -15,7 +16,10 @@ import type { NewsEvent } from '../types';
 import './NewsTimeline.css';
 
 const NewsTimeline: React.FC = () => {
-  const { news, loadingModules, error } = useInvestmentData();
+  useInitialDataFetch();
+  const news = useDataStore(s => s.news);
+  const loadingModules = useDataStore(s => s.loadingModules);
+  const error = useDataStore(s => s.error);
   const { currentMarket } = useMarketStore();
 
   const [selectedNews, setSelectedNews] = useState<NewsEvent | null>(null);
