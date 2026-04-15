@@ -1,17 +1,18 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDataStore } from '../../../store/useDataStore';
 import { useInvestmentData } from '../../../hooks/useInvestmentData';
 import { usePremiumStore } from '../../../store/usePremiumStore';
 import { useDebugStore } from '../../../store/useDebugStore';
 import { canViewNewsContent, getUserTier } from '../../../utils/permissions';
 import { getNodeColor } from '../../../utils/constants';
-import { motion, AnimatePresence } from 'framer-motion';
 import { NewsDrawer } from '../../NewsDrawer';
 import type { NewsEvent } from '../../../types';
 import './NewsPanelV2.css';
 
 export const NewsPanelV2: React.FC = () => {
-  const { news, switches, nodes } = useDataStore();
+  const news = useDataStore(s => s.news);
+  const switches = useDataStore(s => s.switches);
+  const nodes = useDataStore(s => s.nodes);
   const { loadMoreNews } = useInvestmentData();
   const { isPremium } = usePremiumStore();
   const { isDebugMode, mockPremium } = useDebugStore();
@@ -21,44 +22,8 @@ export const NewsPanelV2: React.FC = () => {
   const [drawerNews, setDrawerNews] = useState<NewsEvent | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const listRef = useRef<HTMLDivElement>(null);
-
-  // 無限滾動監聽
-  useEffect(() => {
-    if (!listRef.current || !hasMore || isLoadingMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-          loadMore();
-        }
-      },
-      { root: listRef.current.parentElement, rootMargin: '100px' }
-    );
-
-    observer.observe(listRef.current);
-    return () => observer.disconnect();
-  }, [hasMore, isLoadingMore]);
-
-  const loadMore = async () => {
-    setIsLoadingMore(true);
-    const more = await loadMoreNews();
-    setHasMore(more);
-    setIsLoadingMore(false);
-  };
-
-  // Debug: 記錄新聞數據
-  if (isDebugMode && news) {
-    console.log('📰 NewsPanelV2 - News data:', news.length, 'items');
-    if (news.length > 0) {
-      console.log('First news:', JSON.stringify(news[0], null, 2));
-    }
-  }
 
   const sortedNews = useMemo(() => {
-    if (isDebugMode) {
-      console.log('🔍 NewsPanelV2 - sorting news:', news?.length || 0, 'items');
-    }
     if (!news || news.length === 0) return [];
     return [...news].sort((a, b) => {
       const dateDiff = b.date.localeCompare(a.date);
@@ -69,55 +34,63 @@ export const NewsPanelV2: React.FC = () => {
     });
   }, [news]);
 
-  const handleNewsClick = (news: NewsEvent) => {
-    setDrawerNews(news);
+  const handleLoadMore = async () => {
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const more = await loadMoreNews();
+      setHasMore(more);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleNewsClick = (item: NewsEvent) => {
+    setDrawerNews(item);
   };
 
   const getSeverityConfig = (severity: string) => {
     switch (severity) {
-      case 'critical': return { label: 'Critical Alert', color: '#ec4899', class: 'news-v2-critical' };
-      case 'medium': return { label: 'Market Shift', color: '#f59e0b', class: 'news-v2-medium' };
-      case 'positive': return { label: 'Growth Signal', color: '#10b981', class: 'news-v2-positive' };
-      default: return { label: 'Update', color: '#a3a6ff', class: 'news-v2-info' };
+      case 'critical': return { label: 'Critical Alert', color: '#ec4899', className: 'news-v2-critical' };
+      case 'medium': return { label: 'Market Shift', color: '#f59e0b', className: 'news-v2-medium' };
+      case 'positive': return { label: 'Growth Signal', color: '#10b981', className: 'news-v2-positive' };
+      default: return { label: 'Update', color: '#a3a6ff', className: 'news-v2-info' };
     }
   };
 
-  const getTimeAgo = (news: NewsEvent) => {
-    // 優先使用 publishedTime（實際發布時間），其次是 createdAt
-    if (news.publishedTime) {
-      // publishedTime 格式為 "HH:MM"，需要結合 date 使用
-      const timestamp = `${news.date}T${news.publishedTime}`;
+  const getTimeAgo = (item: NewsEvent) => {
+    if (item.publishedTime) {
+      const timestamp = `${item.date}T${item.publishedTime}`;
       const past = new Date(timestamp);
       const now = new Date();
       const diff = now.getTime() - past.getTime();
       const minutes = Math.floor(diff / 60000);
-      
       if (minutes < 1) return '剛剛';
       if (minutes < 60) return `${minutes}m ago`;
       const hours = Math.floor(minutes / 60);
       if (hours < 24) return `${hours}h ago`;
       const days = Math.floor(hours / 24);
       if (days < 7) return `${days}d ago`;
-      return `${news.date} ${news.publishedTime}`;
+      return `${item.date} ${item.publishedTime}`;
     }
-    
-    // Fallback 到 createdAt
-    const timestamp = news.createdAt || news.date;
+    const timestamp = item.createdAt || item.date;
     if (!timestamp) return '';
-    
     const now = new Date();
     const past = new Date(timestamp);
     const diff = now.getTime() - past.getTime();
     const minutes = Math.floor(diff / 60000);
-    
     if (minutes < 1) return '剛剛';
     if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d ago`;
-    return news.date;
+    return item.date;
   };
+
+  if (isDebugMode) {
+    console.log('📰 NewsPanelV2 render - news:', news?.length || 0, 'sorted:', sortedNews.length);
+  }
 
   return (
     <>
@@ -130,85 +103,67 @@ export const NewsPanelV2: React.FC = () => {
           <span className="news-v2-live-badge">LIVE</span>
         </div>
 
-        <div className="news-v2-list" ref={listRef}>
+        <div className="news-v2-list">
           {isDebugMode && (
             <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '0.5rem' }}>
               Debug: {sortedNews.length} news items rendered
             </div>
           )}
-          
-          <AnimatePresence>
-            {sortedNews.map((news, index) => {
-              const sevConfig = getSeverityConfig(news.severity);
-              return (
-                <motion.div
-                  key={news.id || index}
-                  className={`news-v2-card ${sevConfig.class} ${drawerNews === news ? 'selected' : ''}`}
-                  onClick={() => handleNewsClick(news)}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.15, delay: index * 0.03 }}
-                  whileHover={{ x: 4 }}
-                >
-                  <div className="news-v2-card-top">
-                    <span className="news-v2-severity" style={{ color: sevConfig.color }}>{sevConfig.label}</span>
-                    <span className="news-v2-time">{getTimeAgo(news)}</span>
+
+          {sortedNews.map((item, index) => {
+            const sevConfig = getSeverityConfig(item.severity);
+            return (
+              <div
+                key={item.id || index}
+                className={`news-v2-card ${sevConfig.className} ${drawerNews?.id === item.id ? 'selected' : ''}`}
+                onClick={() => handleNewsClick(item)}
+              >
+                <div className="news-v2-card-top">
+                  <span className="news-v2-severity" style={{ color: sevConfig.color }}>{sevConfig.label}</span>
+                  <span className="news-v2-time">{getTimeAgo(item)}</span>
+                </div>
+                <h4 className="news-v2-card-title">{item.title}</h4>
+                <p className={`news-v2-card-summary ${!contentVisible ? 'news-v2-blurred' : ''}`}>
+                  {item.summary?.substring(0, 80)}...
+                </p>
+                {item.affects && item.affects.length > 0 && (
+                  <div className="news-v2-tags">
+                    {item.affects.map((switchId: string) => {
+                      const sw = switches?.[switchId];
+                      const toNode = sw ? nodes?.[sw.to] : undefined;
+                      const fromNode = sw ? nodes?.[sw.from] : undefined;
+                      const color = toNode ? (toNode as any).color : getNodeColor(switchId);
+                      const label = sw
+                        ? `${(fromNode as any)?.name?.split(' ')[0] || sw.from}→${(toNode as any)?.name?.split(' ')[0] || sw.to}`
+                        : switchId;
+                      return (
+                        <span key={switchId} className="news-v2-tag" style={{ background: `${color}18`, color }}>
+                          {label}
+                        </span>
+                      );
+                    })}
                   </div>
-                  <h4 className="news-v2-card-title">{news.title}</h4>
-                  <p className={`news-v2-card-summary ${!contentVisible ? 'news-v2-blurred' : ''}`}>
-                    {news.summary.substring(0, 80)}...
-                  </p>
-                  {news.affects && news.affects.length > 0 && (
-                    <div className="news-v2-tags">
-                      {news.affects.map((switchId: string) => {
-                        const sw = switches?.[switchId];
-                        const toNode = sw ? nodes?.[sw.to] : undefined;
-                        const fromNode = sw ? nodes?.[sw.from] : undefined;
-                        const color = toNode ? (toNode as any).color : getNodeColor(switchId);
-                        const label = sw
-                          ? `${(fromNode as any)?.name?.split(' ')[0] || sw.from}→${(toNode as any)?.name?.split(' ')[0] || sw.to}`
-                          : switchId;
-                        return (
-                          <span key={switchId} className="news-v2-tag" style={{ background: `${color}18`, color }}>
-                            {label}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {!contentVisible && (
-                    <div className="news-v2-lock-hint">
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>lock</span>
-                      點擊查看詳情
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                )}
+                {!contentVisible && (
+                  <div className="news-v2-lock-hint">
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>lock</span>
+                    點擊查看詳情
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {sortedNews.length === 0 && (
             <div className="news-v2-empty">暫無新聞</div>
           )}
-
-          {/* 無限滾動加載更多 */}
-          {hasMore && (
-            <div className="news-v2-scroll-anchor" ref={listRef} />
-          )}
         </div>
 
-        {/* 加載更多按鈕 */}
         {hasMore && news && news.length > 0 && (
           <div className="news-v2-footer">
             <button
               className="news-v2-load-more-btn"
-              onClick={async () => {
-                setIsLoadingMore(true);
-                const more = await loadMoreNews();
-                setHasMore(more);
-                setIsLoadingMore(false);
-              }}
+              onClick={handleLoadMore}
               disabled={isLoadingMore}
             >
               {isLoadingMore ? (
