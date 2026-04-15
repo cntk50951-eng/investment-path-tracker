@@ -51,9 +51,9 @@ const App: React.FC = () => {
             {/* 公開路由 */}
             <Route path="/login" element={<Login />} />
 
-            {/* V2 新版路由 */}
+            {/* V2 新版路由（設為根路徑） */}
             <Route
-              path="/v2"
+              path="/"
               element={
                 <ProtectedRoute>
                   <DashboardV2 />
@@ -61,9 +61,9 @@ const App: React.FC = () => {
               }
             />
 
-            {/* 保護路由 */}
+            {/* 舊版 Dashboard 移至 /classic */}
             <Route
-              path="/"
+              path="/classic"
               element={
                 <ProtectedRoute>
                   <Dashboard />
