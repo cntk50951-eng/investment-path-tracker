@@ -56,12 +56,15 @@ export const NewsPanelV2: React.FC = () => {
   }
 
   const sortedNews = useMemo(() => {
-    if (!news) return [];
+    if (isDebugMode) {
+      console.log('🔍 NewsPanelV2 - sorting news:', news?.length || 0, 'items');
+    }
+    if (!news || news.length === 0) return [];
     return [...news].sort((a, b) => {
       const dateDiff = b.date.localeCompare(a.date);
       if (dateDiff !== 0) return dateDiff;
-      const bTime = b.createdAt || '';
-      const aTime = a.createdAt || '';
+      const bTime = b.publishedTime || b.createdAt || '';
+      const aTime = a.publishedTime || a.createdAt || '';
       return bTime.localeCompare(aTime);
     });
   }, [news]);
@@ -127,7 +130,13 @@ export const NewsPanelV2: React.FC = () => {
           <span className="news-v2-live-badge">LIVE</span>
         </div>
 
-        <div className="news-v2-list">
+        <div className="news-v2-list" ref={listRef}>
+          {isDebugMode && (
+            <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '0.5rem' }}>
+              Debug: {sortedNews.length} news items rendered
+            </div>
+          )}
+          
           <AnimatePresence>
             {sortedNews.map((news, index) => {
               const sevConfig = getSeverityConfig(news.severity);
