@@ -67,7 +67,15 @@ export const NewsDrawer: React.FC<NewsDrawerProps> = ({ news, onClose }) => {
               <div className="drawer-title">{news.title}</div>
 
               {/* 元信息 */}
-              <div className="drawer-meta">{news.date} · {news.source}</div>
+              <div className="drawer-meta">
+                {news.date}
+                {news.createdAt && (
+                  <span className="drawer-time">
+                    {' '}· {new Date(news.createdAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
+                {' '}· {news.source}
+              </div>
 
               {/* 摘要（始終可見） */}
               <div className="drawer-section">

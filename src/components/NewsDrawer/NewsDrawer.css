@@ -91,6 +91,12 @@
   margin-bottom: 16px;
 }
 
+.drawer-time {
+  color: #a3a6ff;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-weight: 600;
+}
+
 .drawer-section {
   margin-bottom: 20px;
 }
