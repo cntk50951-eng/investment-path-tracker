@@ -44,11 +44,14 @@ export function useInvestmentData() {
     }
   }, [currentMarket, setNodes, setSwitches, setAlert, setThresholdAlert, setLoadingModule]);
 
-  const fetchNews = useCallback(async (market?: string) => {
+  const fetchNews = useCallback(async (market?: string, append = false) => {
     const m = market || currentMarket;
     const timestamp = Date.now();
+    const offset = append ? (news?.length || 0) : 0;
+    const limit = 20;
+    
     try {
-      const res = await fetch(`/api/v1/news?market=${m}&limit=50&t=${timestamp}`);
+      const res = await fetch(`/api/v1/news?market=${m}&limit=${limit}&offset=${offset}&t=${timestamp}`);
       console.log('News API Response:', res.status);
       if (!res.ok) {
         const errorText = await res.text();
@@ -56,19 +59,23 @@ export function useInvestmentData() {
         throw new Error(`/api/v1/news failed: ${res.status} - ${errorText}`);
       }
       const data = await res.json();
-      console.log('News data received:', data.data?.news?.length || 0, 'items');
-      if (data.data?.news && data.data.news.length > 0) {
-        console.log('First news item:', data.data.news[0]);
-      }
+      console.log('News data received:', data.data?.news?.length || 0, 'items, offset:', offset);
       
-      setNews(data.data?.news || []);
+      if (append && news) {
+        setNews([...news, ...(data.data?.news || [])]);
+      } else {
+        setNews(data.data?.news || []);
+      }
       setLoadingModule('news', false);
+      
+      return data.data?.hasMore ?? false;
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : '新聞數據加載失敗';
       console.error('❌ News API failed:', msg);
       setLoadingModule('news', false);
+      return false;
     }
-  }, [currentMarket, setNews, setLoadingModule]);
+  }, [currentMarket, news, setNews, setLoadingModule]);
 
   const fetchMacros = useCallback(async (market?: string) => {
     const m = market || currentMarket;
@@ -119,7 +126,7 @@ export function useInvestmentData() {
     }
   }, [loadingModules, nodes, switches, alert, thresholdAlert, macros, news, isDebugMode]);
 
-  return {
+return {
     nodes,
     switches,
     alert,
@@ -137,5 +144,6 @@ export function useInvestmentData() {
       fetchNews();
       fetchMacros();
     },
+    loadMoreNews: () => fetchNews(currentMarket, true),
   };
 }
