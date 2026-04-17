@@ -12,6 +12,7 @@ interface DataState {
   alert: any | null;
   thresholdAlert: any | null;
   macros: any[] | null;
+  marketData: any[] | null;
   news: any[] | null;
   
   // 加載狀態（模塊級）
@@ -37,6 +38,7 @@ interface DataState {
   setAlert: (alert: any) => void;
   setThresholdAlert: (alert: any) => void;
   setMacros: (macros: any[]) => void;
+  setMarketData: (marketData: any[]) => void;
   setNews: (news: any[]) => void;
   
   // 傳統 Actions（保持兼容）
@@ -63,6 +65,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   alert: null,
   thresholdAlert: null,
   macros: null,
+  marketData: null,
   news: null,
   
   // 加載狀態
@@ -87,6 +90,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   setAlert: (alert) => set({ alert }),
   setThresholdAlert: (thresholdAlert) => set({ thresholdAlert }),
   setMacros: (macros) => set({ macros }),
+  setMarketData: (marketData) => set({ marketData }),
   setNews: (news) => set({ news, lastFetched: new Date().toISOString() }),
   
   // 傳統 Actions（兼容）

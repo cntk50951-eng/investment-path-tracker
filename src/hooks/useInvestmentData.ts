@@ -76,6 +76,21 @@ async function fetchMacrosData(market: string) {
   }
 }
 
+export async function fetchMarketData(market: string) {
+  try {
+    const res = await fetch(`/api/v1/market-data?market=${market}&t=${Date.now()}`);
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`/api/v1/market-data failed: ${res.status} - ${errorText}`);
+    }
+    const data = await res.json();
+    useDataStore.getState().setMarketData(data.data?.macros || []);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : '即時市場數據加載失敗';
+    console.error('❌ Market Data API failed:', msg);
+  }
+}
+
 export function fetchAllData(market: string) {
   useDataStore.getState().setLoadingModule('paths', true);
   useDataStore.getState().setLoadingModule('news', true);
@@ -83,6 +98,7 @@ export function fetchAllData(market: string) {
   fetchPathsData(market);
   fetchNewsData(market);
   fetchMacrosData(market);
+  fetchMarketData(market);
 }
 
 export function useInitialDataFetch() {
