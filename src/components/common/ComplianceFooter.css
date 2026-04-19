@@ -1,52 +1,80 @@
 /* 合規頁腳樣式 */
 
 .compliance-footer {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border-top: 2px solid rgba(244, 67, 54, 0.3);
-  padding: 2rem 1.5rem;
-  font-size: 0.75rem;
-  line-height: 1.6;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  border-top: 1px solid rgba(244, 67, 54, 0.15);
+  padding: 1.25rem 1.5rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
 }
 
-.footer-section {
-  margin-bottom: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+.compliance-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.footer-section:last-of-type {
+.footer-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.footer-row:last-of-type {
   border-bottom: none;
   margin-bottom: 0.5rem;
+  padding-bottom: 0;
 }
 
-.footer-section-title {
+.footer-col {
+  min-width: 0;
+}
+
+.footer-label {
   color: #f59e0b;
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: 0.813rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.72rem;
+  white-space: nowrap;
 }
 
-.footer-section-content {
-  color: #94a3b8;
-  line-height: 1.8;
+.footer-text {
+  color: #64748b;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .footer-copyright {
-  color: #64748b;
+  color: #475569;
   text-align: center;
-  padding-top: 1rem;
+  padding-top: 0.75rem;
   margin-top: 0.5rem;
-  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  font-size: 0.65rem;
 }
 
 /* 移動端適配 */
 @media (max-width: 768px) {
   .compliance-footer {
-    padding: 1.5rem 1rem;
-    font-size: 0.688rem;
+    padding: 1rem;
+    font-size: 0.65rem;
   }
 
-  .footer-section-title {
-    font-size: 0.75rem;
+  .footer-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .footer-label {
+    font-size: 0.68rem;
+  }
+
+  .footer-text {
+    -webkit-line-clamp: 2;
   }
 }
