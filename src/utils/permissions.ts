@@ -34,12 +34,15 @@ function check(allowed: boolean, reason: string): PermissionCheck {
 }
 
 function isFree(tier: PremiumTier, isDebug: boolean): boolean {
-  // 管理員 'all' 模式下，所有功能可見（等同於 Pro）
+  // 管理員調試模式：
+  //   'all' 模式 → 管理員可見所有功能（等同 Pro）→ isFree=false
+  //   'subscription' 模式 → 模擬免費用戶視角 → isFree=true
   if (isDebug) {
     const { debugVisibilityMode } = useDebugStore.getState();
+    if (debugVisibilityMode === 'subscription') return true;
     if (debugVisibilityMode === 'all') return false;
   }
-  return !isDebug && tier === 'free';
+  return tier === 'free';
 }
 
 /**
