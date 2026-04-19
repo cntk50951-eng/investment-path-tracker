@@ -258,6 +258,11 @@
   color: #64748b;
 }
 
+.news-chat-keywords {
+  color: #818cf8;
+  font-size: 0.9em;
+}
+
 /* Typing indicator */
 .news-chat-typing {
   display: flex;

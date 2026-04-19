@@ -14,6 +14,7 @@ interface ChatMessage {
   timestamp: Date;
   cached?: boolean;
   newsCount?: number;
+  keywords?: string[];
 }
 
 export const NewsChat: React.FC = () => {
@@ -63,12 +64,14 @@ export const NewsChat: React.FC = () => {
       const data = await res.json();
 
       if (data.success) {
+        const answerText = data.answer?.trim() || '抱歉，未能獲取到回應，請稍後再試。';
         const assistantMessage: ChatMessage = {
           role: 'assistant',
-          content: data.answer,
+          content: answerText,
           timestamp: new Date(),
           cached: data.cached,
           newsCount: data.newsCount,
+          keywords: data.keywords,
         };
         setMessages(prev => [...prev, assistantMessage]);
       } else {
@@ -168,6 +171,9 @@ export const NewsChat: React.FC = () => {
                   <div className="news-chat-message-meta">
                     {msg.cached && <span className="news-chat-cached">⚡ 快取回應</span>}
                     {msg.newsCount && <span className="news-chat-count">基於 {msg.newsCount} 條新聞</span>}
+                    {msg.keywords && msg.keywords.length > 0 && (
+                      <span className="news-chat-keywords">🔍 {msg.keywords.join(', ')}</span>
+                    )}
                   </div>
                 </div>
               </div>
