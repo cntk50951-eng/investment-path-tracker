@@ -1,7 +1,5 @@
 /* ==========================================
    MacroBar V3 — Modern Market Data Ticker
-   Design: Dark glassmorphism, pill cards,
-   gradient accents, subtle animations
    ========================================== */
 
 .macro-bar-v3 {
@@ -9,15 +7,15 @@
   top: 3.5rem;
   left: 0;
   right: 0;
-  height: 3.5rem;
-  background: linear-gradient(180deg, rgba(13, 17, 23, 0.95) 0%, rgba(13, 17, 23, 0.85) 100%);
+  height: 3.25rem;
+  background: linear-gradient(180deg, rgba(13, 17, 23, 0.97) 0%, rgba(13, 17, 23, 0.9) 100%);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   display: flex;
   align-items: center;
   z-index: 39;
-  border-bottom: 1px solid rgba(88, 166, 255, 0.08);
-  padding: 0 0.75rem;
+  border-bottom: 1px solid rgba(88, 166, 255, 0.06);
+  padding: 0;
   gap: 0;
 }
 
@@ -28,8 +26,6 @@
   overflow-y: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
 }
 
 .macro-bar-v3-scroll::-webkit-scrollbar {
@@ -39,109 +35,73 @@
 .macro-bar-v3-items {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.5rem;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
   min-width: max-content;
 }
 
 /* Indicator Card */
 .macro-v3-card {
-  position: relative;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 7.5rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.625rem;
-  background: rgba(22, 27, 34, 0.6);
-  border: 1px solid rgba(48, 54, 61, 0.5);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.5rem;
+  background: rgba(22, 27, 34, 0.5);
+  border: 1px solid rgba(48, 54, 61, 0.4);
+  transition: all 0.2s ease;
   cursor: default;
-  overflow: hidden;
-}
-
-.macro-v3-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(88, 166, 255, 0.4), rgba(88, 166, 255, 0.1));
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  position: relative;
 }
 
 .macro-v3-card:hover {
-  background: rgba(22, 27, 34, 0.85);
-  border-color: rgba(88, 166, 255, 0.2);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 20px rgba(88, 166, 255, 0.05);
+  background: rgba(30, 38, 50, 0.7);
+  border-color: rgba(88, 166, 255, 0.15);
 }
 
-.macro-v3-card:hover::after {
-  opacity: 1;
-}
-
-/* Card Header: icon + label + status dot */
-.macro-v3-header {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 0.1rem;
-}
-
-.macro-v3-card-icon {
-  font-size: 0.8rem;
-  color: #8b949e;
-  line-height: 1;
-}
-
-.macro-v3-card-label {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: #8b949e;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
+/* Status dot */
 .macro-v3-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-left: auto;
-  box-shadow: 0 0 6px currentColor;
 }
 
-/* Card Body: value + change */
-.macro-v3-body {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
+/* Label */
+.macro-v3-card-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  white-space: nowrap;
 }
 
+/* Value */
 .macro-v3-value {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #e6edf3;
   font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
+/* Change */
 .macro-v3-change {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
   display: inline-flex;
   align-items: center;
   gap: 0.1rem;
-  padding: 0.05rem 0.3rem;
-  border-radius: 0.25rem;
+  padding: 0.05rem 0.25rem;
+  border-radius: 0.2rem;
   color: #8b949e;
-  background: rgba(139, 148, 158, 0.1);
+  white-space: nowrap;
 }
 
 .macro-v3-change.up {
@@ -155,22 +115,22 @@
 }
 
 .macro-v3-trend-icon {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   line-height: 1;
 }
 
 /* LIVE Badge */
 .macro-v3-live {
-  position: absolute;
-  top: 0.2rem;
-  right: 0.3rem;
   display: flex;
   align-items: center;
-  gap: 0.2rem;
-  font-size: 0.45rem;
+  gap: 0.15rem;
+  font-size: 0.5rem;
   font-weight: 700;
   color: #3fb950;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+  position: absolute;
+  top: -0.15rem;
+  right: 0.2rem;
 }
 
 .macro-v3-live-dot {
@@ -186,11 +146,19 @@
   50% { opacity: 0.4; box-shadow: 0 0 2px #3fb950; }
 }
 
-/* Divider */
+/* Separator between cards */
+.macro-v3-sep {
+  width: 1px;
+  height: 1.25rem;
+  background: rgba(48, 54, 61, 0.6);
+  flex-shrink: 0;
+}
+
+/* Divider before meta */
 .macro-v3-divider {
   width: 1px;
   height: 1.5rem;
-  background: linear-gradient(180deg, transparent, rgba(88, 166, 255, 0.15), transparent);
+  background: linear-gradient(180deg, transparent, rgba(88, 166, 255, 0.12), transparent);
   flex-shrink: 0;
   margin: 0 0.5rem;
 }
@@ -199,40 +167,41 @@
 .macro-v3-meta {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-shrink: 0;
-  padding: 0 0.25rem;
+  padding: 0 0.5rem;
 }
 
 .macro-v3-time {
   font-size: 0.6rem;
   color: #484f58;
   font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .macro-v3-refresh {
-  width: 1.625rem;
-  height: 1.625rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(22, 27, 34, 0.6);
-  border: 1px solid rgba(48, 54, 61, 0.5);
-  color: #8b949e;
+  background: transparent;
+  border: none;
+  color: #6e7681;
   cursor: pointer;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .macro-v3-refresh:hover:not(:disabled) {
   background: rgba(88, 166, 255, 0.1);
-  border-color: rgba(88, 166, 255, 0.3);
   color: #58a6ff;
 }
 
 .macro-v3-refresh:active:not(:disabled) {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .macro-v3-refresh:disabled {
@@ -241,7 +210,7 @@
 }
 
 .macro-v3-refresh .material-symbols-outlined {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .macro-v3-refresh.spinning .material-symbols-outlined {
@@ -257,21 +226,30 @@
 @media (max-width: 767px) {
   .macro-bar-v3 {
     top: 3rem;
-    height: 3rem;
-    padding: 0 0.5rem;
+    height: 2.75rem;
+  }
+
+  .macro-bar-v3-items {
+    padding: 0.25rem 0.5rem;
+    gap: 0.25rem;
   }
 
   .macro-v3-card {
-    min-width: 6.5rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.5rem;
+    gap: 0.35rem;
   }
 
   .macro-v3-value {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .macro-v3-card-label {
+    font-size: 0.55rem;
   }
 
   .macro-v3-meta {
-    gap: 0.3rem;
+    gap: 0.25rem;
+    padding: 0 0.25rem;
   }
 
   .macro-v3-time {
@@ -286,19 +264,14 @@
 @media (max-width: 480px) {
   .macro-bar-v3 {
     top: 2.5rem;
-    height: 2.75rem;
-  }
-
-  .macro-v3-card {
-    min-width: 5.5rem;
-    padding: 0.2rem 0.4rem;
+    height: 2.5rem;
   }
 
   .macro-v3-value {
     font-size: 0.7rem;
   }
 
-  .macro-v3-card-label {
-    font-size: 0.5rem;
+  .macro-v3-change {
+    font-size: 0.55rem;
   }
 }
