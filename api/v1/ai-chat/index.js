@@ -55,35 +55,42 @@ async function callMiniMax(messages, apiKey, apiBase, model) {
   return data.choices?.[0]?.message?.content || data.output?.text || '';
 }
 
-// 系統提示詞：只回答新聞相關問題
-const SYSTEM_PROMPT = `你是「新聞獵豹 AI 助手」，專門根據系統收集的全球財經新聞數據回答用戶問題。
+// 兩階段提示詞策略：
+// 1. 先用關鍵字檢索相關新聞（而非把所有新聞塞進 prompt）
+// 2. 系統提示詞不暴露內部設定，只以角色身份自然回答
 
-你的知識範圍僅限於系統中已收集的新聞數據，你必須嚴格遵守以下規則：
+const SYSTEM_PROMPT = `你是「新聞獵豹」財經新聞分析助手，專門分析系統收集的全球財經新聞。
 
-1. **只回答新聞相關問題**：用戶的問題必須與已收集的新聞內容相關。你可以：
-   - 查詢特定新聞事件的詳情
-   - 總結某個主題的相關新聞
-   - 分析新聞對投資路徑的影響
-   - 比較不同新聞事件的關聯性
-   - 按時間、嚴重性、來源等維度篩選新聞
+回答規則：
+- 用繁體中文回答，使用 Markdown 格式（標題、粗體、列表等）
+- 只回答和新聞數據相關的問題
+- 引用具體的新聞標題和來源
+- 如果有多條相關新聞，按重要性或時間排序
+- 如果系統中沒有相關新聞，如實告知
+- 客觀描述新聞事實，不提供投資建議或預測市場走勢
 
-2. **必須拒絕的問題類型**：
-   - 與新聞數據無關的問題（如編程、食譜、歷史常識等）
-   - 要求提供投資建議或股票推薦（你只能客觀描述新聞內容）
-   - 超出系統新聞時間範圍的問題
-   - 任何與財經新聞無關的對話
+如果用戶問的問題和新聞無關，自然地引導回新聞話題，比如：「我主要負責分析財經新聞，關於這個問題可能無法提供幫助。不過，如果你想了解相關的市場動態，我很樂意幫你查看。」`;
 
-3. **回答格式**：
-   - 用繁體中文回答
-   - 引用具體的新聞標題和來源
-   - 如果有多條相關新聞，按時間排序呈現
-   - 如果無法在新聞數據中找到相關內容，明確告訴用戶「系統中暫無相關新聞」
+// 關鍵字提取：從用戶問題中提取搜尋關鍵字
+function extractKeywords(question) {
+  const stopWords = new Set([
+    '的', '了', '是', '在', '有', '和', '與', '也', '都', '就', '不', '而', '你', '我',
+    '他', '她', '它', '們', '這', '那', '什', '嗎', '呢', '吧', '啊', '呀', '嗯',
+    '可以', '能', '會', '要', '想', '請', '告訴', '幫', '查看', '分析', '查詢',
+    '有沒有', '哪些', '最近', '最新', '本週', '本日', '今天', '昨天', '什麼',
+    'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+    'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+    'should', 'may', 'might', 'must', 'shall', 'can', 'need', 'to', 'of',
+    'in', 'for', 'on', 'with', 'at', 'by', 'from', 'as', 'into', 'about',
+  ]);
 
-4. **合規注意**：
-   - 不提供投資建議
-   - 不預測市場走勢
-   - 只客觀描述新聞事實
-`;
+  const words = question
+    .replace(/[，。！？、；：""''（）【】《》\[\]{}.,!?;:'"()]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length >= 2 && !stopWords.has(w.toLowerCase()));
+  
+  return words.slice(0, 10);
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -120,10 +127,13 @@ export default async function handler(req, res) {
 
     const marketFilter = market || 'US';
 
-    // 1. 從數據庫獲取新聞數據
+    // 1. 兩階段檢索：先關鍵字匹配，再按日期補充
     let newsData = [];
     try {
-      const newsResult = await query(`
+      const keywords = extractKeywords(question);
+      
+      // 階段 1：關鍵字匹配（標題、摘要、標籤）
+      let keywordQuery = `
         SELECT n.id, n.title, n.source, n.severity, n.summary, n.impact, n.date, 
                n.published_time, n.url,
                COALESCE(
@@ -145,13 +155,28 @@ export default async function handler(req, res) {
         LEFT JOIN news_tags nt ON n.id = nt.news_id
         LEFT JOIN news_related_paths nrp ON n.id = nrp.news_id
         LEFT JOIN news_affects na ON n.id = na.news_id
-        WHERE n.market = $1 OR n.market IS NULL
-        GROUP BY n.id
-        ORDER BY n.date DESC
-        LIMIT 100
-      `, [marketFilter]);
+        WHERE (n.market = $1 OR n.market IS NULL)
+      `;
 
-      newsData = newsResult.rows.map(row => ({
+      const params = [marketFilter];
+      
+      if (keywords.length > 0) {
+        // 構建 ILIKE 條件：在標題、摘要中搜尋關鍵字
+        const likeConditions = keywords.map((kw, i) => {
+          params.push(`%${kw}%`);
+          return `(n.title ILIKE $${params.length} OR n.summary ILIKE $${params.length})`;
+        });
+        keywordQuery += ` AND (${likeConditions.join(' OR ')})`;
+      }
+
+      keywordQuery += `
+        GROUP BY n.id
+        ORDER BY n.date DESC, n.published_time DESC
+        LIMIT 30
+      `;
+
+      const keywordResult = await query(keywordQuery, params);
+      newsData = keywordResult.rows.map(row => ({
         id: row.id,
         title: row.title,
         source: row.source,
@@ -165,27 +190,87 @@ export default async function handler(req, res) {
         relatedPaths: row.related_paths?.map(p => p.path_id) || [],
         affects: row.affects?.map(a => a.switch_id) || [],
       }));
+
+      // 階段 2：如果關鍵字匹配不足 15 條，補充最新新聞
+      if (newsData.length < 15) {
+        const existingIds = newsData.map(n => `'${n.id}'`).join(',');
+        const supplementQuery = `
+          SELECT n.id, n.title, n.source, n.severity, n.summary, n.impact, n.date, 
+                 n.published_time, n.url,
+                 COALESCE(
+                   json_agg(DISTINCT jsonb_build_object('tag', nt.tag)) 
+                   FILTER (WHERE nt.tag IS NOT NULL), 
+                   '[]'::json
+                 ) as tags,
+                 COALESCE(
+                   json_agg(DISTINCT jsonb_build_object('path_id', nrp.path_id)) 
+                   FILTER (WHERE nrp.path_id IS NOT NULL), 
+                   '[]'::json
+                 ) as related_paths,
+                 COALESCE(
+                   json_agg(DISTINCT jsonb_build_object('switch_id', na.switch_id)) 
+                   FILTER (WHERE na.switch_id IS NOT NULL), 
+                   '[]'::json
+                 ) as affects
+          FROM news n
+          LEFT JOIN news_tags nt ON n.id = nt.news_id
+          LEFT JOIN news_related_paths nrp ON n.id = nrp.news_id
+          LEFT JOIN news_affects na ON n.id = na.news_id
+          WHERE (n.market = $1 OR n.market IS NULL)
+          ${existingIds ? `AND n.id NOT IN (${existingIds})` : ''}
+          GROUP BY n.id
+          ORDER BY n.date DESC, n.published_time DESC
+          LIMIT $2
+        `;
+        const supplementResult = await query(supplementQuery, [marketFilter, 30 - newsData.length]);
+        const supplementData = supplementResult.rows.map(row => ({
+          id: row.id,
+          title: row.title,
+          source: row.source,
+          severity: row.severity,
+          summary: row.summary,
+          impact: row.impact,
+          date: row.date,
+          publishedTime: row.published_time,
+          url: row.url,
+          tags: row.tags?.map(t => t.tag) || [],
+          relatedPaths: row.related_paths?.map(p => p.path_id) || [],
+          affects: row.affects?.map(a => a.switch_id) || [],
+        }));
+        newsData = [...newsData, ...supplementData];
+      }
+
     } catch (dbError) {
       console.error('獲取新聞數據失敗:', dbError.message);
       newsData = [];
     }
 
-    // 2. 構建新聞上下文
-    const newsContext = newsData.length > 0
-      ? newsData.map((n, i) => {
-          let ctx = `[${i + 1}] ${n.date} | ${n.title} (${n.source}, 嚴重性: ${n.severity})`;
-          if (n.summary) ctx += `\n    摘要: ${n.summary.substring(0, 200)}`;
-          if (n.impact) ctx += `\n    影響: ${n.impact.substring(0, 200)}`;
-          if (n.tags?.length) ctx += `\n    標籤: ${n.tags.join(', ')}`;
-          if (n.relatedPaths?.length) ctx += `\n    關聯路徑: ${n.relatedPaths.join(', ')}`;
-          if (n.affects?.length) ctx += `\n    影響切換: ${n.affects.join(', ')}`;
-          return ctx;
-        }).join('\n\n')
-      : '目前系統中沒有新聞數據。';
+    // 2. 構建精簡新聞上下文（控制 token 數量）
+    let newsContext;
+    if (newsData.length > 0) {
+      newsContext = newsData.map((n, i) => {
+        let ctx = `[${i + 1}] ${n.date?.toISOString?.()?.split('T')?.[0] || n.date} | **${n.title}** (${n.source})`;
+        if (n.severity) ctx += ` [${n.severity}]`;
+        if (n.summary) {
+          const short = n.summary.length > 150 ? n.summary.substring(0, 150) + '...' : n.summary;
+          ctx += `\n摘要: ${short}`;
+        }
+        if (n.impact) {
+          const short = n.impact.length > 100 ? n.impact.substring(0, 100) + '...' : n.impact;
+          ctx += `\n影響: ${short}`;
+        }
+        if (n.tags?.length) ctx += `\n標籤: ${n.tags.slice(0, 5).join(', ')}`;
+        if (n.relatedPaths?.length) ctx += `\n路徑: ${n.relatedPaths.join(', ')}`;
+        return ctx;
+      }).join('\n\n');
+    } else {
+      newsContext = '目前系統中沒有相關新聞數據。';
+    }
 
     // 3. 構建消息
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT + '\n\n以下是系統中目前收集的新聞數據：\n\n' + newsContext },
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: `以下是系統中收集的 ${newsData.length} 條相關新聞：\n\n${newsContext}` },
       { role: 'user', content: question },
     ];
 
@@ -201,7 +286,6 @@ export default async function handler(req, res) {
       );
       if (cacheResult.rows.length > 0) {
         cachedAnswer = cacheResult.rows[0].answer;
-        // 更新命中次數
         await query(
           'UPDATE news_ai_cache SET hit_count = hit_count + 1 WHERE question = $1',
           [question.trim()]
@@ -216,6 +300,7 @@ export default async function handler(req, res) {
         success: true,
         answer: cachedAnswer,
         cached: true,
+        newsCount: newsData.length,
         source: 'cache',
       });
     }
@@ -228,7 +313,7 @@ export default async function handler(req, res) {
     if (!apiKey) {
       return res.status(500).json({
         success: false,
-        error: { code: 'NO_API_KEY', message: 'MiniMax API Key 未配置' }
+        error: { code: 'NO_API_KEY', message: 'AI 服務暫時不可用，請稍後再試' }
       });
     }
 
@@ -243,7 +328,6 @@ export default async function handler(req, res) {
         [question.trim(), answer, `news_${marketFilter}_${newsData.length}`]
       );
     } catch (e) {
-      // 緩存寫入失敗不影響回答
       console.error('緩存寫入失敗:', e.message);
     }
 
