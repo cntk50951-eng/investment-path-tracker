@@ -1,5 +1,5 @@
 // ==========================================
-// 登錄頁面
+// 登錄頁面 — 支持遊客訪問 + Google 登錄切換帳戶
 // ==========================================
 
 import React from 'react';
@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import './Login.css';
 
 export const Login: React.FC = () => {
-  const { user, error } = useAuthStore();
+  const { user, error, enterAsGuest } = useAuthStore();
   const navigate = useNavigate();
 
   // 如果已登錄，跳轉到主頁
@@ -79,13 +79,22 @@ export const Login: React.FC = () => {
 
             <GoogleLoginButton size="lg" text="使用 Google 帳戶登入" />
 
+            <div className="login-divider">
+              <span>或</span>
+            </div>
+
+            <button className="guest-btn" onClick={() => { enterAsGuest(); navigate('/'); }}>
+              🧑‍💻 以遊客身份繼續
+            </button>
+            <p className="guest-hint">遊客可查看所有免費內容，訂閱 Pro 功能時需要登入</p>
+
             <div className="login-benefits">
               <h4>免費註冊即可使用：</h4>
               <ul>
                 <li>✅ 查看當前投資路徑</li>
                 <li>✅ 宏觀數據實時追蹤</li>
                 <li>✅ 基礎新聞事件流</li>
-                <li>✅ 調試模式（開發環境）</li>
+                <li>✅ AI 新聞助手查詢</li>
               </ul>
             </div>
 

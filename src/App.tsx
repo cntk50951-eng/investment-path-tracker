@@ -13,12 +13,13 @@ import { useDebugStore } from './store/useDebugStore';
 import { DebugPanel } from './components/common/DebugPanel';
 import './styles/global.css';
 
-// 認證保護組件
+// 認證保護組件 — 訂閱/付費功能需要登錄
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAuth?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAuth = false }) => {
   const { user } = useAuthStore();
   const { isDebugMode } = useDebugStore();
 
@@ -27,11 +28,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <>{children}</>;
   }
 
-  // 如果未登錄，跳轉到登錄頁
-  if (!user) {
+  // 需要認證的路由（如訂閱頁面），未登錄則跳轉到登錄頁
+  if (requireAuth && !user) {
     return <Navigate to="/login" replace />;
   }
 
+  // 一般頁面：登錄用戶和遊客都可以訪問
   return <>{children}</>;
 };
 
@@ -51,7 +53,7 @@ const App: React.FC = () => {
             {/* 公開路由 */}
             <Route path="/login" element={<Login />} />
 
-            {/* V2 新版路由 - 根路徑和 /v2 都指向新版 */}
+            {/* V2 新版路由 - 根路徑和 /v2 都指向新版 — 遊客可訪問 */}
             <Route
               path="/"
               element={

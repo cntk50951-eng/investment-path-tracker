@@ -36,7 +36,7 @@ async function query(text, params) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
@@ -64,9 +64,13 @@ export default async function handler(req, res) {
       
       await query('INSERT INTO user_logins (user_id, ip_address, user_agent) VALUES ($1, $2, $3)', [user.uid, req.headers['x-forwarded-for'] || null, req.headers['user-agent'] || null]);
       
+      // 返回用戶完整數據（含 debug_mode 和 debug_visibility_mode）
+      const userResult = await query('SELECT * FROM users WHERE id = $1', [user.uid]);
+      
       return res.status(200).json({
         success: true,
         message: '用戶登錄記錄成功',
+        data: userResult.rows[0] || null,
         source: 'PostgreSQL'
       });
       
@@ -121,9 +125,70 @@ export default async function handler(req, res) {
       });
     }
   }
+
+  // PATCH — 更新用戶設置（debug_mode, debug_visibility_mode）
+  if (req.method === 'PATCH') {
+    try {
+      const { uid, debug_mode, debug_visibility_mode } = req.body;
+      
+      if (!uid) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'MISSING_UID', message: '缺少 uid 參數' }
+        });
+      }
+      
+      const updates = [];
+      const values = [uid];
+      let paramIdx = 2;
+      
+      if (debug_mode !== undefined) {
+        updates.push(`debug_mode = $${paramIdx++}`);
+        values.push(debug_mode);
+      }
+      if (debug_visibility_mode !== undefined) {
+        updates.push(`debug_visibility_mode = $${paramIdx++}`);
+        values.push(debug_visibility_mode);
+      }
+      
+      if (updates.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'NO_UPDATES', message: '沒有需要更新的字段' }
+        });
+      }
+      
+      updates.push('updated_at = CURRENT_TIMESTAMP');
+      
+      const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = $1 RETURNING *`;
+      const result = await query(sql, values);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: '用戶不存在' }
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        data: result.rows[0],
+        source: 'PostgreSQL'
+      });
+      
+    } catch (error) {
+      console.error('API Error - PATCH /api/users:', {
+        message: error.message,
+      });
+      return res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: '服務器內部錯誤：' + error.message }
+      });
+    }
+  }
   
   return res.status(405).json({
     success: false,
-    error: { code: 'METHOD_NOT_ALLOWED', message: '僅支持 GET/POST 請求' }
+    error: { code: 'METHOD_NOT_ALLOWED', message: '僅支持 GET/POST/PATCH 請求' }
   });
 }
