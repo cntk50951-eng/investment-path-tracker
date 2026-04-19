@@ -80,7 +80,7 @@ export const MacroBarV2: React.FC = () => {
             return (
               <React.Fragment key={macro.id || index}>
                 {index > 0 && <div className="macro-v3-sep" />}
-                <div className="macro-v3-card">
+                <div className="macro-v3-item">
                   <span className="macro-v3-dot" style={{ backgroundColor: dotColor }} />
                   <span className="macro-v3-card-label">{meta.label}</span>
                   <span className="macro-v3-value">{macro.value}</span>
