@@ -36,5 +36,10 @@ dist-ssr/
 # 日誌
 *.log
 
+# 新聞數據（CSV 源文件和去重副本）
+data/news_raw.csv
+data/news_raw_deduped.csv
+logs/
+
 # Vercel
 .vercel
