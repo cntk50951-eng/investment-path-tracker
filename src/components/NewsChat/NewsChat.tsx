@@ -3,7 +3,8 @@
 // 只能基於系統收集的新聞數據回答問題
 // ==========================================
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useMarketStore } from '../../store/useMarketStore';
 import './NewsChat.css';
 
@@ -21,15 +22,22 @@ export const NewsChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const currentMarket = useMarketStore(s => s.currentMarket);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
 
   const handleSend = async () => {
     const question = input.trim();
@@ -99,7 +107,6 @@ export const NewsChat: React.FC = () => {
 
   return (
     <>
-      {/* 浮動按鈕 */}
       <button
         className={`news-chat-fab ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
@@ -110,7 +117,6 @@ export const NewsChat: React.FC = () => {
         </span>
       </button>
 
-      {/* 聊天面板 */}
       {isOpen && (
         <div className="news-chat-panel glass-panel">
           <div className="news-chat-header">
@@ -137,7 +143,7 @@ export const NewsChat: React.FC = () => {
                     <button
                       key={i}
                       className="news-chat-suggestion"
-                      onClick={() => { setInput(s); }}
+                      onClick={() => { setInput(s); inputRef.current?.focus(); }}
                     >
                       {s}
                     </button>
@@ -152,9 +158,15 @@ export const NewsChat: React.FC = () => {
                   {msg.role === 'assistant' ? '🐆' : '👤'}
                 </div>
                 <div className="news-chat-message-content">
-                  <div className="news-chat-message-text">{msg.content}</div>
+                  {msg.role === 'assistant' ? (
+                    <div className="news-chat-message-text news-chat-markdown">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div className="news-chat-message-text">{msg.content}</div>
+                  )}
                   <div className="news-chat-message-meta">
-                    {msg.cached && <span className="news-chat-cached">快取回應</span>}
+                    {msg.cached && <span className="news-chat-cached">⚡ 快取回應</span>}
                     {msg.newsCount && <span className="news-chat-count">基於 {msg.newsCount} 條新聞</span>}
                   </div>
                 </div>
@@ -177,6 +189,7 @@ export const NewsChat: React.FC = () => {
 
           <div className="news-chat-input-area">
             <textarea
+              ref={inputRef}
               className="news-chat-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}

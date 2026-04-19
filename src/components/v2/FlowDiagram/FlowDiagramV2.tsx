@@ -33,6 +33,12 @@ export const FlowDiagramV2: React.FC = () => {
   }, [nodes]);
 
   const visibleForFree = useMemo(() => {
+    // 在 debug 'all' 模式下，所有路徑都可見
+    if (isDebugMode && useDebugStore.getState().debugVisibilityMode === 'all') {
+      const set = new Set<string>();
+      if (nodes) for (const id of Object.keys(nodes)) set.add(id);
+      return set;
+    }
     const set = new Set<string>();
     if (!nodes) return set;
     let maxProb = -1;
@@ -44,7 +50,7 @@ export const FlowDiagramV2: React.FC = () => {
     }
     if (maxProbId) set.add(maxProbId);
     return set;
-  }, [nodes]);
+  }, [nodes, isDebugMode]);
 
   const handleSwitchClick = (switchId: string) => {
     selectSwitch(switchId === selectedSwitch ? null : switchId);
@@ -107,7 +113,7 @@ export const FlowDiagramV2: React.FC = () => {
           const isCurrent = !!n.current;
           const color = n.color || nodeColors[id];
           const isFreeVisible = visibleForFree.has(id);
-          const isLocked = !isFreeVisible && !isCurrent;
+          const isLocked = !isFreeVisible && !isCurrent && !isDebugMode;
           const perm = canViewPathDetail(isCurrent, tier, isDebugMode, isFreeVisible && !isCurrent);
 
           return (
@@ -204,7 +210,7 @@ export const FlowDiagramV2: React.FC = () => {
               const isCurrent = !!n.current;
               const isHighestProb = prob >= 30;
               const isFreeVisible = visibleForFree.has(id);
-              const isLocked = !isFreeVisible && !isCurrent;
+              const isLocked = !isFreeVisible && !isCurrent && !isDebugMode;
               const w = isHighestProb ? 128 : 108;
 
               if (isLocked) {
@@ -253,7 +259,7 @@ export const FlowDiagramV2: React.FC = () => {
           const n = node as any;
           const isFreeVisible = visibleForFree.has(id);
           const isCurrent = !!n.current;
-          const isLocked = !isFreeVisible && !isCurrent;
+          const isLocked = !isFreeVisible && !isCurrent && !isDebugMode;
           if (!isLocked) return null;
 
           const x = n.x ?? 400;

@@ -7,17 +7,29 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "news:single": "tsx scripts/news-fetcher/index.ts single",
+    "news:cron": "tsx scripts/news-fetcher/scheduler.ts",
+    "news:dedup": "tsx scripts/news-fetcher/dedup-standalone.ts"
   },
   "dependencies": {
+    "@types/csv-parse": "^1.1.12",
+    "@types/csv-stringify": "^1.4.3",
     "@vercel/postgres": "^0.10.0",
+    "cheerio": "^1.2.0",
+    "csv-parse": "^6.2.1",
+    "csv-stringify": "^6.7.0",
     "dotenv": "^17.4.2",
     "firebase": "^12.12.0",
     "framer-motion": "^12.38.0",
+    "node-fetch": "^2.7.0",
     "pg": "^8.20.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.14.0",
+    "rss-parser": "^3.13.0",
+    "tsx": "^4.21.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
