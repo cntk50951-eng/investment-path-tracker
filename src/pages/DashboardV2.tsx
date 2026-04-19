@@ -16,6 +16,7 @@ import { UpgradePrompt } from '../components/common/UpgradePrompt';
 import { ComplianceFooter } from '../components/common/ComplianceFooter';
 import { ComplianceModal } from '../components/common/ComplianceModal';
 import { FlowDiagramSkeleton, NewsPanelSkeleton, SwitchTableSkeleton } from '../components/common/Skeleton';
+import { NewsChat } from '../components/NewsChat/NewsChat';
 import './DashboardV2.css';
 
 const MARKET_TITLES: Record<string, string> = {
@@ -27,8 +28,8 @@ const DashboardV2: React.FC = () => {
   const { refresh } = useInitialDataFetch();
   const loadingModules = useDataStore(s => s.loadingModules);
   const error = useDataStore(s => s.error);
-  const { user, logout } = useAuthStore();
-  const { isDebugMode } = useDebugStore();
+  const { user, isGuest, logout } = useAuthStore();
+  const { isDebugMode, debugVisibilityMode, toggleDebugVisibility } = useDebugStore();
   const { currentMarket, setMarket } = useMarketStore();
   const navigate = useNavigate();
 
@@ -54,7 +55,16 @@ const DashboardV2: React.FC = () => {
     <div className="v2-dashboard">
       {isDebugMode && (
         <div className="v2-debug-banner">
-          🔧 DEBUG MODE — 所有付費內容已解鎖
+          🔧 DEBUG MODE — {debugVisibilityMode === 'all' ? '所有功能可視' : '僅訂閱可視'}
+          {toggleDebugVisibility && (
+            <button 
+              className="debug-visibility-toggle"
+              onClick={toggleDebugVisibility}
+              style={{ marginLeft: '12px', padding: '2px 8px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px', color: '#fff', cursor: 'pointer', fontSize: '0.7em' }}
+            >
+              切換: {debugVisibilityMode === 'all' ? '全部可視' : '訂閱可視'}
+            </button>
+          )}
         </div>
       )}
 
@@ -101,7 +111,7 @@ const DashboardV2: React.FC = () => {
             <button className="v2-icon-btn" title="設定">
               <span className="material-symbols-outlined">settings</span>
             </button>
-            {user && (
+            {user ? (
               <div className="v2-user">
                 <div className="v2-user-avatar">
                   {user.photoURL ? (
@@ -114,7 +124,12 @@ const DashboardV2: React.FC = () => {
                   <span className="material-symbols-outlined">logout</span>
                 </button>
               </div>
-            )}
+            ) : isGuest ? (
+              <button className="v2-login-btn" onClick={() => navigate('/login')} title="登入解鎖更多功能">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>login</span>
+                登入
+              </button>
+            ) : null}
           </div>
         </div>
       </header>
@@ -146,6 +161,7 @@ const DashboardV2: React.FC = () => {
       <ComplianceFooter />
       <UpgradePrompt />
       <ComplianceModal />
+      <NewsChat />
     </div>
   );
 };

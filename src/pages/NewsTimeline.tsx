@@ -12,6 +12,7 @@ import { TimelineFilter } from '../components/TimelineFilter';
 import { TimelineItem } from '../components/Timeline/TimelineItem';
 import { NewsDrawer } from '../components/NewsDrawer';
 import { PaywallModal } from '../components/common/PaywallModal';
+import { NewsChat } from '../components/NewsChat/NewsChat';
 import type { NewsEvent } from '../types';
 import './NewsTimeline.css';
 
@@ -168,6 +169,9 @@ const NewsTimeline: React.FC = () => {
 
       {/* 付費牆模態框 */}
       <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+
+      {/* AI 新聞助手 */}
+      <NewsChat />
     </div>
   );
 };

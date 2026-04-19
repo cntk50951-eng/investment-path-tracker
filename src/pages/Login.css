@@ -164,6 +164,56 @@
   color: var(--text-muted, #94a3b8);
 }
 
+/* 遊客模式按鈕 */
+.guest-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--border-primary, rgba(71, 85, 105, 0.5));
+  border-radius: 8px;
+  color: var(--text-secondary, #cbd5e1);
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guest-btn:hover {
+  background: rgba(71, 85, 105, 0.15);
+  border-color: var(--text-muted, #94a3b8);
+}
+
+.login-divider {
+  text-align: center;
+  margin: 16px 0;
+  position: relative;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: var(--border-primary, rgba(71, 85, 105, 0.3));
+}
+
+.login-divider::before { left: 0; }
+.login-divider::after { right: 0; }
+
+.login-divider span {
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.8em;
+  padding: 0 12px;
+}
+
+.guest-hint {
+  text-align: center;
+  font-size: 0.75em;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 8px;
+}
+
 /* 響應式 */
 @media (max-width: 768px) {
   .login-page {

@@ -1,5 +1,8 @@
 // ==========================================
 // 統一權限控制模塊 — Free / Pro 清晰邊界
+// 管理員開關控制：
+//   - 'all' 模式：管理員可見所有功能
+//   - 'subscription' 模式：僅訂閱相關功能可見（模擬免費用戶視角）
 //
 // FREE 可見：
 //   - 宏觀數據欄（完整）
@@ -17,6 +20,7 @@
 // ==========================================
 
 import type { PremiumTier } from '../types';
+import { useDebugStore } from '../store/useDebugStore';
 
 export interface PermissionCheck {
   allowed: boolean;
@@ -30,6 +34,11 @@ function check(allowed: boolean, reason: string): PermissionCheck {
 }
 
 function isFree(tier: PremiumTier, isDebug: boolean): boolean {
+  // 管理員 'all' 模式下，所有功能可見（等同於 Pro）
+  if (isDebug) {
+    const { debugVisibilityMode } = useDebugStore.getState();
+    if (debugVisibilityMode === 'all') return false;
+  }
   return !isDebug && tier === 'free';
 }
 
@@ -97,7 +106,7 @@ export function canViewPathDetail(isCurrent: boolean, tier: PremiumTier, isDebug
 /**
  * 路徑概率查看權限 — 全部可見
  */
-export function canViewPathProbability(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
+export function canViewPathProbability(_tier?: PremiumTier, __isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 
@@ -108,7 +117,7 @@ export function canViewSwitchDetail(tier: PremiumTier, isDebug: boolean): Permis
   return check(false, '升級 Pro 查看完整確認信號與分析');
 }
 
-export function canViewSwitchProgress(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
+export function canViewSwitchProgress(_tier?: PremiumTier, __isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 
@@ -122,7 +131,7 @@ export function canViewThresholdAlert(switchId: string, maxSwitchId: string, tie
 
 // ---- 宏觀指標權限 ----
 
-export function canViewMacro(_tier?: PremiumTier, _isDebug?: boolean): PermissionCheck {
+export function canViewMacro(_tier?: PremiumTier, __isDebug?: boolean): PermissionCheck {
   return check(true, '');
 }
 

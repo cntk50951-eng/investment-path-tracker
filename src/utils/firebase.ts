@@ -21,3 +21,8 @@ const app = initializeApp(firebaseConfig);
 // 导出 Auth 實例和 Google Provider
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// 強制每次登錄都顯示帳戶選擇器，避免緩存導致無法切換帳戶
+googleProvider.setCustomParameters({
+  prompt: 'select_account',
+});
