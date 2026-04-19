@@ -13,6 +13,23 @@ import { useDebugStore } from './store/useDebugStore';
 import { DebugPanel } from './components/common/DebugPanel';
 import './styles/global.css';
 
+// Debug 重新打開按鈕（隱藏後顯示）
+const DebugReopenButton: React.FC = () => {
+  const { toggleDebug, isAdmin } = useDebugStore();
+
+  if (!isAdmin) return null;
+
+  return (
+    <button
+      className="debug-reopen-btn"
+      onClick={toggleDebug}
+      title="重新打開調試面板 (Ctrl+Shift+D)"
+    >
+      <span className="material-symbols-outlined">bug_report</span>
+    </button>
+  );
+};
+
 // 認證保護組件 — 訂閱/付費功能需要登錄
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -94,6 +111,9 @@ const App: React.FC = () => {
 
         {/* 調試面板（僅開發環境） */}
         {isDebugMode && <DebugPanel />}
+
+        {/* Debug 模式隱藏後的重新打開按鈕 — 僅管理員可見 */}
+        {!isDebugMode && <DebugReopenButton />}
       </div>
     </Router>
   );

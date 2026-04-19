@@ -4,22 +4,29 @@ import { useMarketStore } from '../../../store/useMarketStore';
 import { fetchMarketData } from '../../../hooks/useInvestmentData';
 import './MacroBarV2.css';
 
-const MACRO_ICONS: Record<string, string> = {
-  vix: 'warning_amber',
-  spx: 'show_chart',
-  tnx: 'account_balance',
-  dxy: 'currency_exchange',
-  hsi: 'show_chart',
-  vhsi: 'warning_amber',
+interface MacroData {
+  id: string;
+  label: string;
+  value: string;
+  changePercent?: number;
+  trend?: 'up' | 'down' | 'flat';
+  status?: 'hot' | 'warn' | 'normal';
+  type?: string;
+}
+
+const MACRO_META: Record<string, { icon: string; label: string }> = {
+  vix: { icon: 'bolt', label: 'VIX' },
+  spx: { icon: 'trending_up', label: 'S&P 500' },
+  tnx: { icon: 'percent', label: '10Y Yield' },
+  dxy: { icon: 'currency_exchange', label: 'DXY' },
+  hsi: { icon: 'show_chart', label: 'HSI' },
+  vhsi: { icon: 'bolt', label: 'VHSI' },
 };
 
-const MACRO_COLORS: Record<string, { hot: string; warn: string; normal: string }> = {
-  vix: { hot: '#ef4444', warn: '#f59e0b', normal: '#10b981' },
-  spx: { hot: '#ef4444', warn: '#f59e0b', normal: '#10b981' },
-  tnx: { hot: '#ef4444', warn: '#f59e0b', normal: '#7de9ff' },
-  dxy: { hot: '#ef4444', warn: '#f59e0b', normal: '#7de9ff' },
-  hsi: { hot: '#ef4444', warn: '#f59e0b', normal: '#10b981' },
-  vhsi: { hot: '#ef4444', warn: '#f59e0b', normal: '#10b981' },
+const STATUS_DOT: Record<string, string> = {
+  hot: '#f85149',
+  warn: '#d29922',
+  normal: '#3fb950',
 };
 
 export const MacroBarV2: React.FC = () => {
@@ -52,53 +59,60 @@ export const MacroBarV2: React.FC = () => {
     setLastUpdate(new Date());
   };
 
-  const items = marketData && marketData.length > 0 ? marketData : (macros || []);
+  const items: MacroData[] = marketData && marketData.length > 0 ? marketData : (macros || []);
   if (items.length === 0) return null;
 
   const formatTime = (date: Date | null) => {
     if (!date) return '';
-    return date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
-    <div className="macro-bar-v2">
-      {items.map((macro, index) => {
-        const icon = MACRO_ICONS[macro.id] || 'trending_flat';
-        const colors = MACRO_COLORS[macro.id] || { hot: '#ef4444', warn: '#f59e0b', normal: '#7de9ff' };
-        const color = colors[macro.status as keyof typeof colors] || colors.normal;
-        const trendIcon = macro.trend === 'up' ? 'trending_up' : macro.trend === 'down' ? 'trending_down' : 'trending_flat';
+    <div className="macro-bar-v3">
+      <div className="macro-bar-v3-scroll">
+        <div className="macro-bar-v3-items">
+          {items.map((macro, index) => {
+            const meta = MACRO_META[macro.id] || { icon: 'show_chart', label: macro.label };
+            const dotColor = STATUS_DOT[macro.status || 'normal'] || STATUS_DOT.normal;
+            const isUp = macro.changePercent != null && macro.changePercent >= 0;
+            const isDown = macro.changePercent != null && macro.changePercent < 0;
 
-        return (
-          <div key={macro.id || index} className={`macro-v2-item macro-v2-${macro.status || 'normal'}`}>
-            <span className="macro-v2-label">{macro.label}</span>
-            <span className="macro-v2-value" style={{ color }}>
-              <b>{macro.value}</b>
-            </span>
-            {macro.changePercent != null && (
-              <span className="macro-v2-change" style={{ color: macro.changePercent >= 0 ? '#10b981' : '#ef4444' }}>
-                {macro.changePercent >= 0 ? '+' : ''}{macro.changePercent}%
-              </span>
-            )}
-            {macro.trend && (
-              <span className="material-symbols-outlined macro-v2-icon" style={{ color }}>
-                {macro.changePercent != null ? trendIcon : icon}
-              </span>
-            )}
-            {macro.type === 'realtime' && (
-              <span className="macro-v2-badge">RT</span>
-            )}
-          </div>
-        );
-      })}
+            return (
+              <div key={macro.id || index} className="macro-v3-card">
+                <div className="macro-v3-header">
+                  <span className="material-symbols-outlined macro-v3-card-icon">{meta.icon}</span>
+                  <span className="macro-v3-card-label">{meta.label}</span>
+                  <span className="macro-v3-dot" style={{ backgroundColor: dotColor }} />
+                </div>
+                <div className="macro-v3-body">
+                  <span className="macro-v3-value">{macro.value}</span>
+                  {macro.changePercent != null && (
+                    <span className={`macro-v3-change ${isUp ? 'up' : isDown ? 'down' : ''}`}>
+                      <span className="material-symbols-outlined macro-v3-trend-icon">
+                        {isUp ? 'arrow_upward' : isDown ? 'arrow_downward' : 'remove'}
+                      </span>
+                      {Math.abs(macro.changePercent)}%
+                    </span>
+                  )}
+                </div>
+                {macro.type === 'realtime' && (
+                  <span className="macro-v3-live">
+                    <span className="macro-v3-live-dot" />
+                    LIVE
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-      <div className="macro-v2-spacer" />
+      <div className="macro-v3-divider" />
 
-      <div className="macro-v2-meta">
-        {lastUpdate && (
-          <span className="macro-v2-time">{formatTime(lastUpdate)}</span>
-        )}
+      <div className="macro-v3-meta">
+        <span className="macro-v3-time">{lastUpdate ? formatTime(lastUpdate) : '--:--'}</span>
         <button
-          className={`macro-v2-refresh ${isRefreshing ? 'spinning' : ''}`}
+          className={`macro-v3-refresh ${isRefreshing ? 'spinning' : ''}`}
           onClick={handleRefresh}
           disabled={isRefreshing}
           title="刷新即時數據"
