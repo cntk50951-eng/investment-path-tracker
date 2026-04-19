@@ -216,7 +216,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { question, market } = req.body;
+    const { question, market, history } = req.body;
 
     if (!question || typeof question !== 'string' || question.trim().length === 0) {
       return res.status(400).json({
@@ -231,6 +231,8 @@ export default async function handler(req, res) {
         error: { code: 'QUESTION_TOO_LONG', message: '問題長度不能超過 500 字' }
       });
     }
+
+    const chatHistory = Array.isArray(history) ? history.slice(-10) : [];
 
     const marketFilter = market || 'US';
     const apiKey = process.env.MINIMAX_API_KEY;
@@ -333,8 +335,15 @@ export default async function handler(req, res) {
         role: 'system',
         content: `${ANSWER_PROMPT}\n\n---\n\n以下是系統中收集的 ${maxNews} 條相關新聞（共匹配 ${newsData.length} 條）：\n\n${newsContext}`,
       },
-      { role: 'user', content: question },
     ];
+
+    for (const msg of chatHistory) {
+      if (msg.role === 'user' || msg.role === 'assistant') {
+        messages.push({ role: msg.role, content: msg.content.substring(0, 500) });
+      }
+    }
+
+    messages.push({ role: 'user', content: question });
 
     const answer = await callMiniMax(messages, apiKey, apiBase, model);
 

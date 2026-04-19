@@ -58,7 +58,14 @@ export const NewsChat: React.FC = () => {
       const res = await fetch('/api/v1/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, market: currentMarket }),
+        body: JSON.stringify({
+          question,
+          market: currentMarket,
+          history: messages.slice(-10).map(m => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
       });
 
       const data = await res.json();
