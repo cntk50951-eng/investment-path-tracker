@@ -35,13 +35,24 @@ const IRRELEVANT_CATEGORIES = [
   'fashion', 'food', 'travel', 'weather', 'obituary',
 ];
 
-// 無關標題關鍵字（英文）
+// 無關標題關鍵字（精確匹配，避免誤殺財經新聞）
 const IRRELEVANT_TITLE_KEYWORDS = [
-  'IPL', 'cricket', 'football match', 'Premier League', 'La Liga', 'Serie A',
-  'Bundesliga', 'NBA', 'NFL', 'MLB', 'NHL', 'tennis', 'golf', 'boxing',
-  'movie review', 'album review', 'TV show', 'reality show', 'celebrity',
-  'recipe', 'cooking', 'restaurant review', 'fashion week',
-  'Realme', 'iPhone leak', 'phone leak', 'smartphone leak',
+  // 運動
+  'IPL', 'cricket score', 'football match result', 'premier league table',
+  'la liga result', 'serie a result', 'bundesliga result',
+  'NBA game', 'NFL game', 'MLB game', 'NHL game', 'tennis match', 'golf tournament',
+  'boxing fight', 'UFC fight', 'MMA fight', 'wrestling match',
+  // 娛樂/生活
+  'movie review:', 'album review:', 'TV show', 'reality show', 'celebrity gossip',
+  'recipe:', 'cooking show', 'fashion week', 'lottery winner', 'powerball', 'mega millions',
+  'horoscope', 'zodiac sign',
+  // 天氣預報（精確短語，不會誤殺 "weather the storm" 等財經用語）
+  'weather forecast', 'weather outlook', 'first alert forecast', 'first warning forecast',
+  'weather update', 'weather alert', 'rain expected', 'storm alert',
+  'temperature forecast', 'weekend weather',
+  // 社會新聞
+  'obituary', 'funeral service', 'missing person alert', 'police hunt dangerous',
+  'drinking water warning', 'viral video of', 'tiktok trend',
 ];
 
 function isRelevantNews(row) {
