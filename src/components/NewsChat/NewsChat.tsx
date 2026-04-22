@@ -228,7 +228,6 @@ export const NewsChat: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  </div>
                 </div>
               </div>
             ))}
