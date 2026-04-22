@@ -5,6 +5,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useMarketStore } from '../../store/useMarketStore';
 import './NewsChat.css';
 
@@ -188,8 +189,30 @@ export const NewsChat: React.FC = () => {
                 </div>
                 <div className="news-chat-message-content">
                   {msg.role === 'assistant' ? (
-                    <div className="news-chat-message-text news-chat-markdown">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <div className="news-chat-message-text">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: ({ children }) => <p className="md-p">{children}</p>,
+                          strong: ({ children }) => <strong className="md-strong">{children}</strong>,
+                          h1: ({ children }) => <h1 className="md-h1">{children}</h1>,
+                          h2: ({ children }) => <h2 className="md-h2">{children}</h2>,
+                          h3: ({ children }) => <h3 className="md-h3">{children}</h3>,
+                          ul: ({ children }) => <ul className="md-ul">{children}</ul>,
+                          ol: ({ children }) => <ol className="md-ol">{children}</ol>,
+                          li: ({ children }) => <li className="md-li">{children}</li>,
+                          a: ({ href, children }) => <a className="md-a" href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
+                          blockquote: ({ children }) => <blockquote className="md-blockquote">{children}</blockquote>,
+                          code: ({ children, className }) => (
+                            <code className={`md-code ${className || ''}`}>{children}</code>
+                          ),
+                          pre: ({ children }) => <pre className="md-pre">{children}</pre>,
+                          table: ({ children }) => <table className="md-table">{children}</table>,
+                          hr: () => <hr className="md-hr" />,
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   ) : (
                     <div className="news-chat-message-text">{msg.content}</div>
