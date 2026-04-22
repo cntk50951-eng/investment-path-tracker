@@ -14,7 +14,10 @@ interface ChatMessage {
   timestamp: Date;
   cached?: boolean;
   newsCount?: number;
+  totalNews?: number;
   keywords?: string[];
+  subQueries?: string[];
+  intent?: string;
 }
 
 export const NewsChat: React.FC = () => {
@@ -22,9 +25,22 @@ export const NewsChat: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [expandedQueries, setExpandedQueries] = useState<Set<number>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const currentMarket = useMarketStore(s => s.currentMarket);
+
+  const toggleQueryExpand = (msgIdx: number) => {
+    setExpandedQueries(prev => {
+      const next = new Set(prev);
+      if (next.has(msgIdx)) {
+        next.delete(msgIdx);
+      } else {
+        next.add(msgIdx);
+      }
+      return next;
+    });
+  };
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -78,7 +94,10 @@ export const NewsChat: React.FC = () => {
           timestamp: new Date(),
           cached: data.cached,
           newsCount: data.newsCount,
+          totalNews: data.totalNews,
           keywords: data.keywords,
+          subQueries: data.subQueries,
+          intent: data.intent,
         };
         setMessages(prev => [...prev, assistantMessage]);
       } else {
@@ -177,10 +196,38 @@ export const NewsChat: React.FC = () => {
                   )}
                   <div className="news-chat-message-meta">
                     {msg.cached && <span className="news-chat-cached">⚡ 快取回應</span>}
-                    {msg.newsCount && <span className="news-chat-count">基於 {msg.newsCount} 條新聞</span>}
-                    {msg.keywords && msg.keywords.length > 0 && (
-                      <span className="news-chat-keywords">🔍 {msg.keywords.join(', ')}</span>
+                    {msg.newsCount !== undefined && msg.totalNews !== undefined && (
+                      <span className="news-chat-count">
+                        📰 使用 {msg.newsCount}/{msg.totalNews} 條新聞
+                      </span>
                     )}
+                    {msg.intent && (
+                      <span className="news-chat-intent">
+                        🎯 {msg.intent}
+                      </span>
+                    )}
+                    {msg.subQueries && msg.subQueries.length > 0 && (
+                      <button
+                        className="news-chat-subqueries"
+                        onClick={() => toggleQueryExpand(idx)}
+                      >
+                        🔍 {msg.subQueries.length} 個搜索方向
+                        <span className="news-chat-expand-icon">
+                          {expandedQueries.has(idx) ? '▾' : '▸'}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                  {expandedQueries.has(idx) && msg.subQueries && msg.subQueries.length > 0 && (
+                    <div className="news-chat-subqueries-detail">
+                      {msg.subQueries.map((sq, i) => (
+                        <div key={i} className="news-chat-subquery-item">
+                          <span className="news-chat-subquery-num">{i + 1}</span>
+                          <span className="news-chat-subquery-text">{sq}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   </div>
                 </div>
               </div>
