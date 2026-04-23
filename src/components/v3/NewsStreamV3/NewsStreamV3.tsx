@@ -13,12 +13,6 @@ const PATH_LABELS: Record<string, string> = {
   hka: 'A', hkb: 'B', hkc: 'C', hkd: 'D', hke: 'E',
 };
 
-const SEVERITY_TO_PATH: Record<string, string> = {
-  critical: 'e',
-  positive: 'a',
-  medium: 'b',
-};
-
 const NewsStreamV3: React.FC = () => {
   const news = useDataStore(s => s.news);
   const switches = useDataStore(s => s.switches);
@@ -56,10 +50,6 @@ const NewsStreamV3: React.FC = () => {
           if (!paths.includes(sw.to)) paths.push(sw.to);
         }
       });
-    }
-    if (paths.length === 0 && item.severity) {
-      const inferredPath = SEVERITY_TO_PATH[item.severity] || 'b';
-      paths.push(inferredPath);
     }
     return paths;
   };
@@ -135,23 +125,26 @@ const NewsStreamV3: React.FC = () => {
         {newsList.map((item: any, idx: number) => {
           const severity = item.severity || 'medium';
           const relPaths = getRelPaths(item);
-          const primaryPath = relPaths[0] || 'b';
+          const primaryPath = relPaths[0] || '';
           const pathColor = PATH_COLORS[primaryPath] || '#767586';
-          const pathLabel = PATH_LABELS[primaryPath] || '?';
+          const pathLabel = primaryPath ? PATH_LABELS[primaryPath] : '?';
 
           return (
             <div
               key={item.id || idx}
               className="v3-news-item"
               onClick={() => selectNews(item)}
-              style={{ borderLeft: `4px solid ${pathColor}` }}
+              style={{ borderLeft: primaryPath ? `4px solid ${pathColor}` : '4px solid var(--v3-outline-variant)' }}
             >
               {/* Path indicator icon */}
               <div
                 className="v3-news-path-icon"
-                style={{ background: `${pathColor}20`, borderColor: pathColor }}
+                style={{ 
+                  background: primaryPath ? `${pathColor}20` : 'var(--v3-surface-container)',
+                  borderColor: primaryPath ? pathColor : 'var(--v3-outline-variant)'
+                }}
               >
-                <span style={{ color: pathColor, fontWeight: 700 }}>{pathLabel}</span>
+                <span style={{ color: primaryPath ? pathColor : 'var(--v3-on-surface-variant)', fontWeight: 700 }}>{pathLabel}</span>
               </div>
               <div className="v3-news-content">
                 <div className="v3-news-item-header">
@@ -161,26 +154,28 @@ const NewsStreamV3: React.FC = () => {
                 <p className="v3-news-item-desc">{item.summary || item.impact || ''}</p>
                 {/* Path tags */}
                 <div className="v3-news-tags">
-                  {/* Show all related paths */}
-                  {relPaths.slice(0, 3).map((pathId: string, i: number) => {
-                    const color = PATH_COLORS[pathId] || '#767586';
-                    const label = PATH_LABELS[pathId] || pathId.toUpperCase();
-                    return (
-                      <span
-                        key={i}
-                        className="v3-news-path-tag"
-                        style={{
-                          background: `${color}15`,
-                          color: color,
-                          borderColor: `${color}40`,
-                        }}
-                      >
-                        <span className="v3-news-path-dot" style={{ background: color }} />
-                        Path {label}
-                      </span>
-                    );
-                  })}
-                  {/* Severity tag */}
+                  {relPaths.length > 0 ? (
+                    relPaths.slice(0, 3).map((pathId: string, i: number) => {
+                      const color = PATH_COLORS[pathId] || '#767586';
+                      const label = PATH_LABELS[pathId] || pathId.toUpperCase();
+                      return (
+                        <span
+                          key={i}
+                          className="v3-news-path-tag"
+                          style={{
+                            background: `${color}15`,
+                            color: color,
+                            borderColor: `${color}40`,
+                          }}
+                        >
+                          <span className="v3-news-path-dot" style={{ background: color }} />
+                          Path {label}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="v3-news-tag neutral">待標記路徑</span>
+                  )}
                   {severity === 'critical' && (
                     <span className="v3-news-tag critical">HIGH IMPACT</span>
                   )}

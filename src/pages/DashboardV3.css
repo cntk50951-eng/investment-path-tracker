@@ -982,6 +982,12 @@
   border: 1px solid rgba(67, 160, 71, 0.25);
 }
 
+.v3-news-tag.neutral {
+  background: var(--v3-surface-container);
+  color: var(--v3-on-surface-variant);
+  border: 1px solid var(--v3-outline-variant);
+}
+
 .v3-news-tag.severity {
   background: rgba(186, 26, 26, 0.08);
   color: var(--v3-error);
