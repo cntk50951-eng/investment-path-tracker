@@ -119,7 +119,7 @@ const FlowDiagramV3: React.FC = () => {
                 background: PATH_VIBRANT_COLORS[node.id] || '#767586',
                 display: 'inline-block',
               }} />
-              {(node.prob * 100).toFixed(0)}%
+              {node.prob}%
             </span>
           ))}
         </div>
@@ -185,7 +185,7 @@ const FlowDiagramV3: React.FC = () => {
             const isSelected = selectedPath === node.id;
             const isCurrent = node.current;
             const r = isCurrent ? 22 : 16;
-            const prob = Math.round(node.prob * 100);
+            const prob = Math.round(node.prob);
 
             return (
               <g

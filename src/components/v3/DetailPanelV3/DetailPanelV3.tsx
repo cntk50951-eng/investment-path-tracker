@@ -180,7 +180,7 @@ const DetailPanelV3: React.FC = () => {
               Probability
             </div>
             <div style={{ fontSize: 32, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color }}>
-              {(node.prob * 100).toFixed(0)}%
+              {node.prob}%
             </div>
           </div>
 
