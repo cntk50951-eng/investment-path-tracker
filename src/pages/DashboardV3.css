@@ -600,37 +600,6 @@
   opacity: 0.4;
 }
 
-.v3-flow-line-animated {
-  fill: none;
-  stroke-width: 2.5;
-  stroke-dasharray: 12 8;
-  animation: v3FlowDash 1.5s linear infinite;
-}
-
-@keyframes v3FlowDash {
-  to { stroke-dashoffset: -20; }
-}
-
-/* Pulsing dot for high-progress switches */
-.v3-pulse-dot {
-  animation: v3PulseDot 2s ease-in-out infinite;
-}
-
-@keyframes v3PulseDot {
-  0%, 100% { opacity: 0.5; r: 4; }
-  50% { opacity: 1; r: 6; }
-}
-
-/* Pulsing ring for top-3 nodes */
-.v3-pulse-ring {
-  animation: v3PulseRing 3s ease-in-out infinite;
-}
-
-@keyframes v3PulseRing {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.4; }
-}
-
 /* -- Switch Table Card -- */
 .v3-switch-card {
   display: flex;
