@@ -71,9 +71,7 @@
   width: 100%;
   z-index: 50;
   border-bottom: 1px solid var(--v3-surface-variant);
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 15px -3px rgba(148, 163, 184, 0.12);
   transition: all 0.3s;
 }
@@ -510,7 +508,7 @@
 .v3-flow-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(225, 224, 255, 0.15) 0%, var(--v3-surface-container-lowest) 75%);
+  background: var(--v3-surface-container-lowest);
   pointer-events: none;
   z-index: 0;
 }
@@ -536,31 +534,31 @@
 
 .v3-flow-line-animated {
   fill: none;
-  stroke-width: 3;
-  stroke-dasharray: 16 10;
-  animation: v3FlowDash 1.2s linear infinite;
+  stroke-width: 4;
+  stroke-dasharray: 20 12;
+  animation: v3FlowDash 0.8s linear infinite;
 }
 
 @keyframes v3FlowDash {
-  to { stroke-dashoffset: -26; }
+  to { stroke-dashoffset: -32; }
 }
 
 .v3-pulse-dot {
-  animation: v3PulseDot 2s ease-in-out infinite;
+  animation: v3PulseDot 1.5s ease-in-out infinite;
 }
 
 @keyframes v3PulseDot {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.9; }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
 }
 
 .v3-pulse-ring {
-  animation: v3PulseRing 2.5s ease-in-out infinite;
+  animation: v3PulseRing 1.8s ease-in-out infinite;
 }
 
 @keyframes v3PulseRing {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.35; }
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.6; }
 }
 
 .v3-flow-svg {

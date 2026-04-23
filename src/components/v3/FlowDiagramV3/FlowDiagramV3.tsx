@@ -137,6 +137,7 @@ const FlowDiagramV3: React.FC = () => {
           className="v3-flow-svg"
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           preserveAspectRatio="xMidYMid meet"
+          style={{ shapeRendering: 'crispEdges' }}
         >
           <defs>
             {nodeList.map((node: any) => {
@@ -144,7 +145,7 @@ const FlowDiagramV3: React.FC = () => {
               return (
                 <linearGradient key={`grad-${node.id}`} id={`grad-${node.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor={color} stopOpacity="1" />
-                  <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+                  <stop offset="100%" stopColor={color} stopOpacity="1" />
                 </linearGradient>
               );
             })}
@@ -160,7 +161,7 @@ const FlowDiagramV3: React.FC = () => {
             const isTop3From = top3NodeIds.includes(sw.from);
             const isTop3To = top3NodeIds.includes(sw.to);
             const isAnimated = isTop3From || isTop3To;
-            const lineWidth = progress >= 50 ? 3.5 : progress >= 20 ? 2.5 : 1.5;
+            const lineWidth = progress >= 50 ? 5 : progress >= 20 ? 3.5 : 2;
 
             return (
               <g key={`sw-${sw.id}`}>
@@ -170,9 +171,9 @@ const FlowDiagramV3: React.FC = () => {
                     d={`M ${fromPos.x} ${fromPos.y} C ${(fromPos.x + toPos.x) / 2} ${fromPos.y}, ${(fromPos.x + toPos.x) / 2} ${toPos.y}, ${toPos.x} ${toPos.y}`}
                     fill="none"
                     stroke={lineColor}
-                    strokeWidth={isSelected ? lineWidth + 2 : lineWidth + 1}
-                    opacity={isSelected ? 0.35 : 0.18}
-                    strokeDasharray={progress >= 50 ? '12 8' : progress >= 20 ? '8 6' : '6 4'}
+                    strokeWidth={isSelected ? lineWidth + 3 : lineWidth + 2}
+                    opacity={isSelected ? 0.5 : 0.35}
+                    strokeDasharray={progress >= 50 ? '20 12' : progress >= 20 ? '14 10' : '10 8'}
                     className="v3-flow-line-animated"
                   />
                 )}
@@ -183,7 +184,7 @@ const FlowDiagramV3: React.FC = () => {
                   fill="none"
                   stroke={lineColor}
                   strokeWidth={isSelected ? lineWidth + 1 : lineWidth}
-                  opacity={isSelected ? 0.55 : isAnimated ? 0.25 : 0.08}
+                  opacity={isSelected ? 0.7 : isAnimated ? 0.4 : 0.15}
                   style={{ cursor: 'pointer', transition: 'opacity 0.3s' }}
                   onClick={() => handleSwitchClick(sw.id)}
                 />
@@ -193,9 +194,9 @@ const FlowDiagramV3: React.FC = () => {
                   <circle
                     cx={(fromPos.x + toPos.x) / 2}
                     cy={(fromPos.y + toPos.y) / 2}
-                    r={progress >= 50 ? 5 : 3}
+                    r={progress >= 50 ? 8 : 5}
                     fill={lineColor}
-                    opacity={0.8}
+                    opacity={0.9}
                     className={progress >= 50 ? 'v3-pulse-dot' : ''}
                   />
                 )}
@@ -226,11 +227,11 @@ const FlowDiagramV3: React.FC = () => {
                   <circle
                     cx={pos.x}
                     cy={pos.y}
-                    r={r + 18}
+                    r={r + 22}
                     fill="none"
                     stroke={color}
-                    strokeWidth="2"
-                    opacity="0.3"
+                    strokeWidth="3"
+                    opacity="0.35"
                     className="v3-pulse-ring"
                   />
                 )}
