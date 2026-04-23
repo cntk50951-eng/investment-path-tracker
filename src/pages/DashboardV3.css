@@ -839,6 +839,19 @@
   background: var(--v3-surface-container);
 }
 
+.v3-news-path-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid;
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
 .v3-news-dot {
   width: 40px;
   height: 40px;

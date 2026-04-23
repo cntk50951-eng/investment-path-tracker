@@ -3,20 +3,20 @@ import { useDataStore } from '../../../store/useDataStore';
 import { useMarketStore } from '../../../store/useMarketStore';
 import { useInitialDataFetch } from '../../../hooks/useInvestmentData';
 
-const SEVERITY_MAP: Record<string, { icon: string; dotClass: string }> = {
-  critical: { icon: 'trending_down', dotClass: 'critical' },
-  medium: { icon: 'policy', dotClass: 'neutral' },
-  positive: { icon: 'trending_up', dotClass: 'positive' },
-};
-
 const PATH_COLORS: Record<string, string> = {
   a: '#43A047', b: '#EF6C00', c: '#E53935', d: '#8E24AA', e: '#D81B60',
   hka: '#43A047', hkb: '#EF6C00', hkc: '#E53935', hkd: '#8E24AA', hke: '#D81B60',
 };
 
 const PATH_LABELS: Record<string, string> = {
-  a: 'Goldilocks', b: 'Stagflation', c: 'Hard Landing', d: 'Black Swan', e: 'Re-inflation',
-  hka: 'Goldilocks', hkb: 'Stagflation', hkc: 'Hard Landing', hkd: 'Black Swan', hke: 'Re-inflation',
+  a: 'A', b: 'B', c: 'C', d: 'D', e: 'E',
+  hka: 'A', hkb: 'B', hkc: 'C', hkd: 'D', hke: 'E',
+};
+
+const SEVERITY_TO_PATH: Record<string, string> = {
+  critical: 'e',
+  positive: 'a',
+  medium: 'b',
 };
 
 const NewsStreamV3: React.FC = () => {
@@ -56,6 +56,10 @@ const NewsStreamV3: React.FC = () => {
           if (!paths.includes(sw.to)) paths.push(sw.to);
         }
       });
+    }
+    if (paths.length === 0 && item.severity) {
+      const inferredPath = SEVERITY_TO_PATH[item.severity] || 'b';
+      paths.push(inferredPath);
     }
     return paths;
   };
@@ -130,21 +134,24 @@ const NewsStreamV3: React.FC = () => {
       <div className="v3-news-list">
         {newsList.map((item: any, idx: number) => {
           const severity = item.severity || 'medium';
-          const severityInfo = SEVERITY_MAP[severity] || SEVERITY_MAP.medium;
-          const iconName = severity === 'critical' ? 'trending_down' : severity === 'positive' ? 'trending_up' : 'policy';
           const relPaths = getRelPaths(item);
-          const primaryPath = relPaths[0] || '';
-          const borderColor = PATH_COLORS[primaryPath] || (severity === 'critical' ? '#D81B60' : severity === 'positive' ? '#43A047' : '#767586');
+          const primaryPath = relPaths[0] || 'b';
+          const pathColor = PATH_COLORS[primaryPath] || '#767586';
+          const pathLabel = PATH_LABELS[primaryPath] || '?';
 
           return (
             <div
               key={item.id || idx}
               className="v3-news-item"
               onClick={() => selectNews(item)}
-              style={{ borderLeft: `4px solid ${borderColor}` }}
+              style={{ borderLeft: `4px solid ${pathColor}` }}
             >
-              <div className={`v3-news-dot ${severityInfo.dotClass}`}>
-                <span className="material-symbols-outlined">{iconName}</span>
+              {/* Path indicator icon */}
+              <div
+                className="v3-news-path-icon"
+                style={{ background: `${pathColor}20`, borderColor: pathColor }}
+              >
+                <span style={{ color: pathColor, fontWeight: 700 }}>{pathLabel}</span>
               </div>
               <div className="v3-news-content">
                 <div className="v3-news-item-header">
@@ -152,16 +159,9 @@ const NewsStreamV3: React.FC = () => {
                   <span className="v3-news-item-time">{formatTime(item.date || item.publishedTime || '')}</span>
                 </div>
                 <p className="v3-news-item-desc">{item.summary || item.impact || ''}</p>
-                {/* Severity + Path color tags */}
+                {/* Path tags */}
                 <div className="v3-news-tags">
-                  {/* Severity tag */}
-                  {severity === 'critical' && (
-                    <span className="v3-news-tag critical">HIGH IMPACT</span>
-                  )}
-                  {severity === 'positive' && (
-                    <span className="v3-news-tag positive">POSITIVE</span>
-                  )}
-                  {/* Path tags */}
+                  {/* Show all related paths */}
                   {relPaths.slice(0, 3).map((pathId: string, i: number) => {
                     const color = PATH_COLORS[pathId] || '#767586';
                     const label = PATH_LABELS[pathId] || pathId.toUpperCase();
@@ -176,10 +176,14 @@ const NewsStreamV3: React.FC = () => {
                         }}
                       >
                         <span className="v3-news-path-dot" style={{ background: color }} />
-                        {label}
+                        Path {label}
                       </span>
                     );
                   })}
+                  {/* Severity tag */}
+                  {severity === 'critical' && (
+                    <span className="v3-news-tag critical">HIGH IMPACT</span>
+                  )}
                 </div>
               </div>
             </div>
