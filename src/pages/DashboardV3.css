@@ -494,7 +494,7 @@
 /* -- Flow Diagram Card -- */
 .v3-flow-card {
   position: relative;
-  min-height: 280px;
+  min-height: 360px;
   display: flex;
   flex-direction: column;
 }
@@ -502,7 +502,7 @@
 .v3-flow-svg {
   flex: 1;
   width: 100%;
-  min-height: 220px;
+  min-height: 320px;
 }
 
 .v3-flow-bg {
@@ -515,12 +515,12 @@
 
 /* Path node styles */
 .v3-node-circle {
-  transition: transform 0.2s, filter 0.2s;
+  transition: transform 0.2s;
   cursor: pointer;
 }
 
 .v3-node-circle:hover {
-  filter: drop-shadow(0 0 8px rgba(70, 72, 212, 0.3));
+  transform: scale(1.06);
 }
 
 .v3-node-label {
@@ -541,12 +541,32 @@
 .v3-flow-line-animated {
   fill: none;
   stroke-width: 2.5;
-  stroke-dasharray: 8 6;
-  animation: flowDash 2s linear infinite;
+  stroke-dasharray: 12 8;
+  animation: v3FlowDash 1.5s linear infinite;
 }
 
-@keyframes flowDash {
-  to { stroke-dashoffset: -14; }
+@keyframes v3FlowDash {
+  to { stroke-dashoffset: -20; }
+}
+
+/* Pulsing dot for high-progress switches */
+.v3-pulse-dot {
+  animation: v3PulseDot 2s ease-in-out infinite;
+}
+
+@keyframes v3PulseDot {
+  0%, 100% { opacity: 0.5; r: 4; }
+  50% { opacity: 1; r: 6; }
+}
+
+/* Pulsing ring for top-3 nodes */
+.v3-pulse-ring {
+  animation: v3PulseRing 3s ease-in-out infinite;
+}
+
+@keyframes v3PulseRing {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.4; }
 }
 
 /* -- Switch Table Card -- */

@@ -46,6 +46,13 @@ const FlowDiagramV3: React.FC = () => {
 
   const currentNode = nodeList.find((n: any) => n.current);
 
+  const top3NodeIds = useMemo(() => {
+    return [...nodeList]
+      .sort((a: any, b: any) => (b.prob || 0) - (a.prob || 0))
+      .slice(0, 3)
+      .map((n: any) => n.id);
+  }, [nodeList]);
+
   const handleNodeClick = (nodeId: string) => {
     selectPath(selectedPath === nodeId ? null : nodeId);
   };
@@ -65,9 +72,9 @@ const FlowDiagramV3: React.FC = () => {
     );
   }
 
-  const svgWidth = 720;
-  const svgHeight = 280;
-  const paddingX = 70;
+  const svgWidth = 900;
+  const svgHeight = 380;
+  const paddingX = 90;
 
   const nodePositions: Record<string, { x: number; y: number }> = {};
   const cols = nodeList.length;
@@ -132,16 +139,20 @@ const FlowDiagramV3: React.FC = () => {
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            <filter id="v3glow" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
             <filter id="v3shadow">
-              <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.15" />
+              <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.12" />
             </filter>
+            {nodeList.map((node: any) => {
+              const color = PATH_VIBRANT_COLORS[node.id] || '#4648d4';
+              return (
+                <linearGradient key={`grad-${node.id}`} id={`grad-${node.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor={color} stopOpacity="1" />
+                  <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+                </linearGradient>
+              );
+            })}
           </defs>
 
-          {/* Switch flow lines */}
           {switchList.map((sw: any) => {
             const fromPos = nodePositions[sw.from];
             const toPos = nodePositions[sw.to];
@@ -149,34 +160,52 @@ const FlowDiagramV3: React.FC = () => {
             const isSelected = selectedSwitch === sw.id;
             const progress = sw.progress || 0;
             const lineColor = PATH_VIBRANT_COLORS[sw.from] || '#4648d4';
-            const lineWidth = progress >= 50 ? 3 : progress >= 20 ? 2 : 1.5;
+            const isTop3From = top3NodeIds.includes(sw.from);
+            const isTop3To = top3NodeIds.includes(sw.to);
+            const isAnimated = isTop3From || isTop3To;
+            const lineWidth = progress >= 50 ? 3.5 : progress >= 20 ? 2.5 : 1.5;
 
             return (
               <g key={`sw-${sw.id}`}>
+                {/* Animated flowing dashed line for top-3 paths */}
+                {isAnimated && (
+                  <path
+                    d={`M ${fromPos.x} ${fromPos.y} C ${(fromPos.x + toPos.x) / 2} ${fromPos.y}, ${(fromPos.x + toPos.x) / 2} ${toPos.y}, ${toPos.x} ${toPos.y}`}
+                    fill="none"
+                    stroke={lineColor}
+                    strokeWidth={isSelected ? lineWidth + 2 : lineWidth + 1}
+                    opacity={isSelected ? 0.35 : 0.18}
+                    strokeDasharray={progress >= 50 ? '12 8' : progress >= 20 ? '8 6' : '6 4'}
+                    className="v3-flow-line-animated"
+                  />
+                )}
+
+                {/* Base line */}
                 <path
                   d={`M ${fromPos.x} ${fromPos.y} C ${(fromPos.x + toPos.x) / 2} ${fromPos.y}, ${(fromPos.x + toPos.x) / 2} ${toPos.y}, ${toPos.x} ${toPos.y}`}
                   fill="none"
                   stroke={lineColor}
                   strokeWidth={isSelected ? lineWidth + 1 : lineWidth}
-                  opacity={isSelected ? 0.6 : progress >= 20 ? 0.25 : 0.1}
-                  strokeDasharray={isSelected ? '8 4' : progress >= 50 ? 'none' : '4 4'}
+                  opacity={isSelected ? 0.55 : isAnimated ? 0.25 : 0.08}
                   style={{ cursor: 'pointer', transition: 'opacity 0.3s' }}
                   onClick={() => handleSwitchClick(sw.id)}
                 />
-                {progress >= 50 && (
+
+                {/* Pulsing midpoint dot for high-progress switches */}
+                {progress >= 20 && (
                   <circle
                     cx={(fromPos.x + toPos.x) / 2}
                     cy={(fromPos.y + toPos.y) / 2}
-                    r={3}
+                    r={progress >= 50 ? 5 : 3}
                     fill={lineColor}
-                    opacity={0.7}
+                    opacity={0.8}
+                    className={progress >= 50 ? 'v3-pulse-dot' : ''}
                   />
                 )}
               </g>
             );
           })}
 
-          {/* Nodes */}
           {nodeList.map((node: any) => {
             const pos = nodePositions[node.id];
             if (!pos) return null;
@@ -184,7 +213,8 @@ const FlowDiagramV3: React.FC = () => {
             const bgColor = PATH_BG_COLORS[node.id] || '#ffffff';
             const isSelected = selectedPath === node.id;
             const isCurrent = node.current;
-            const r = isCurrent ? 22 : 16;
+            const isTop3 = top3NodeIds.includes(node.id);
+            const r = isCurrent ? 30 : 24;
             const prob = Math.round(node.prob);
 
             return (
@@ -194,6 +224,20 @@ const FlowDiagramV3: React.FC = () => {
                 onClick={() => handleNodeClick(node.id)}
                 style={{ cursor: 'pointer' }}
               >
+                {/* Animated pulsing ring for top-3 */}
+                {isTop3 && (
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={r + 14}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="1.5"
+                    opacity="0.3"
+                    className="v3-pulse-ring"
+                  />
+                )}
+
                 {/* Selection ring */}
                 {isSelected && (
                   <circle
@@ -210,13 +254,10 @@ const FlowDiagramV3: React.FC = () => {
 
                 {/* Outer glow for current */}
                 {isCurrent && (
-                  <circle
-                    cx={pos.x}
-                    cy={pos.y}
-                    r={r + 5}
-                    fill={color}
-                    opacity="0.12"
-                  />
+                  <>
+                    <circle cx={pos.x} cy={pos.y} r={r + 8} fill={color} opacity="0.08" />
+                    <circle cx={pos.x} cy={pos.y} r={r + 5} fill={color} opacity="0.12" />
+                  </>
                 )}
 
                 {/* Main circle */}
@@ -226,15 +267,15 @@ const FlowDiagramV3: React.FC = () => {
                   r={r}
                   fill={bgColor}
                   stroke={color}
-                  strokeWidth={isCurrent ? 3.5 : 2.5}
+                  strokeWidth={isCurrent ? 3.5 : isTop3 ? 3 : 2}
                   filter="url(#v3shadow)"
                 />
 
-                {/* Inner fill */}
+                {/* Inner fill - larger for top-3 and current */}
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r={isCurrent ? 8 : 5}
+                  r={isCurrent ? 12 : isTop3 ? 9 : 6}
                   fill={color}
                 />
 
@@ -244,7 +285,7 @@ const FlowDiagramV3: React.FC = () => {
                   y={pos.y + 1}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={isCurrent ? 11 : 9}
+                  fontSize={isCurrent ? 13 : isTop3 ? 11 : 10}
                   fontWeight={700}
                   fill="#ffffff"
                   fontFamily="'JetBrains Mono', monospace"
@@ -255,9 +296,9 @@ const FlowDiagramV3: React.FC = () => {
                 {/* Name label */}
                 <text
                   x={pos.x}
-                  y={pos.y - r - 12}
+                  y={pos.y - r - 14}
                   textAnchor="middle"
-                  fontSize={isCurrent ? 13 : 11}
+                  fontSize={isCurrent ? 14 : isTop3 ? 12 : 11}
                   fontWeight={700}
                   fill={color}
                   fontFamily="'Space Grotesk', sans-serif"
@@ -265,22 +306,22 @@ const FlowDiagramV3: React.FC = () => {
                   {node.name || PATH_NAMES[node.id] || node.id.toUpperCase()}
                 </text>
 
-                {/* Probability badge */}
+                {/* Probability badge - pill shaped */}
                 <g style={{ cursor: 'pointer' }}>
                   <rect
-                    x={pos.x - 22}
-                    y={pos.y + r + 6}
-                    width={44}
-                    height={18}
-                    rx={4}
+                    x={pos.x - 26}
+                    y={pos.y + r + 8}
+                    width={52}
+                    height={22}
+                    rx={6}
                     fill={color}
                     opacity={0.9}
                   />
                   <text
                     x={pos.x}
-                    y={pos.y + r + 19}
+                    y={pos.y + r + 23}
                     textAnchor="middle"
-                    fontSize={11}
+                    fontSize={12}
                     fontWeight={700}
                     fill="#ffffff"
                     fontFamily="'JetBrains Mono', monospace"
@@ -293,7 +334,7 @@ const FlowDiagramV3: React.FC = () => {
                 {isCurrent && (
                   <text
                     x={pos.x}
-                    y={pos.y + r + 36}
+                    y={pos.y + r + 42}
                     textAnchor="middle"
                     fontSize={9}
                     fontWeight={600}
