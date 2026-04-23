@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aether Command - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e4e1ed",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-dim": "#dbd8e4",
+                        "on-secondary-fixed": "#13144a",
+                        "surface-container-highest": "#e4e1ed",
+                        "secondary-container": "#bdbefe",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "primary": "#4648d4",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e9e6f3",
+                        "outline-variant": "#c7c4d7",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-surface": "#1b1b23",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#464554",
+                        "on-primary-fixed": "#07006c",
+                        "surface-bright": "#fcf8ff",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#e1e0ff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "tertiary-container": "#b55d00",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdcc5",
+                        "on-secondary": "#ffffff",
+                        "outline": "#767586",
+                        "on-tertiary-fixed": "#301400",
+                        "background": "#fcf8ff",
+                        "surface-tint": "#494bd6",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-error": "#ffffff",
+                        "tertiary": "#904900",
+                        "on-background": "#1b1b23",
+                        "on-error-container": "#93000a",
+                        "surface": "#fcf8ff",
+                        "primary-container": "#6063ee",
+                        "on-secondary-fixed-variant": "#404178",
+                        "inverse-on-surface": "#f2effb",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "inverse-primary": "#c0c1ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-low": "#f5f2fe",
+                        "surface-container": "#efecf8",
+                        "on-secondary-container": "#494b83",
+                        "secondary": "#575992",
+                        "inverse-surface": "#303038"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "32px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "container-max": "1440px",
+                        "grid-columns": "12"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-base": ["Inter"],
+                        "display-lg": ["Space Grotesk"],
+                        "data-lg": ["JetBrains Mono"],
+                        "headline-md": ["Space Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-base": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-lg": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "data-sm": ["13px", { "lineHeight": "1.2", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom Scrollbar for horizontal macro bar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen font-body-base antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-surface-variant shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] bg-surface-container-lowest/80 backdrop-blur-xl transition-all duration-300">
+<div class="flex justify-between items-center h-16 px-8 w-full max-w-[1440px] mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-2 cursor-pointer">
+<span class="material-symbols-outlined text-primary text-2xl fill">hexagon</span>
+<span class="font-display-lg text-primary text-xl font-bold tracking-tight">Aether Command</span>
+</div>
+<!-- Navigation -->
+<nav class="hidden md:flex items-center gap-8 h-full">
+<a class="text-primary font-body-base font-semibold border-b-2 border-primary pb-4 mt-4 h-full flex items-center relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary" href="#">Market Flow</a>
+<a class="text-on-surface-variant hover:text-on-surface font-body-base pb-4 mt-4 transition-colors h-full flex items-center" href="#">Path Discovery</a>
+<a class="text-on-surface-variant hover:text-on-surface font-body-base pb-4 mt-4 transition-colors h-full flex items-center" href="#">Portfolio</a>
+<a class="text-on-surface-variant hover:text-on-surface font-body-base pb-4 mt-4 transition-colors h-full flex items-center" href="#">Signals</a>
+</nav>
+<!-- Actions & Profile -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-all duration-200 active:scale-[0.98] flex items-center justify-center relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border border-surface-container-lowest"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-all duration-200 active:scale-[0.98] flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-all duration-200 active:scale-[0.98] flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden ml-2 border border-surface-variant cursor-pointer active:scale-[0.98] transition-transform">
+<img alt="Chief Investment Officer Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR8ttr7yQAC9h4Qlm-BX5jIpKelEhOPz7dLKWCF_HpR-5ZMrk3aU0nSOoBwOKMnLfi-gW8m8y8FIHNN2TQlLLE11ecwQIr_Xk7UE-ugSZ66NoAbBMSjQc6COQOBWb_4a2gIGyofAVawobHLk5t-Up7PWH1mdIPxRHp3SaeU3wCOhJN9bqrZjAQkyMe4M2Tr89ZswGqkRc1FUK4MUDwBS7SCGX4dhRc-Ge0Qa_r2wJZGTUZGMP-b3gkNnJnmVXVMF1sFthjMXuaOuE"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[88px] px-8 pb-12 max-w-[1440px] mx-auto min-h-screen flex flex-col gap-gutter">
+<!-- Macro Bar Section -->
+<section class="w-full relative group">
+<div class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none hidden md:block"></div>
+<div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none hidden md:block"></div>
+<div class="flex items-center gap-4">
+<div class="flex-1 overflow-x-auto hide-scrollbar scroll-smooth flex gap-4 pb-2" id="macro-scroll">
+<!-- Macro Card 1 -->
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg border border-surface-variant p-4 flex flex-col gap-2 shadow-[0_4px_15px_-3px_rgba(148,163,184,0.05)] hover:shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] transition-shadow duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-on-surface-variant font-medium">S&amp;P 500</span>
+<span class="font-data-sm text-tertiary-container bg-tertiary-fixed px-1.5 py-0.5 rounded text-[11px]">+1.24%</span>
+</div>
+<span class="font-data-lg text-on-surface">5,123.45</span>
+<div class="h-6 w-full opacity-60">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,15 Q10,5 20,10 T40,5 T60,12 T80,2 T100,8" fill="none" stroke="#b55d00" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+<!-- Macro Card 2 -->
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg border border-surface-variant p-4 flex flex-col gap-2 shadow-[0_4px_15px_-3px_rgba(148,163,184,0.05)] hover:shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] transition-shadow duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-on-surface-variant font-medium">VIX</span>
+<span class="font-data-sm text-error bg-error-container px-1.5 py-0.5 rounded text-[11px]">-4.30%</span>
+</div>
+<span class="font-data-lg text-on-surface">13.82</span>
+<div class="h-6 w-full opacity-60">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,8 Q15,12 25,8 T45,15 T65,5 T85,10 T100,18" fill="none" stroke="#ba1a1a" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+<!-- Macro Card 3 -->
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg border border-surface-variant p-4 flex flex-col gap-2 shadow-[0_4px_15px_-3px_rgba(148,163,184,0.05)] hover:shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] transition-shadow duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-on-surface-variant font-medium">US 10Y Yield</span>
+<span class="font-data-sm text-tertiary-container bg-tertiary-fixed px-1.5 py-0.5 rounded text-[11px]">+0.05%</span>
+</div>
+<span class="font-data-lg text-on-surface">4.28%</span>
+<div class="h-6 w-full opacity-60">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,10 Q20,12 30,8 T50,14 T70,9 T90,11 T100,5" fill="none" stroke="#b55d00" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+<!-- Macro Card 4 -->
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg border border-surface-variant p-4 flex flex-col gap-2 shadow-[0_4px_15px_-3px_rgba(148,163,184,0.05)] hover:shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] transition-shadow duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-on-surface-variant font-medium">DXY</span>
+<span class="font-data-sm text-primary bg-primary-fixed px-1.5 py-0.5 rounded text-[11px]">-0.12%</span>
+</div>
+<span class="font-data-lg text-on-surface">103.45</span>
+<div class="h-6 w-full opacity-60">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,5 Q15,8 25,6 T45,10 T65,8 T85,12 T100,10" fill="none" stroke="#4648d4" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+<!-- Macro Card 5 -->
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg border border-surface-variant p-4 flex flex-col gap-2 shadow-[0_4px_15px_-3px_rgba(148,163,184,0.05)] hover:shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] transition-shadow duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-on-surface-variant font-medium">Gold</span>
+<span class="font-data-sm text-tertiary-container bg-tertiary-fixed px-1.5 py-0.5 rounded text-[11px]">+0.85%</span>
+</div>
+<span class="font-data-lg text-on-surface">2,345.10</span>
+<div class="h-6 w-full opacity-60">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,18 Q10,12 20,15 T40,8 T60,10 T80,4 T100,2" fill="none" stroke="#b55d00" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+<!-- Macro Card 6 -->
+<div class="min-w-[200px] bg-surface-container-lowest rounded-lg border border-surface-variant p-4 flex flex-col gap-2 shadow-[0_4px_15px_-3px_rgba(148,163,184,0.05)] hover:shadow-[0_4px_15px_-3px_rgba(148,163,184,0.12)] transition-shadow duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-on-surface-variant font-medium">Brent Crude</span>
+<span class="font-data-sm text-primary bg-primary-fixed px-1.5 py-0.5 rounded text-[11px]">+1.10%</span>
+</div>
+<span class="font-data-lg text-on-surface">85.60</span>
+<div class="h-6 w-full opacity-60">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,12 Q15,8 25,10 T45,5 T65,7 T85,2 T100,4" fill="none" stroke="#4648d4" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Scroll Indicator/Toggle -->
+<button class="shrink-0 w-10 h-10 rounded-full bg-surface-container-lowest border border-surface-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary hover:bg-primary-fixed/20 shadow-sm transition-all z-20">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Main Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter flex-1">
+<!-- Left/Center Canvas (Span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Celestial Flow Map Visualization -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-[0_4px_20px_-5px_rgba(148,163,184,0.1)] p-6 relative overflow-hidden min-h-[400px] flex flex-col">
+<div class="flex justify-between items-center mb-6 relative z-10">
+<div>
+<h2 class="font-headline-md text-on-surface">Macro Path Alignment</h2>
+<p class="font-body-sm text-on-surface-variant mt-1">Current positioning across 5 potential macroeconomic environments.</p>
+</div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors flex items-center gap-2 border border-surface-variant text-sm font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="tune">tune</span> View Parameters
+                        </button>
+</div>
+<!-- Flow Map SVG Container -->
+<div class="flex-1 w-full h-full relative flex items-center justify-center">
+<!-- Abstract Flow Background -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-fixed/20 via-surface-container-lowest to-surface-container-lowest z-0"></div>
+<svg class="w-full h-full min-h-[300px] z-10" preserveaspectratio="xMidYMid meet" viewbox="0 0 800 300">
+<defs>
+<lineargradient id="flowGrad1" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#4648d4" stop-opacity="0.2"></stop>
+<stop offset="50%" stop-color="#4648d4" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#4648d4" stop-opacity="0.2"></stop>
+</lineargradient>
+<filter height="140%" id="glow" width="140%" x="-20%" y="-20%">
+<fegaussianblur result="blur" stddeviation="4"></fegaussianblur>
+<fecomposite in="SourceGraphic" in2="blur" operator="over"></fecomposite>
+</filter>
+</defs>
+<!-- Flow Lines -->
+<path class="opacity-60" d="M 100 150 C 250 150, 350 50, 500 50" fill="none" stroke="url(#flowGrad1)" stroke-dasharray="8 8" stroke-width="4"></path>
+<path d="M 100 150 C 300 150, 400 250, 600 250" fill="none" stroke="#b55d00" stroke-opacity="0.3" stroke-width="2"></path>
+<path d="M 100 150 C 400 150, 500 150, 700 150" fill="none" stroke="#767586" stroke-dasharray="4 4" stroke-opacity="0.4" stroke-width="1"></path>
+<!-- Main Node (Current State) -->
+<circle cx="100" cy="150" fill="#ffffff" filter="url(#glow)" r="24" stroke="#4648d4" stroke-width="3"></circle>
+<circle cx="100" cy="150" fill="#4648d4" r="8"></circle>
+<text fill="#1b1b23" font-family="Space Grotesk" font-size="14" font-weight="600" text-anchor="middle" x="100" y="195">Current State</text>
+<!-- Target Nodes -->
+<!-- Goldilocks (Path A) -->
+<circle cx="500" cy="50" fill="#ffffff" r="16" stroke="#4648d4" stroke-width="2"></circle>
+<circle cx="500" cy="50" fill="#4648d4" opacity="0.8" r="6"></circle>
+<text fill="#4648d4" font-family="Space Grotesk" font-size="13" font-weight="600" text-anchor="middle" x="500" y="30">Goldilocks</text>
+<text fill="#464554" font-family="JetBrains Mono" font-size="11" text-anchor="middle" x="500" y="80">Prob: 45%</text>
+<!-- Stagflation (Path B) -->
+<circle cx="600" cy="250" fill="#ffffff" r="14" stroke="#b55d00" stroke-width="2"></circle>
+<circle cx="600" cy="250" fill="#b55d00" opacity="0.6" r="5"></circle>
+<text fill="#b55d00" font-family="Space Grotesk" font-size="13" font-weight="600" text-anchor="middle" x="600" y="285">Stagflation</text>
+<text fill="#464554" font-family="JetBrains Mono" font-size="11" text-anchor="middle" x="600" y="225">Prob: 20%</text>
+<!-- Soft Landing (Path C) -->
+<circle cx="700" cy="150" fill="#ffffff" r="12" stroke="#767586" stroke-width="2"></circle>
+<circle cx="700" cy="150" fill="#767586" opacity="0.4" r="4"></circle>
+<text fill="#464554" font-family="Space Grotesk" font-size="13" font-weight="600" text-anchor="start" x="750" y="154">Soft Landing</text>
+<text fill="#767586" font-family="JetBrains Mono" font-size="11" text-anchor="start" x="750" y="170">Prob: 15%</text>
+</svg>
+</div>
+</div>
+<!-- Path Transition Table -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-[0_4px_20px_-5px_rgba(148,163,184,0.1)] overflow-hidden flex flex-col">
+<div class="p-6 border-b border-surface-variant flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-on-surface">Active Transition Vectors</h3>
+<p class="font-body-sm text-on-surface-variant mt-1">Monitoring probability shifts across key macroeconomic scenarios.</p>
+</div>
+<button class="text-primary font-body-sm font-medium hover:text-on-primary-fixed-variant transition-colors flex items-center gap-1">
+                            Export Data <span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container/30 border-b border-surface-variant">
+<th class="py-4 px-6 font-body-sm font-medium text-on-surface-variant w-32">Direction</th>
+<th class="py-4 px-6 font-body-sm font-medium text-on-surface-variant">Core Triggers</th>
+<th class="py-4 px-6 font-body-sm font-medium text-on-surface-variant w-48">Progress</th>
+<th class="py-4 px-6 font-body-sm font-medium text-on-surface-variant w-32 text-right">Est. Time</th>
+<th class="py-4 px-6 font-body-sm font-medium text-on-surface-variant w-32 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant font-body-sm text-on-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-surface-variant text-xs font-data-sm text-on-surface-variant">C</span>
+<span class="material-symbols-outlined text-sm text-outline" data-icon="arrow_forward">arrow_forward</span>
+<span class="w-6 h-6 rounded flex items-center justify-center bg-primary-fixed text-primary text-xs font-data-sm font-bold border border-primary/20">A</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col gap-1">
+<span class="font-medium text-on-surface">Inflation cools below 2.5%</span>
+<span class="text-xs text-on-surface-variant">Labor market maintains resilience</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-data-sm text-primary">68%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 68%;"></div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 font-data-sm text-right text-on-surface-variant">4-8 wks</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-fixed/50 text-primary border border-primary/20">
+                                            Trending
+                                        </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-surface-variant text-xs font-data-sm text-on-surface-variant">C</span>
+<span class="material-symbols-outlined text-sm text-outline" data-icon="arrow_forward">arrow_forward</span>
+<span class="w-6 h-6 rounded flex items-center justify-center bg-error-container text-error text-xs font-data-sm font-bold border border-error/20">B</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col gap-1">
+<span class="font-medium text-on-surface">Energy shock &gt; $90/bbl</span>
+<span class="text-xs text-on-surface-variant">Services inflation re-accelerates</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-data-sm text-error">24%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 24%;"></div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 font-data-sm text-right text-on-surface-variant">12-24 wks</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-surface-variant text-on-surface-variant">
+                                            Monitoring
+                                        </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-surface-variant text-xs font-data-sm text-on-surface-variant">A</span>
+<span class="material-symbols-outlined text-sm text-outline" data-icon="arrow_forward">arrow_forward</span>
+<span class="w-6 h-6 rounded flex items-center justify-center bg-tertiary-fixed text-tertiary-container text-xs font-data-sm font-bold border border-tertiary-container/20">D</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col gap-1">
+<span class="font-medium text-on-surface">Consumer credit defaults &gt; 4%</span>
+<span class="text-xs text-on-surface-variant">Corporate earnings contraction</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-data-sm text-tertiary-container">12%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full" style="width: 12%;"></div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 font-data-sm text-right text-on-surface-variant">24+ wks</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-surface-variant text-on-surface-variant">
+                                            Dormant
+                                        </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Sidebar (Span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter h-full">
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-[0_4px_20px_-5px_rgba(148,163,184,0.1)] flex flex-col h-full overflow-hidden">
+<div class="p-6 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest sticky top-0 z-10">
+<h3 class="font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="stream">stream</span> Event Stream
+                        </h3>
+<div class="flex gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse mt-1"></span>
+<span class="font-data-sm text-on-surface-variant text-xs">Live</span>
+</div>
+</div>
+<div class="p-6 flex-1 overflow-y-auto flex flex-col gap-6 relative hide-scrollbar">
+<!-- Vertical timeline line -->
+<div class="absolute left-[39px] top-6 bottom-6 w-px bg-surface-variant z-0"></div>
+<!-- Stream Item 1 -->
+<div class="flex gap-4 relative z-10">
+<div class="w-10 h-10 rounded-full bg-primary-fixed border-2 border-surface-container-lowest flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="policy">policy</span>
+</div>
+<div class="flex flex-col gap-1 pt-1">
+<div class="flex items-baseline justify-between gap-2">
+<span class="font-body-sm font-semibold text-on-surface">Fed Chair Remarks</span>
+<span class="font-data-sm text-xs text-on-surface-variant shrink-0">10:45 AM</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">Emphasized "data dependency" for upcoming meeting. Market pricing slight dovish tilt.</p>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-data-sm bg-surface-container text-on-surface-variant uppercase tracking-wider">Monetary Policy</span>
+</div>
+</div>
+</div>
+<!-- Stream Item 2 -->
+<div class="flex gap-4 relative z-10">
+<div class="w-10 h-10 rounded-full bg-error-container border-2 border-surface-container-lowest flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-error text-[20px]" data-icon="trending_down">trending_down</span>
+</div>
+<div class="flex flex-col gap-1 pt-1">
+<div class="flex items-baseline justify-between gap-2">
+<span class="font-body-sm font-semibold text-on-surface">CPI Print Misses Est.</span>
+<span class="font-data-sm text-xs text-on-surface-variant shrink-0">08:30 AM</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">Core CPI MoM +0.4% vs +0.3% expected. Services ex-housing remains sticky.</p>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-data-sm bg-surface-container text-on-surface-variant uppercase tracking-wider">Inflation</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-data-sm bg-error/10 text-error uppercase tracking-wider">High Impact</span>
+</div>
+</div>
+</div>
+<!-- Stream Item 3 -->
+<div class="flex gap-4 relative z-10">
+<div class="w-10 h-10 rounded-full bg-surface-variant border-2 border-surface-container-lowest flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" data-icon="factory">factory</span>
+</div>
+<div class="flex flex-col gap-1 pt-1">
+<div class="flex items-baseline justify-between gap-2">
+<span class="font-body-sm font-semibold text-on-surface">ISM Manufacturing</span>
+<span class="font-data-sm text-xs text-on-surface-variant shrink-0">Yesterday</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">Index at 49.2. New orders show marginal improvement. Prices paid index slightly up.</p>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-surface-variant bg-surface-container-lowest sticky bottom-0 z-10">
+<button class="w-full bg-primary hover:bg-surface-tint text-on-primary font-body-sm font-semibold py-3 px-4 rounded-lg shadow-[0_2px_10px_rgba(70,72,212,0.3)] hover:shadow-[0_4px_15px_rgba(70,72,212,0.4)] transition-all duration-200 flex justify-center items-center gap-2 active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>
+                            Deep News Analysis
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

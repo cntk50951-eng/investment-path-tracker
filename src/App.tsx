@@ -6,6 +6,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import DashboardV2 from './pages/DashboardV2';
+import DashboardV3 from './pages/DashboardV3';
 import NewsTimeline from './pages/NewsTimeline';
 import { Login } from './pages/Login';
 import { useAuthStore } from './store/useAuthStore';
@@ -85,6 +86,16 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <DashboardV2 />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* V3 Aether Command 亮色主題 */}
+            <Route
+              path="/v3"
+              element={
+                <ProtectedRoute>
+                  <DashboardV3 />
                 </ProtectedRoute>
               }
             />

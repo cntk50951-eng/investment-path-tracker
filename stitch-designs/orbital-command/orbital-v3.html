@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ORBITAL_PATH - Master Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-container": "#494b83",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-tertiary-fixed": "#301400",
+                        "outline-variant": "#c7c4d7",
+                        "secondary": "#575992",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-secondary-fixed-variant": "#404178",
+                        "surface-bright": "#fcf8ff",
+                        "primary-fixed": "#e1e0ff",
+                        "on-background": "#1b1b23",
+                        "tertiary-container": "#b55d00",
+                        "surface-container-high": "#e9e6f3",
+                        "surface-tint": "#494bd6",
+                        "on-primary-fixed": "#07006c",
+                        "surface-container": "#efecf8",
+                        "secondary-container": "#bdbefe",
+                        "surface-container-low": "#f5f2fe",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdcc5",
+                        "inverse-primary": "#c0c1ff",
+                        "surface": "#fcf8ff",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e4e1ed",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e4e1ed",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#904900",
+                        "primary": "#4648d4",
+                        "surface-dim": "#dbd8e4",
+                        "on-secondary-fixed": "#13144a",
+                        "inverse-surface": "#303038",
+                        "primary-container": "#6063ee",
+                        "on-surface": "#1b1b23",
+                        "inverse-on-surface": "#f2effb",
+                        "background": "#fcf8ff",
+                        "on-surface-variant": "#464554",
+                        "outline": "#767586"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #f8fafc; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+        .glow-active {
+            box-shadow: 0 0 12px rgba(70, 72, 212, 0.15);
+            border-top: 1px solid rgba(70, 72, 212, 1);
+        }
+        .path-goldilocks { color: #10b981; border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.08); }
+        .path-stagflation { color: #f59e0b; border-color: rgba(245, 158, 11, 0.2); background: rgba(245, 158, 11, 0.08); }
+        .path-hardlanding { color: #ef4444; border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.08); }
+        .path-blackswan { color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2); background: rgba(139, 92, 246, 0.08); }
+        .path-reflation { color: #3b82f6; border-color: rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.08); }
+        
+        .pulse-goldilocks {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        
+        .blur-lock {
+            position: relative;
+        }
+        .blur-lock::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            border-radius: inherit;
+        }
+    </style>
+</head>
+<body class="font-body text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar (Generated from JSON) -->
+<nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl docked full-width top-0 border-b border-indigo-500/10 shadow-sm shadow-indigo-500/5 sticky z-50">
+<div class="flex justify-between items-center w-full px-10 h-16 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-widest text-indigo-600 dark:text-indigo-400 font-['Space_Grotesk'] font-display">ORBITAL_PATH</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 font-bold font-['Space_Grotesk'] tracking-tight cursor-pointer active:scale-95 duration-200 h-16 flex items-center" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium font-['Space_Grotesk'] tracking-tight hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors cursor-pointer active:scale-95 duration-200 h-16 flex items-center" href="#">Timeline</a>
+</div>
+</div>
+<div class="flex items-center gap-4 text-indigo-600 dark:text-indigo-400">
+<span class="material-symbols-outlined cursor-pointer active:scale-95 duration-200 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors">language</span>
+<span class="material-symbols-outlined cursor-pointer active:scale-95 duration-200 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors">account_circle</span>
+</div>
+</div>
+</nav>
+<main class="flex-1 max-w-[1920px] mx-auto w-full px-10 py-10 flex flex-col gap-10">
+<!-- Macro Bar -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-white rounded-xl p-6 border border-[#e2e8f0] flex flex-col gap-2 relative overflow-hidden">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-outline">VIX Index</span>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="font-mono text-3xl font-bold text-on-surface">13.42</div>
+<div class="text-sm text-emerald-600 font-medium">-1.2%</div>
+</div>
+<div class="bg-white rounded-xl p-6 border border-[#e2e8f0] flex flex-col gap-2 relative overflow-hidden glow-active">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-outline">S&amp;P 500</span>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="font-mono text-3xl font-bold text-on-surface">5,123.40</div>
+<div class="text-sm text-emerald-600 font-medium">+0.8%</div>
+</div>
+<div class="bg-white rounded-xl p-6 border border-[#e2e8f0] flex flex-col gap-2 relative overflow-hidden">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-outline">10Y Yield</span>
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+</div>
+<div class="font-mono text-3xl font-bold text-on-surface">4.28%</div>
+<div class="text-sm text-amber-600 font-medium">+0.05</div>
+</div>
+<div class="bg-white rounded-xl p-6 border border-[#e2e8f0] flex flex-col gap-2 relative overflow-hidden">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-outline">DXY</span>
+<span class="w-2 h-2 rounded-full bg-rose-500"></span>
+</div>
+<div class="font-mono text-3xl font-bold text-on-surface">104.12</div>
+<div class="text-sm text-rose-600 font-medium">+0.3%</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Center Canvas (Map & Matrix) -->
+<div class="lg:col-span-8 flex flex-col gap-10">
+<!-- Celestial Flow Map -->
+<div class="bg-white rounded-xl border border-[#e2e8f0] p-8 h-[500px] relative flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 bg-slate-50/50"></div>
+<!-- SVG Map Core (Simplified for aesthetic structure) -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="xMidYMid meet" viewbox="0 0 800 500">
+<!-- Paths -->
+<path d="M 400 250 Q 550 150 650 150" fill="none" stroke="rgba(16, 185, 129, 0.3)" stroke-dasharray="6,6" stroke-width="3"></path>
+<path d="M 400 250 Q 250 350 150 350" fill="none" stroke="rgba(239, 68, 68, 0.3)" stroke-dasharray="4,4" stroke-width="2"></path>
+<!-- Center Hub -->
+<circle cx="400" cy="250" fill="none" r="40" stroke="rgba(99, 102, 241, 0.2)" stroke-width="1"></circle>
+<circle cx="400" cy="250" fill="none" r="80" stroke="rgba(99, 102, 241, 0.1)" stroke-dasharray="2,4" stroke-width="1"></circle>
+</svg>
+<!-- Nodes -->
+<div class="relative z-10 w-full h-full">
+<!-- Node A -->
+<div class="absolute top-[20%] left-[70%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="px-4 py-2 rounded-lg border path-goldilocks pulse-goldilocks backdrop-blur-sm flex flex-col items-center gap-1">
+<span class="font-display font-bold text-sm tracking-wide">A: GOLDILOCKS</span>
+<span class="font-mono text-lg font-semibold">35%</span>
+</div>
+</div>
+<!-- Node C -->
+<div class="absolute top-[75%] left-[20%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="px-4 py-2 rounded-lg border path-hardlanding backdrop-blur-sm flex flex-col items-center gap-1">
+<span class="font-display font-bold text-sm tracking-wide">C: HARD LANDING</span>
+<span class="font-mono text-lg font-semibold">15%</span>
+</div>
+</div>
+<!-- Central Current State -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+<div class="w-4 h-4 bg-primary rounded-full shadow-[0_0_15px_rgba(70,72,212,0.6)] border-2 border-white"></div>
+</div>
+</div>
+</div>
+<!-- Switch Matrix & Detail Panel -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Table -->
+<div class="bg-white rounded-xl border border-[#e2e8f0] p-6">
+<h3 class="font-display font-semibold text-lg mb-4 text-on-surface">Path Transitions</h3>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/30">
+<span class="font-mono text-sm text-on-surface-variant">A → C</span>
+<div class="w-24 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-rose-500 w-[60%]"></div>
+</div>
+<span class="text-xs font-medium px-2 py-1 rounded bg-rose-50 text-rose-700 border border-rose-100 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> Critical
+                                </span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/30">
+<span class="font-mono text-sm text-on-surface-variant">A → B</span>
+<div class="w-24 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 w-[30%]"></div>
+</div>
+<span class="text-xs font-medium px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span> Monitoring
+                                </span>
+</div>
+</div>
+</div>
+<!-- Detail Panel -->
+<div class="bg-white rounded-xl border border-[#e2e8f0] p-6 flex flex-col">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-display font-semibold text-lg text-on-surface">A → C Triggers</h3>
+<span class="font-mono text-xs text-outline">Selected</span>
+</div>
+<ul class="flex flex-col gap-3 flex-1">
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-emerald-500 text-[18px]">check_circle</span>
+<span class="text-on-surface-variant font-medium">Yield Curve Inversion &gt; 6mo</span>
+</li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-outline text-[18px]">radio_button_unchecked</span>
+<span class="text-on-surface-variant font-medium">Unemployment &gt; 4.5%</span>
+</li>
+</ul>
+<!-- Pro Only Blur -->
+<div class="mt-4 p-4 border border-[#e2e8f0] rounded-lg blur-lock flex flex-col items-center justify-center text-center">
+<div class="relative z-20 flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">lock</span>
+<span class="text-sm font-semibold text-on-surface">Pro Signals Locked</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: News Timeline -->
+<div class="lg:col-span-4 flex flex-col h-full">
+<div class="bg-white rounded-xl border border-[#e2e8f0] flex flex-col h-full overflow-hidden">
+<div class="p-6 border-b border-[#e2e8f0] flex justify-between items-center bg-surface-bright">
+<h2 class="font-display font-semibold text-xl tracking-tight">Live Feed</h2>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-6 relative">
+<!-- Timeline Line -->
+<div class="absolute left-6 top-6 bottom-6 w-px bg-outline-variant/30"></div>
+<!-- News Items -->
+<div class="relative pl-6">
+<div class="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-white"></div>
+<div class="flex flex-col gap-1 border-l-2 border-emerald-500 pl-4 py-1">
+<span class="font-mono text-xs text-outline">10:42 AM</span>
+<p class="text-sm font-medium text-on-surface leading-snug">CPI Data signals continued disinflation path, aligning with baseline projections.</p>
+</div>
+</div>
+<div class="relative pl-6">
+<div class="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-amber-500 ring-4 ring-white"></div>
+<div class="flex flex-col gap-1 border-l-2 border-amber-500 pl-4 py-1">
+<span class="font-mono text-xs text-outline">09:15 AM</span>
+<p class="text-sm font-medium text-on-surface leading-snug">Energy sector volatility spikes amid geopolitical tensions.</p>
+</div>
+</div>
+<div class="relative pl-6">
+<div class="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-primary ring-4 ring-white"></div>
+<div class="flex flex-col gap-1 border-l-2 border-primary pl-4 py-1">
+<span class="font-mono text-xs text-outline">08:00 AM</span>
+<p class="text-sm font-medium text-on-surface leading-snug">Fed commentary remains neutral, markets adjust expectations.</p>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-[#e2e8f0] bg-surface-container-low">
+<button class="w-full py-2 flex items-center justify-center gap-2 text-primary font-medium text-sm hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/10">
+                            Load More
+                            <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
