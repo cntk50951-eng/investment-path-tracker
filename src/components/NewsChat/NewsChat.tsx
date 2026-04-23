@@ -21,7 +21,11 @@ interface ChatMessage {
   intent?: string;
 }
 
-export const NewsChat: React.FC = () => {
+interface NewsChatProps {
+  variant?: 'v2' | 'v3';
+}
+
+export const NewsChat: React.FC<NewsChatProps> = ({ variant = 'v2' }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -135,10 +139,12 @@ export const NewsChat: React.FC = () => {
     '有哪些關於利率的新聞？',
   ];
 
+  const variantClass = variant === 'v3' ? 'news-chat-v3' : '';
+
   return (
     <>
       <button
-        className={`news-chat-fab ${isOpen ? 'active' : ''}`}
+        className={`news-chat-fab ${isOpen ? 'active' : ''} ${variantClass}`}
         onClick={() => setIsOpen(!isOpen)}
         title="AI 新聞助手"
       >
@@ -148,7 +154,7 @@ export const NewsChat: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="news-chat-panel glass-panel">
+        <div className={`news-chat-panel glass-panel ${variantClass}`}>
           <div className="news-chat-header">
             <div className="news-chat-header-left">
               <span className="material-symbols-outlined">psychology</span>

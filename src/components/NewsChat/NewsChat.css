@@ -652,3 +652,234 @@
   font-size: 0.85em;
   line-height: 1.7;
 }
+
+/* ==========================================
+   V3 Aether Command Theme Overrides
+   ========================================== */
+
+.news-chat-v3 .news-chat-fab {
+  background: linear-gradient(135deg, #4648d4, #6063ee);
+  box-shadow: 0 4px 20px rgba(70, 72, 212, 0.4);
+  bottom: 28px;
+  right: 28px;
+}
+
+.news-chat-v3 .news-chat-fab:hover {
+  box-shadow: 0 6px 28px rgba(70, 72, 212, 0.55);
+}
+
+.news-chat-v3 .news-chat-fab.active {
+  background: linear-gradient(135deg, #ba1a1a, #e53935);
+  box-shadow: 0 4px 20px rgba(186, 26, 26, 0.4);
+}
+
+.news-chat-v3 .news-chat-panel {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--v3-surface-variant, #e4e1ed);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(70, 72, 212, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+}
+
+.news-chat-v3 .news-chat-header {
+  background: linear-gradient(135deg, rgba(70, 72, 212, 0.08), rgba(96, 99, 238, 0.06));
+  border-bottom: 1px solid var(--v3-surface-variant, #e4e1ed);
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .news-chat-header h3 {
+  color: var(--v3-on-surface, #1b1b23);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.news-chat-v3 .news-chat-subtitle {
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .news-chat-close {
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .news-chat-close:hover {
+  background: rgba(70, 72, 212, 0.08);
+  color: var(--v3-primary, #4648d4);
+}
+
+.news-chat-v3 .news-chat-messages {
+  background: transparent;
+}
+
+.news-chat-v3 .news-chat-welcome {
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .news-chat-welcome-icon {
+  font-size: 2.5rem;
+}
+
+.news-chat-v3 .news-chat-suggestion {
+  background: var(--v3-surface-container, #efecf8);
+  color: var(--v3-primary, #4648d4);
+  border: 1px solid var(--v3-surface-variant, #e4e1ed);
+  border-radius: 8px;
+}
+
+.news-chat-v3 .news-chat-suggestion:hover {
+  background: rgba(70, 72, 212, 0.1);
+  border-color: var(--v3-primary, #4648d4);
+}
+
+.news-chat-v3 .news-chat-message {
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .news-chat-user .news-chat-message-content {
+  background: var(--v3-primary, #4648d4);
+  color: #ffffff;
+  border-radius: 12px 12px 4px 12px;
+}
+
+.news-chat-v3 .news-chat-assistant .news-chat-message-content {
+  background: var(--v3-surface-container, #efecf8);
+  color: var(--v3-on-surface, #1b1b23);
+  border-radius: 12px 12px 12px 4px;
+  border: 1px solid var(--v3-surface-variant, #e4e1ed);
+}
+
+.news-chat-v3 .news-chat-message-avatar {
+  border-color: var(--v3-surface-variant, #e4e1ed);
+  background: var(--v3-surface-container-low, #f5f2fe);
+}
+
+.news-chat-v3 .news-chat-message-text {
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .news-chat-user .news-chat-message-text {
+  color: #ffffff;
+}
+
+.news-chat-v3 .news-chat-message-meta {
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .news-chat-cached,
+.news-chat-v3 .news-chat-count,
+.news-chat-v3 .news-chat-intent {
+  color: var(--v3-primary, #4648d4);
+  background: rgba(70, 72, 212, 0.08);
+  border-color: rgba(70, 72, 212, 0.15);
+}
+
+.news-chat-v3 .news-chat-subqueries {
+  color: var(--v3-primary, #4648d4);
+  background: rgba(70, 72, 212, 0.06);
+  border-color: rgba(70, 72, 212, 0.12);
+}
+
+.news-chat-v3 .news-chat-subqueries:hover {
+  background: rgba(70, 72, 212, 0.1);
+}
+
+.news-chat-v3 .news-chat-subquery-item {
+  background: var(--v3-surface-container, #efecf8);
+  border-color: var(--v3-surface-variant, #e4e1ed);
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .news-chat-typing span {
+  background: var(--v3-primary, #4648d4);
+}
+
+.news-chat-v3 .news-chat-input-area {
+  border-top: 1px solid var(--v3-surface-variant, #e4e1ed);
+  background: var(--v3-surface-container-lowest, #ffffff);
+}
+
+.news-chat-v3 .news-chat-input {
+  background: var(--v3-surface-container, #efecf8);
+  color: var(--v3-on-surface, #1b1b23);
+  border: 1px solid var(--v3-surface-variant, #e4e1ed);
+  border-radius: 8px;
+}
+
+.news-chat-v3 .news-chat-input:focus {
+  border-color: var(--v3-primary, #4648d4);
+  box-shadow: 0 0 0 2px rgba(70, 72, 212, 0.12);
+}
+
+.news-chat-v3 .news-chat-input::placeholder {
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .news-chat-send-btn {
+  background: var(--v3-primary, #4648d4);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.news-chat-v3 .news-chat-send-btn:hover {
+  background: var(--v3-primary-container, #6063ee);
+}
+
+.news-chat-v3 .news-chat-send-btn:disabled {
+  background: var(--v3-surface-variant, #e4e1ed);
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .news-chat-footer {
+  background: var(--v3-surface-container, #efecf8);
+  color: var(--v3-on-surface-variant, #464554);
+  border-top: 1px solid var(--v3-surface-variant, #e4e1ed);
+  font-size: 11px;
+}
+
+/* V3 markdown overrides */
+.news-chat-v3 .md-p,
+.news-chat-v3 .md-li {
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .md-strong {
+  color: var(--v3-primary, #4648d4);
+}
+
+.news-chat-v3 .md-h1,
+.news-chat-v3 .md-h2,
+.news-chat-v3 .md-h3 {
+  color: var(--v3-on-surface, #1b1b23);
+  border-color: var(--v3-surface-variant, #e4e1ed);
+}
+
+.news-chat-v3 .md-code {
+  background: var(--v3-surface-container-high, #e9e6f3);
+  color: var(--v3-primary, #4648d4);
+}
+
+.news-chat-v3 .md-blockquote {
+  border-left-color: var(--v3-primary, #4648d4);
+  background: rgba(70, 72, 212, 0.04);
+  color: var(--v3-on-surface-variant, #464554);
+}
+
+.news-chat-v3 .md-a {
+  color: var(--v3-primary, #4648d4);
+}
+
+.news-chat-v3 .md-table {
+  border-color: var(--v3-surface-variant, #e4e1ed);
+}
+
+.news-chat-v3 .md-table th {
+  background: var(--v3-surface-container, #efecf8);
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .md-table td {
+  border-color: var(--v3-surface-variant, #e4e1ed);
+  color: var(--v3-on-surface, #1b1b23);
+}
+
+.news-chat-v3 .md-hr {
+  border-color: var(--v3-surface-variant, #e4e1ed);
+}

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useDataStore } from '../../../store/useDataStore';
 import { useMarketStore } from '../../../store/useMarketStore';
+import { useInitialDataFetch } from '../../../hooks/useInvestmentData';
 
 const SEVERITY_MAP: Record<string, { icon: string; dotClass: string }> = {
   critical: { icon: 'trending_down', dotClass: 'critical' },
@@ -8,13 +9,14 @@ const SEVERITY_MAP: Record<string, { icon: string; dotClass: string }> = {
   positive: { icon: 'trending_up', dotClass: 'positive' },
 };
 
-const NEWS_ICONS: Record<string, string> = {
-  monetary_policy: 'policy',
-  inflation: 'trending_down',
-  trade_war: 'gavel',
-  geopolitics: 'public',
-  earnings: 'analytics',
-  default: 'newspaper',
+const PATH_COLORS: Record<string, string> = {
+  a: '#43A047', b: '#EF6C00', c: '#E53935', d: '#8E24AA', e: '#D81B60',
+  hka: '#43A047', hkb: '#EF6C00', hkc: '#E53935', hkd: '#8E24AA', hke: '#D81B60',
+};
+
+const PATH_LABELS: Record<string, string> = {
+  a: 'Goldilocks', b: 'Stagflation', c: 'Hard Landing', d: 'Black Swan', e: 'Re-inflation',
+  hka: 'Goldilocks', hkb: 'Stagflation', hkc: 'Hard Landing', hkd: 'Black Swan', hke: 'Re-inflation',
 };
 
 const NewsStreamV3: React.FC = () => {
@@ -22,6 +24,8 @@ const NewsStreamV3: React.FC = () => {
   const switches = useDataStore(s => s.switches);
   const selectNews = useDataStore(s => s.selectNews);
   const currentMarket = useMarketStore(s => s.currentMarket);
+  const { loadMoreNews } = useInitialDataFetch();
+  const [loadingMore, setLoadingMore] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
 
   const newsList = useMemo(() => {
@@ -32,21 +36,39 @@ const NewsStreamV3: React.FC = () => {
     return filtered.slice(0, visibleCount);
   }, [news, currentMarket, visibleCount]);
 
-  const resolveTagName = (affects: string | string[]): string => {
-    if (!affects || (Array.isArray(affects) && affects.length === 0)) return '';
-    const id = Array.isArray(affects) ? affects[0] : affects;
-    const sw: any = switches?.[id];
-    if (sw) return `${sw.from?.toUpperCase()} → ${sw.to?.toUpperCase()}`;
-    return id;
+  const totalAvailable = useMemo(() => {
+    if (!news) return 0;
+    return currentMarket === 'HK'
+      ? news.filter((n: any) => !n.market || n.market === 'HK').length
+      : news.filter((n: any) => !n.market || n.market === 'US').length;
+  }, [news, currentMarket]);
+
+  const getRelPaths = (item: any): string[] => {
+    const paths: string[] = [];
+    if (item.relatedPaths && item.relatedPaths.length > 0) {
+      item.relatedPaths.forEach((p: string) => { if (!paths.includes(p)) paths.push(p); });
+    }
+    if (item.affects && item.affects.length > 0) {
+      item.affects.forEach((a: string) => {
+        const sw: any = switches?.[a];
+        if (sw) {
+          if (!paths.includes(sw.from)) paths.push(sw.from);
+          if (!paths.includes(sw.to)) paths.push(sw.to);
+        }
+      });
+    }
+    return paths;
   };
 
   const formatTime = (dateStr: string): string => {
     if (!dateStr) return '';
     try {
       const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
       const now = new Date();
       const diffMs = now.getTime() - d.getTime();
       const diffMins = Math.floor(diffMs / 60000);
+      if (diffMins < 1) return 'just now';
       if (diffMins < 60) return `${diffMins}m ago`;
       const diffHours = Math.floor(diffMins / 60);
       if (diffHours < 24) return `${diffHours}h ago`;
@@ -55,6 +77,19 @@ const NewsStreamV3: React.FC = () => {
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } catch {
       return dateStr;
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    try {
+      await loadMoreNews();
+      setVisibleCount(prev => prev + 8);
+    } catch {
+      setVisibleCount(prev => prev + 8);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -96,15 +131,8 @@ const NewsStreamV3: React.FC = () => {
         {newsList.map((item: any, idx: number) => {
           const severity = item.severity || 'medium';
           const severityInfo = SEVERITY_MAP[severity] || SEVERITY_MAP.medium;
-          const iconName = NEWS_ICONS[item.tags?.[0]] || severityInfo.icon;
-          const tags: string[] = [];
-          if (item.affects && item.affects.length > 0) {
-            item.affects.forEach((a: string) => {
-              const name = resolveTagName(a);
-              if (name) tags.push(name);
-            });
-          }
-          if (severity === 'critical') tags.push('High Impact');
+          const iconName = severity === 'critical' ? 'trending_down' : severity === 'positive' ? 'trending_up' : 'policy';
+          const relPaths = getRelPaths(item);
 
           return (
             <div
@@ -121,13 +149,49 @@ const NewsStreamV3: React.FC = () => {
                   <span className="v3-news-item-time">{formatTime(item.date || item.publishedTime || '')}</span>
                 </div>
                 <p className="v3-news-item-desc">{item.summary || item.impact || ''}</p>
-                {tags.length > 0 && (
+                {/* Path color tags */}
+                {relPaths.length > 0 && (
                   <div className="v3-news-tags">
-                    {tags.slice(0, 3).map((tag: string, i: number) => (
-                      <span key={i} className={`v3-news-tag ${(severity === 'critical' && i === tags.length - 1) ? 'severity' : ''}`}>
-                        {tag}
-                      </span>
-                    ))}
+                    {relPaths.slice(0, 3).map((pathId: string, i: number) => {
+                      const color = PATH_COLORS[pathId] || '#767586';
+                      const label = PATH_LABELS[pathId] || pathId.toUpperCase();
+                      return (
+                        <span
+                          key={i}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            fontSize: 10,
+                            fontFamily: "'JetBrains Mono', monospace",
+                            padding: '2px 7px',
+                            borderRadius: 4,
+                            background: `${color}18`,
+                            color: color,
+                            border: `1px solid ${color}30`,
+                            fontWeight: 600,
+                            letterSpacing: '0.02em',
+                          }}
+                        >
+                          <span style={{
+                            width: 5,
+                            height: 5,
+                            borderRadius: '50%',
+                            background: color,
+                            display: 'inline-block',
+                          }} />
+                          {label}
+                        </span>
+                      );
+                    })}
+                    {severity === 'critical' && (
+                      <span className="v3-news-tag severity">HIGH IMPACT</span>
+                    )}
+                  </div>
+                )}
+                {relPaths.length === 0 && severity === 'critical' && (
+                  <div className="v3-news-tags">
+                    <span className="v3-news-tag severity">HIGH IMPACT</span>
                   </div>
                 )}
               </div>
@@ -136,17 +200,19 @@ const NewsStreamV3: React.FC = () => {
         })}
       </div>
 
-      {news && news.length > visibleCount && (
-        <div className="v3-news-footer">
-          <button
-            className="v3-news-load-btn"
-            onClick={() => setVisibleCount(prev => prev + 6)}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>analytics</span>
-            Load More
-          </button>
-        </div>
-      )}
+      <div className="v3-news-footer">
+        <button
+          className="v3-news-load-btn"
+          onClick={handleLoadMore}
+          disabled={loadingMore || visibleCount >= totalAvailable}
+          style={{ opacity: visibleCount >= totalAvailable ? 0.5 : 1 }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+            {loadingMore ? 'progress_activity' : 'expand_more'}
+          </span>
+          {loadingMore ? 'Loading...' : visibleCount >= totalAvailable ? 'All Loaded' : 'Load More'}
+        </button>
+      </div>
     </div>
   );
 };

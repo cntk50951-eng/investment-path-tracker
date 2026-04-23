@@ -43,12 +43,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* -- Path colors -- */
-.v3-path-a { --path-color: #2e7d32; }
-.v3-path-b { --path-color: #e65100; }
-.v3-path-c { --path-color: #c62828; }
-.v3-path-d { --path-color: #6a1b9a; }
-.v3-path-e { --path-color: #ad1457; }
+/* -- Path colors (more vibrant for V3) -- */
+.v3-path-a { --path-color: #43A047; }
+.v3-path-b { --path-color: #EF6C00; }
+.v3-path-c { --path-color: #E53935; }
+.v3-path-d { --path-color: #8E24AA; }
+.v3-path-e { --path-color: #D81B60; }
 
 /* -- Debug Banner -- */
 .v3-debug-banner {

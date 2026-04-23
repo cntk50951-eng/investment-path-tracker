@@ -164,7 +164,7 @@ const DashboardV3: React.FC = () => {
 
       {/* Shared Components */}
       <ComplianceFooter />
-      <NewsChat />
+      <NewsChat variant="v3" />
 
       {/* Version Badge */}
       <a className="v3-version-badge" href="/" title="Switch to V2">V3 β</a>
