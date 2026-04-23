@@ -72,9 +72,9 @@ const FlowDiagramV3: React.FC = () => {
     );
   }
 
-  const svgWidth = 900;
-  const svgHeight = 380;
-  const paddingX = 90;
+  const svgWidth = 1000;
+  const svgHeight = 450;
+  const paddingX = 100;
 
   const nodePositions: Record<string, { x: number; y: number }> = {};
   const cols = nodeList.length;
@@ -139,9 +139,6 @@ const FlowDiagramV3: React.FC = () => {
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            <filter id="v3shadow">
-              <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.12" />
-            </filter>
             {nodeList.map((node: any) => {
               const color = PATH_VIBRANT_COLORS[node.id] || '#4648d4';
               return (
@@ -214,7 +211,7 @@ const FlowDiagramV3: React.FC = () => {
             const isSelected = selectedPath === node.id;
             const isCurrent = node.current;
             const isTop3 = top3NodeIds.includes(node.id);
-            const r = isCurrent ? 30 : 24;
+            const r = isCurrent ? 40 : 32;
             const prob = Math.round(node.prob);
 
             return (
@@ -229,10 +226,10 @@ const FlowDiagramV3: React.FC = () => {
                   <circle
                     cx={pos.x}
                     cy={pos.y}
-                    r={r + 14}
+                    r={r + 18}
                     fill="none"
                     stroke={color}
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                     opacity="0.3"
                     className="v3-pulse-ring"
                   />
@@ -243,11 +240,11 @@ const FlowDiagramV3: React.FC = () => {
                   <circle
                     cx={pos.x}
                     cy={pos.y}
-                    r={r + 10}
+                    r={r + 12}
                     fill="none"
                     stroke={color}
-                    strokeWidth="2.5"
-                    strokeDasharray="6 3"
+                    strokeWidth="3"
+                    strokeDasharray="8 4"
                     opacity="0.5"
                   />
                 )}
@@ -255,8 +252,8 @@ const FlowDiagramV3: React.FC = () => {
                 {/* Outer glow for current */}
                 {isCurrent && (
                   <>
-                    <circle cx={pos.x} cy={pos.y} r={r + 8} fill={color} opacity="0.08" />
-                    <circle cx={pos.x} cy={pos.y} r={r + 5} fill={color} opacity="0.12" />
+                    <circle cx={pos.x} cy={pos.y} r={r + 10} fill={color} opacity="0.08" />
+                    <circle cx={pos.x} cy={pos.y} r={r + 6} fill={color} opacity="0.12" />
                   </>
                 )}
 
@@ -268,14 +265,13 @@ const FlowDiagramV3: React.FC = () => {
                   fill={bgColor}
                   stroke={color}
                   strokeWidth={isCurrent ? 3.5 : isTop3 ? 3 : 2}
-                  filter="url(#v3shadow)"
                 />
 
                 {/* Inner fill - larger for top-3 and current */}
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r={isCurrent ? 12 : isTop3 ? 9 : 6}
+                  r={isCurrent ? 16 : isTop3 ? 12 : 8}
                   fill={color}
                 />
 
@@ -285,7 +281,7 @@ const FlowDiagramV3: React.FC = () => {
                   y={pos.y + 1}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={isCurrent ? 13 : isTop3 ? 11 : 10}
+                  fontSize={isCurrent ? 16 : isTop3 ? 14 : 12}
                   fontWeight={700}
                   fill="#ffffff"
                   fontFamily="'JetBrains Mono', monospace"
@@ -296,9 +292,9 @@ const FlowDiagramV3: React.FC = () => {
                 {/* Name label */}
                 <text
                   x={pos.x}
-                  y={pos.y - r - 14}
+                  y={pos.y - r - 18}
                   textAnchor="middle"
-                  fontSize={isCurrent ? 14 : isTop3 ? 12 : 11}
+                  fontSize={isCurrent ? 16 : isTop3 ? 14 : 13}
                   fontWeight={700}
                   fill={color}
                   fontFamily="'Space Grotesk', sans-serif"
@@ -309,19 +305,19 @@ const FlowDiagramV3: React.FC = () => {
                 {/* Probability badge - pill shaped */}
                 <g style={{ cursor: 'pointer' }}>
                   <rect
-                    x={pos.x - 26}
-                    y={pos.y + r + 8}
-                    width={52}
-                    height={22}
-                    rx={6}
+                    x={pos.x - 32}
+                    y={pos.y + r + 10}
+                    width={64}
+                    height={26}
+                    rx={7}
                     fill={color}
                     opacity={0.9}
                   />
                   <text
                     x={pos.x}
-                    y={pos.y + r + 23}
+                    y={pos.y + r + 27}
                     textAnchor="middle"
-                    fontSize={12}
+                    fontSize={14}
                     fontWeight={700}
                     fill="#ffffff"
                     fontFamily="'JetBrains Mono', monospace"
@@ -334,13 +330,13 @@ const FlowDiagramV3: React.FC = () => {
                 {isCurrent && (
                   <text
                     x={pos.x}
-                    y={pos.y + r + 42}
+                    y={pos.y + r + 48}
                     textAnchor="middle"
-                    fontSize={9}
+                    fontSize={11}
                     fontWeight={600}
                     fill="#4648d4"
                     fontFamily="'Inter', sans-serif"
-                    letterSpacing="0.05em"
+                    letterSpacing="0.08em"
                   >
                     CURRENT
                   </text>
