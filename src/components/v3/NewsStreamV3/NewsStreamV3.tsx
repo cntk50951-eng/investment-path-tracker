@@ -152,37 +152,35 @@ const NewsStreamV3: React.FC = () => {
                   <span className="v3-news-item-time">{formatTime(item.date || item.publishedTime || '')}</span>
                 </div>
                 <p className="v3-news-item-desc">{item.summary || item.impact || ''}</p>
-                {/* Path color tags */}
-                {relPaths.length > 0 && (
-                  <div className="v3-news-tags">
-                    {relPaths.slice(0, 3).map((pathId: string, i: number) => {
-                      const color = PATH_COLORS[pathId] || '#767586';
-                      const label = PATH_LABELS[pathId] || pathId.toUpperCase();
-                      return (
-                        <span
-                          key={i}
-                          className="v3-news-path-tag"
-                          style={{
-                            background: `${color}15`,
-                            color: color,
-                            borderColor: `${color}40`,
-                          }}
-                        >
-                          <span className="v3-news-path-dot" style={{ background: color }} />
-                          {label}
-                        </span>
-                      );
-                    })}
-                    {severity === 'critical' && (
-                      <span className="v3-news-tag severity">HIGH IMPACT</span>
-                    )}
-                  </div>
-                )}
-                {relPaths.length === 0 && severity === 'critical' && (
-                  <div className="v3-news-tags">
-                    <span className="v3-news-tag severity">HIGH IMPACT</span>
-                  </div>
-                )}
+                {/* Severity + Path color tags */}
+                <div className="v3-news-tags">
+                  {/* Severity tag */}
+                  {severity === 'critical' && (
+                    <span className="v3-news-tag critical">HIGH IMPACT</span>
+                  )}
+                  {severity === 'positive' && (
+                    <span className="v3-news-tag positive">POSITIVE</span>
+                  )}
+                  {/* Path tags */}
+                  {relPaths.slice(0, 3).map((pathId: string, i: number) => {
+                    const color = PATH_COLORS[pathId] || '#767586';
+                    const label = PATH_LABELS[pathId] || pathId.toUpperCase();
+                    return (
+                      <span
+                        key={i}
+                        className="v3-news-path-tag"
+                        style={{
+                          background: `${color}15`,
+                          color: color,
+                          borderColor: `${color}40`,
+                        }}
+                      >
+                        <span className="v3-news-path-dot" style={{ background: color }} />
+                        {label}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           );

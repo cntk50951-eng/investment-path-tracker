@@ -950,12 +950,23 @@
 .v3-news-tag {
   font-size: 10px;
   font-family: 'JetBrains Mono', monospace;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 4px;
-  background: var(--v3-surface-container);
-  color: var(--v3-on-surface-variant);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.v3-news-tag.critical {
+  background: rgba(216, 27, 96, 0.12);
+  color: #D81B60;
+  border: 1px solid rgba(216, 27, 96, 0.25);
+}
+
+.v3-news-tag.positive {
+  background: rgba(67, 160, 71, 0.12);
+  color: #43A047;
+  border: 1px solid rgba(67, 160, 71, 0.25);
 }
 
 .v3-news-tag.severity {
