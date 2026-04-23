@@ -133,12 +133,15 @@ const NewsStreamV3: React.FC = () => {
           const severityInfo = SEVERITY_MAP[severity] || SEVERITY_MAP.medium;
           const iconName = severity === 'critical' ? 'trending_down' : severity === 'positive' ? 'trending_up' : 'policy';
           const relPaths = getRelPaths(item);
+          const primaryPath = relPaths[0] || '';
+          const borderColor = PATH_COLORS[primaryPath] || (severity === 'critical' ? '#D81B60' : severity === 'positive' ? '#43A047' : '#767586');
 
           return (
             <div
               key={item.id || idx}
               className="v3-news-item"
               onClick={() => selectNews(item)}
+              style={{ borderLeft: `4px solid ${borderColor}` }}
             >
               <div className={`v3-news-dot ${severityInfo.dotClass}`}>
                 <span className="material-symbols-outlined">{iconName}</span>
@@ -158,28 +161,14 @@ const NewsStreamV3: React.FC = () => {
                       return (
                         <span
                           key={i}
+                          className="v3-news-path-tag"
                           style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 3,
-                            fontSize: 10,
-                            fontFamily: "'JetBrains Mono', monospace",
-                            padding: '2px 7px',
-                            borderRadius: 4,
-                            background: `${color}18`,
+                            background: `${color}15`,
                             color: color,
-                            border: `1px solid ${color}30`,
-                            fontWeight: 600,
-                            letterSpacing: '0.02em',
+                            borderColor: `${color}40`,
                           }}
                         >
-                          <span style={{
-                            width: 5,
-                            height: 5,
-                            borderRadius: '50%',
-                            background: color,
-                            display: 'inline-block',
-                          }} />
+                          <span className="v3-news-path-dot" style={{ background: color }} />
                           {label}
                         </span>
                       );
