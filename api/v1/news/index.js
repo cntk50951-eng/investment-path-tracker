@@ -146,7 +146,7 @@ const market = (req.query.market) || 'US';
     const total = parseInt(countResult.rows[0].total);
     
     let newsQuery = `
-      SELECT id, market, date, title, source, severity, summary, impact, url, created_at, updated_at, published_time, affects
+      SELECT id, market, date, title, source, severity, summary, impact, url, created_at, updated_at, published_time
       FROM news
       ${whereClause}
       ORDER BY date DESC, published_time DESC
@@ -169,13 +169,6 @@ const market = (req.query.market) || 'US';
         query('SELECT tag FROM news_tags WHERE news_id = $1', [newsItem.id]),
       ]);
 
-      // Use relation table data if available, otherwise fallback to news.affects column
-      let affects = affectsResult.rows.map(r => r.switch_id);
-      if (affects.length === 0 && newsItem.affects) {
-        // Parse comma-separated affects from news table (e.g., "be,bd")
-        affects = newsItem.affects.split(',').map(s => s.trim()).filter(Boolean);
-      }
-
       return {
         id: newsItem.id,
         market: newsItem.market,
@@ -188,7 +181,7 @@ const market = (req.query.market) || 'US';
         summary: newsItem.summary,
         impact: newsItem.impact,
         url: newsItem.url,
-        affects: affects,
+        affects: affectsResult.rows.map(r => r.switch_id),
         relatedPaths: pathsResult.rows.map(r => r.path_id),
         tags: tagsResult.rows.map(r => r.tag)
       };
