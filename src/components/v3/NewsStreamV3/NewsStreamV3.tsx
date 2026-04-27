@@ -15,6 +15,23 @@ const PATH_LABELS: Record<string, string> = {
 
 const PATHS = ['a', 'b', 'c', 'd', 'e'] as const;
 
+function getRelPaths(item: any, switches: any): string[] {
+  const paths: string[] = [];
+  if (item.relatedPaths && item.relatedPaths.length > 0) {
+    item.relatedPaths.forEach((p: string) => { if (!paths.includes(p)) paths.push(p); });
+  }
+  if (item.affects && item.affects.length > 0) {
+    item.affects.forEach((a: string) => {
+      const sw: any = switches?.[a];
+      if (sw) {
+        if (!paths.includes(sw.from)) paths.push(sw.from);
+        if (!paths.includes(sw.to)) paths.push(sw.to);
+      }
+    });
+  }
+  return paths;
+}
+
 const NewsStreamV3: React.FC = () => {
   const news = useDataStore(s => s.news);
   const switches = useDataStore(s => s.switches);
@@ -34,13 +51,13 @@ const NewsStreamV3: React.FC = () => {
     // Apply path filter
     if (selectedPath) {
       filtered = filtered.filter((item: any) => {
-        const relPaths = getRelPaths(item);
+        const relPaths = getRelPaths(item, switches);
         return relPaths.includes(selectedPath);
       });
     }
     
     return filtered;
-  }, [news, currentMarket, selectedPath]);
+  }, [news, currentMarket, selectedPath, switches]);
 
   const newsList = useMemo(() => {
     return filteredNews.slice(0, visibleCount);
@@ -49,23 +66,6 @@ const NewsStreamV3: React.FC = () => {
   const totalAvailable = useMemo(() => {
     return filteredNews.length;
   }, [filteredNews]);
-
-  const getRelPaths = (item: any): string[] => {
-    const paths: string[] = [];
-    if (item.relatedPaths && item.relatedPaths.length > 0) {
-      item.relatedPaths.forEach((p: string) => { if (!paths.includes(p)) paths.push(p); });
-    }
-    if (item.affects && item.affects.length > 0) {
-      item.affects.forEach((a: string) => {
-        const sw: any = switches?.[a];
-        if (sw) {
-          if (!paths.includes(sw.from)) paths.push(sw.from);
-          if (!paths.includes(sw.to)) paths.push(sw.to);
-        }
-      });
-    }
-    return paths;
-  };
 
   const formatTime = (dateStr: string): string => {
     if (!dateStr) return '';
@@ -162,7 +162,7 @@ const NewsStreamV3: React.FC = () => {
       <div className="v3-news-list">
         {newsList.map((item: any, idx: number) => {
           const severity = item.severity || 'medium';
-          const relPaths = getRelPaths(item);
+          const relPaths = getRelPaths(item, switches);
           const primaryPath = relPaths[0] || '';
           const pathColor = PATH_COLORS[primaryPath] || '#767586';
           const pathLabel = primaryPath ? PATH_LABELS[primaryPath] : '?';
