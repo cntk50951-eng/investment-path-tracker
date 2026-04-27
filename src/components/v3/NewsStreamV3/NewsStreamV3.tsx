@@ -13,6 +13,8 @@ const PATH_LABELS: Record<string, string> = {
   hka: 'A', hkb: 'B', hkc: 'C', hkd: 'D', hke: 'E',
 };
 
+const PATHS = ['a', 'b', 'c', 'd', 'e'] as const;
+
 const NewsStreamV3: React.FC = () => {
   const news = useDataStore(s => s.news);
   const switches = useDataStore(s => s.switches);
@@ -21,21 +23,32 @@ const NewsStreamV3: React.FC = () => {
   const { loadMoreNews } = useInitialDataFetch();
   const [loadingMore, setLoadingMore] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
+
+  const filteredNews = useMemo(() => {
+    if (!news) return [];
+    let filtered = currentMarket === 'HK'
+      ? news.filter((n: any) => n.market === 'HK')
+      : news.filter((n: any) => n.market === 'US');
+    
+    // Apply path filter
+    if (selectedPath) {
+      filtered = filtered.filter((item: any) => {
+        const relPaths = getRelPaths(item);
+        return relPaths.includes(selectedPath);
+      });
+    }
+    
+    return filtered;
+  }, [news, currentMarket, selectedPath]);
 
   const newsList = useMemo(() => {
-    if (!news) return [];
-    const filtered = currentMarket === 'HK'
-      ? news.filter((n: any) => !n.market || n.market === 'HK')
-      : news.filter((n: any) => !n.market || n.market === 'US');
-    return filtered.slice(0, visibleCount);
-  }, [news, currentMarket, visibleCount]);
+    return filteredNews.slice(0, visibleCount);
+  }, [filteredNews, visibleCount]);
 
   const totalAvailable = useMemo(() => {
-    if (!news) return 0;
-    return currentMarket === 'HK'
-      ? news.filter((n: any) => !n.market || n.market === 'HK').length
-      : news.filter((n: any) => !n.market || n.market === 'US').length;
-  }, [news, currentMarket]);
+    return filteredNews.length;
+  }, [filteredNews]);
 
   const getRelPaths = (item: any): string[] => {
     const paths: string[] = [];
@@ -119,6 +132,31 @@ const NewsStreamV3: React.FC = () => {
           <span className="v3-news-live-dot" />
           <span className="v3-news-live-text">Live</span>
         </div>
+      </div>
+
+      {/* Path Filter */}
+      <div className="v3-news-filters">
+        <button
+          className={`v3-news-filter-btn ${selectedPath === null ? 'active' : ''}`}
+          onClick={() => { setSelectedPath(null); setVisibleCount(8); }}
+        >
+          All
+        </button>
+        {PATHS.map(path => (
+          <button
+            key={path}
+            className={`v3-news-filter-btn ${selectedPath === path ? 'active' : ''}`}
+            onClick={() => { setSelectedPath(path); setVisibleCount(8); }}
+            style={selectedPath === path ? {
+              background: `${PATH_COLORS[path]}15`,
+              color: PATH_COLORS[path],
+              borderColor: PATH_COLORS[path],
+            } : {}}
+          >
+            <span className="v3-news-filter-dot" style={{ background: PATH_COLORS[path] }} />
+            Path {PATH_LABELS[path]}
+          </button>
+        ))}
       </div>
 
       <div className="v3-news-list">

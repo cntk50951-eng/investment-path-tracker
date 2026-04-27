@@ -78,8 +78,17 @@ function inferSeverity(item: NewsItem): string {
 }
 
 function inferMarket(item: NewsItem): string {
+  // Use explicit region from source if available
+  if (item.region) {
+    if (item.region === 'hk' || item.region === 'HK') return 'HK';
+    if (item.region === 'cn' || item.region === 'CN') return 'HK'; // Chinese news goes to HK market
+    if (item.region === 'us' || item.region === 'US') return 'US';
+    if (item.region === 'tw' || item.region === 'TW') return 'HK'; // Taiwan news goes to HK market
+  }
+  
+  // Fallback to keyword detection
   const text = ((item.title || '') + ' ' + (item.summary || '')).toLowerCase();
-  if (/hang seng|hong kong|港股|恆生|hsbc|hk stock|hsi/i.test(text)) {
+  if (/hang seng|hong kong|港股|恆生|hsbc|hk stock|hsi|中國|a股|上證|深圳|創業板/i.test(text)) {
     return 'HK';
   }
   return 'US';
@@ -107,11 +116,13 @@ export async function syncNewsToDB(items: NewsItem[]): Promise<SyncResult> {
   let updated = 0;
   let skipped = 0;
 
-  // Batch UPSERT using CTE for better performance
-  const BATCH_SIZE = 25;
+  const BATCH_SIZE = 50;
 
   for (let i = 0; i < relevant.length; i += BATCH_SIZE) {
     const batch = relevant.slice(i, i + BATCH_SIZE);
+    const values: any[] = [];
+    const placeholders: string[] = [];
+    let paramIdx = 1;
 
     for (const item of batch) {
       const id = item.id;
@@ -138,40 +149,51 @@ export async function syncNewsToDB(items: NewsItem[]): Promise<SyncResult> {
         }
       } catch {}
 
-      try {
-        const existing = await query('SELECT id FROM news WHERE id = $1', [id]);
-
-        if (existing.rows.length > 0) {
-          await query(
-            `UPDATE news SET title = $1, source = $2, severity = $3, summary = $4,
-             url = $5, published_time = $6, updated_at = CURRENT_TIMESTAMP
-             WHERE id = $7`,
-            [title, source, severity, summary, url, publishedTime, id]
-          );
-          updated++;
-        } else {
-          await query(
-            `INSERT INTO news (id, market, date, title, source, severity, summary, url, published_time)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-            [id, market, date, title, source, severity, summary, url, publishedTime]
-          );
-          inserted++;
-        }
-      } catch (e: any) {
-        logger.error(`⚠️ DB 同步新聞 ${id} 出錯: ${e.message}`);
-        skipped++;
-      }
+      placeholders.push(`($${paramIdx}, $${paramIdx + 1}, $${paramIdx + 2}, $${paramIdx + 3}, $${paramIdx + 4}, $${paramIdx + 5}, $${paramIdx + 6}, $${paramIdx + 7}, $${paramIdx + 8})`);
+      values.push(id, market, date, title, source, severity, summary, url, publishedTime);
+      paramIdx += 9;
     }
 
-    if ((i + BATCH_SIZE) % 50 === 0 || i + BATCH_SIZE >= relevant.length) {
-      logger.info(`  DB 進度: ${Math.min(i + BATCH_SIZE, relevant.length)}/${relevant.length} (插入: ${inserted}, 更新: ${updated}, 跳過: ${skipped})`);
+    try {
+      const queryText = `
+        INSERT INTO news (id, market, date, title, source, severity, summary, url, published_time)
+        VALUES ${placeholders.join(', ')}
+        ON CONFLICT (id) DO UPDATE SET
+          market = EXCLUDED.market,
+          date = EXCLUDED.date,
+          title = EXCLUDED.title,
+          source = EXCLUDED.source,
+          severity = EXCLUDED.severity,
+          summary = EXCLUDED.summary,
+          url = EXCLUDED.url,
+          published_time = EXCLUDED.published_time,
+          updated_at = CURRENT_TIMESTAMP
+        RETURNING (xmax = 0)::int AS is_insert
+      `;
+
+      const result = await query(queryText, values);
+
+      for (const row of result.rows) {
+        if (row.is_insert === 1) {
+          inserted++;
+        } else {
+          updated++;
+        }
+      }
+    } catch (e: any) {
+      logger.error(`⚠️ DB batch 同步出錯: ${e.message}`);
+      skipped += batch.length;
+    }
+
+    const progress = Math.min(i + BATCH_SIZE, relevant.length);
+    if (progress % 50 === 0 || progress >= relevant.length) {
+      logger.info(`  DB 進度: ${progress}/${relevant.length} (插入: ${inserted}, 更新: ${updated}, 跳過: ${skipped})`);
     }
   }
 
   const result: SyncResult = { inserted, updated, skipped, total: relevant.length, irrelevant };
   logger.info(`✅ DB 同步完成: 插入 ${inserted}, 更新 ${updated}, 跳過 ${skipped}, 總計 ${relevant.length} 條`);
 
-  // Show DB status
   try {
     const countResult = await query('SELECT COUNT(*) as total, MIN(date) as earliest, MAX(date) as latest FROM news', []);
     logger.info(`📈 DB 狀態: ${countResult.rows[0].total} 條新聞, 日期範圍 ${countResult.rows[0].earliest} ~ ${countResult.rows[0].latest}`);
