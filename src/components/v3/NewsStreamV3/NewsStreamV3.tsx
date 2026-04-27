@@ -45,8 +45,8 @@ const NewsStreamV3: React.FC = () => {
   const filteredNews = useMemo(() => {
     if (!news) return [];
     let filtered = currentMarket === 'HK'
-      ? news.filter((n: any) => n.market === 'HK')
-      : news.filter((n: any) => n.market === 'US');
+      ? news.filter((n: any) => !n.market || n.market === 'HK')
+      : news.filter((n: any) => !n.market || n.market === 'US');
     
     // Apply path filter
     if (selectedPath) {
